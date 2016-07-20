@@ -1,0 +1,12 @@
+*.dat
+*.mod
+*.moo
+*.opa
+*.norm
+session-*
+multi-session-*
+*.log
+*.pyc
+*.spec
+*.fits
+*.cont
