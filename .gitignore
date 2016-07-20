@@ -10,3 +10,4 @@ multi-session-*
 *.spec
 *.fits
 *.cont
+th*
