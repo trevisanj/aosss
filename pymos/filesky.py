@@ -372,7 +372,7 @@ class FileSky(DataFile):
     """Represents a Compass data cube file, which is also a FITS file"""
     attrs = ['sky']
     description = "FileSky FITS cube"
-    default_filename = "sky.fits"
+    default_filename = "default.sky.fits"
 
     def __init__(self):
         DataFile.__init__(self)

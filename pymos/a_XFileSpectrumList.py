@@ -13,11 +13,9 @@ import os
 import os.path
 import re
 import matplotlib.pyplot as plt
-from filesky import *
-from fileccube import *
-from filespectrumlist import *
 from pyfant.gui.a_XParametersEditor import *
-from basewindows import *
+from pymos import *
+
 
 VVV = FileSpectrumList.description
 
@@ -39,7 +37,7 @@ class XFileSpectrumList(XLogMainWindow):
         self.open_texts[0] = "Load %s" % VVV
         self.clss[0] = FileSpectrumList
         self.clsss[0] = (FileSpectrumList, FileCCube)  # file types that can be opened
-        self.wilds[0] = "*.fits"
+        self.wilds[0] = "*.splist.fits"
 
         lv = keep_ref(QVBoxLayout(self.gotting))
         ce = self.ce = WFileSpectrumList(self)
@@ -100,7 +98,6 @@ class XFileSpectrumList(XLogMainWindow):
     #         self._manager_form.show()
     #         self._manager_form.raise_()
     #         self._manager_form.activateWindow()
-
 
     def on_tab0_file_edited(self):
         self._on_edited()

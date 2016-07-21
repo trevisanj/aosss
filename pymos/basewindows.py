@@ -108,7 +108,7 @@ class XLogMainWindow(QMainWindow):
     def load(self, f):
         index = self._get_tab_index()
         if not isinstance(f, self.clsss[index]):
-            raise RuntimeError('Object to load must be in %s' % self.clsss[index])
+            raise RuntimeError('Object to load must be in %s (not a %s)' % ([x.__name__ for x in self.clsss[index]], f.__class__.__name__))
         editor = self.editors[index]
         editor.load(f)
         self._update_tab_texts()

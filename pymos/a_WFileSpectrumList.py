@@ -6,21 +6,9 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from pyfant.gui import *
 from pyfant import *
-import random
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT # as NavigationToolbar2QT
-import matplotlib.pyplot as plt
-import numpy as np
-from itertools import product, combinations, cycle
-from filespectrumlist import *
-from a_WChooseSpectrum import *
 import os
-import math
-import numbers
 import copy
-import datetime
-import traceback as tb
-from basewindows import *
+from pymos import *
 
 
 class WFileSpectrumList(WBase):
@@ -166,6 +154,10 @@ class WFileSpectrumList(WBase):
         ###
         lwexex.addSpacerItem(QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
         ###
+        b = keep_ref(QPushButton("Import..."))
+        b.clicked.connect(self.import_clicked)
+        lwexex.addWidget(b)
+        ###
         a = self.twSpectra = QTableWidget()
         lwex.addWidget(a)
         a.setSelectionMode(QAbstractItemView.MultiSelection)
@@ -238,9 +230,35 @@ class WFileSpectrumList(WBase):
         tt0.addTab(wset, "&More")
         lwset = keep_ref(QVBoxLayout(wset))
         ###
+        la = keep_ref(QLabel("<b>Data manipulation</b>"))
+        lwset.addWidget(la)
+        ###
         b = keep_ref(QPushButton("&Crop in new window..."))
         lwset.addWidget(b)
         b.clicked.connect(self.crop_clicked)
+        ###
+        b = keep_ref(QPushButton("Add &noise..."))
+        lwset.addWidget(b)
+        b.clicked.connect(self.add_noise_clicked)
+        ###
+        b = keep_ref(QPushButton("&Upper envelopes"))
+        lwset.addWidget(b)
+        b.clicked.connect(self.rubberband_clicked)
+        ###
+        b = keep_ref(QPushButton("&Extract continua"))
+        lwset.addWidget(b)
+        b.clicked.connect(self.extract_continua_clicked)
+        ###
+        b = keep_ref(QPushButton("&Standard deviation"))
+        lwset.addWidget(b)
+        b.clicked.connect(self.std_clicked)
+        ###
+        b = keep_ref(QPushButton("S&NR"))
+        lwset.addWidget(b)
+        b.clicked.connect(self.snr_clicked)
+        ###
+        la = keep_ref(QLabel("<b>Export</b>"))
+        lwset.addWidget(la)
         ###
         b = keep_ref(QPushButton("E&xport plain text..."))
         lwset.addWidget(b)
@@ -356,11 +374,22 @@ class WFileSpectrumList(WBase):
                     _style_widget(self.sender(), changed)
             self.set_flag_header_changed(sth)
 
-    def on_place_spectrum_edited(self):
-        # could only update the obj_square but this is easier
-        self.plot_colors()
-
     def add_spectrum_clicked(self):
+        flag_emit = False
+        try:
+            sp = self.choosesp.sp
+            if not sp:
+                raise RuntimeError("Spectrum not loaded")
+            self.f.splist.add_spectrum(sp)
+            self.__update_from_f()
+            flag_emit = True
+        except Exception as E:
+            self.add_log_error(str(E), True)
+            raise
+        if flag_emit:
+            self.edited.emit()
+
+    def import_clicked(self):
         flag_emit = False
         try:
             sp = self.choosesp.sp
@@ -394,7 +423,7 @@ class WFileSpectrumList(WBase):
         try:
             splist = self.f.splist
             specs = (("wavelength_range", {"value": "[%g, %g]" % (splist.wavelength[0], splist.wavelength[-1])}),)
-            form = XParametersEditor(specs=specs, title="Select sub-range")
+            form = XParametersEditor(specs=specs, title="Add Gaussian noise")
             while True:
                 r = form.exec_()
                 if not r:
@@ -417,15 +446,31 @@ class WFileSpectrumList(WBase):
                     self.add_log_error("Crop operation failed: %s: %s" % (E.__class__.__name__, str(E)), True)
                     continue
 
-                form1 = self.keep_ref(self.parent_form.__class__())
-                form1.load(clone)
-                form1.show()
+                self.__new_window(clone)
                 break
 
         except Exception as E:
             self.add_log_error("Crop failed: %s" % str(E), True)
             raise
 
+    def rubberband_clicked(self):
+        self.__use_sblock(Rubberband(flag_upper=True))
+
+    def add_noise_clicked(self):
+        specs = (("std", {"labelText": "Noise standard deviation", "value": 1.}),)
+        form = XParametersEditor(specs=specs, title="Select sub-range")
+        if form.exec_():
+            block = AddNoise(**form.GetKwargs())
+            self.__use_sblock(block)
+
+    def extract_continua_clicked(self):
+        self.__use_slblock(ExtractContinua())
+
+    def std_clicked(self):
+        self.__use_slblock(MergeDown(np.std))
+
+    def snr_clicked(self):
+        self.__use_slblock(SNR())
 
     def on_twSpectra_customContextMenuRequested(self, position):
         """Mounts, shows popupmenu for the tableWidget control, and takes action."""
@@ -526,6 +571,40 @@ class WFileSpectrumList(WBase):
             self.f.splist.delete_spectra(ii)
             self.__update_from_f()
         return len(ii)
+
+
+    def __new_window(self, clone):
+        """Opens new FileSky in new window"""
+        form1 = self.keep_ref(self.parent_form.__class__())
+        form1.load(clone)
+        form1.show()
+
+
+    def __use_sblock(self, block):
+        """Uses block and opens result in new window"""
+
+        # Does not touch the original self.f
+        clone = copy.deepcopy(self.f)
+        clone.filename = None
+        slblock = UseSBlock()
+        for i, sp in enumerate(clone.splist.spectra):
+            clone.splist.spectra[i] = block.use(sp)
+        self.__new_window(clone)
+
+
+    def __use_slblock(self, block):
+        """Uses block and opens result in new window"""
+        # Here not cloning current spectrum list, but trusting the block
+        block.flag_copy_wavelength = True
+        output = block.use(self.f.splist)
+        f = self.__new_from_existing()
+        f.splist = output
+        self.__new_window(f)
+
+    def __new_from_existing(self):
+        """Creates new FileSpectrumList from existing one"""
+        f = FileSpectrumList()
+        return f
 
 
 def _style_widget(w, flag_changed):

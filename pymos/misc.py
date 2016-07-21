@@ -1,4 +1,7 @@
 import numpy as np
+from pymos.filespectrumlist import *
+from pyfant import *
+import matplotlib
 
 
 def bc_rubber(vx):
@@ -42,4 +45,5 @@ def _rubber_pieces(x, pieces):
         _rubber_pieces(x[idx:], pieces)
     else:
         pieces.append(l[1:])
+
 

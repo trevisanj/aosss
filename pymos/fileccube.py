@@ -97,7 +97,7 @@ class FileCCube(DataFile):
     """Represents a Compass data cube file, which is also a FITS file"""
     attrs = ['ccube']
     description = "WebSim Compass FITS cube"
-    default_filename = "ccube.fits"
+    default_filename = "default.ccube.fits"
 
     def __init__(self):
         DataFile.__init__(self)

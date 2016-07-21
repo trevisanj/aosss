@@ -13,10 +13,8 @@ import os
 import os.path
 import re
 import matplotlib.pyplot as plt
-from filesky import *
-from fileccube import *
 from pyfant.gui.a_XParametersEditor import *
-from basewindows import *
+from pymos import *
 
 VVV = FileSky.description
 

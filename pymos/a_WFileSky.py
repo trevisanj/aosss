@@ -12,16 +12,16 @@ from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT # as Navigat
 import matplotlib.pyplot as plt
 import numpy as np
 from itertools import product, combinations, cycle
-from filesky import *
-from fileccube import *
-from a_WChooseSpectrum import *
+# from filesky import *
+# from fileccube import *
+# from a_WChooseSpectrum import *
 import os
 import math
 import numbers
 import copy
 import datetime
 import traceback as tb
-from basewindows import *
+from pymos import *
 
 _COLORS_SQ = [(.1, .6, .5), (.5, .1, .7)]
 _ITER_COLORS_SQ = cycle(_COLORS_SQ)

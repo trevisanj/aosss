@@ -34,6 +34,7 @@ class SpectrumList(AttrsPart):
 
     def __init__(self, hdu=None):
         AttrsPart.__init__(self)
+        self._flag_created_by_block = False  # assertion
         self.__flag_update = True
         self.__flag_update_pending = False
         self.hdu = None  # PyFITS HDU object
@@ -56,6 +57,13 @@ class SpectrumList(AttrsPart):
 
     def __repr__(self):
         return "Please implement SpectrumList.__repr__()"
+
+    def matrix(self):
+        """Returns a (spectrum)x(wavelength) matrix of flux values"""
+        n = len(self)
+        if n == 0:
+            return np.array()
+        return np.vstack([sp.y for sp in self.spectra])
 
     def crop(self, lambda0=None, lambda1=None):
         """
@@ -201,9 +209,9 @@ class SpectrumList(AttrsPart):
 
 class FileSpectrumList(DataFile):
     """Represents a Spectrum List file, which is also a FITS file"""
-    attrs = ['slist']
+    attrs = ['splist']
     description = "Spectrum List FITS cube"
-    default_filename = "splist.fits"
+    default_filename = "default.splist.fits"
 
     def __init__(self):
         DataFile.__init__(self)
