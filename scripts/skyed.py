@@ -2,9 +2,7 @@
 
 """FileSpectrumList editor with import/export FileCCube"""
 
-from a_XFileSky import *
-from filesky import *
-from fileccube import *
+from pymos import *
 from pyfant import *
 import sys
 import argparse
