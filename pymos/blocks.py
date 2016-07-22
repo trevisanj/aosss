@@ -5,6 +5,8 @@ import numpy as np
 
 __all__ = ["SBlock", "Rubberband", "AddNoise", "SLBlock", "UseSBlock", "ExtractContinua", "SNR", "MergeDown"]
 
+# All values in CGS
+_C = 299792458*100  # light speed in cm/s
 
 ########################################################################################################################
 
@@ -87,6 +89,16 @@ class AddNoise(SBlock):
         output = self._new_output()
         output.y = np.copy(input.y)+np.random.normal(0, self.std, n)
         return output
+
+
+class FNuToFLambda(SBlock):
+    """
+    Flux-nu to flux-lambda conversion. Assumes the wavelength axis is in angstrom
+    """
+    def _do_use(self, input):
+        output = self._new_output()
+        output.y = input.y
+
 
 
 ########################################################################################################################
