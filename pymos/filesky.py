@@ -150,7 +150,8 @@ class Sky(AttrsPart):
                         # discards edges that are zeros
                         where_positive = np.where(sp_.flux > 0)[0]
                         sp = cut_spectrum_idxs(sp_, where_positive[0], where_positive[-1]+1)
-                        self.add_spectrum(i, j, sp)
+                        sp.pixel_x, sp.pixel_y = i, j
+                        self.add_spectrum(sp)
         finally:
             self.enable_update()
 
@@ -181,7 +182,7 @@ class Sky(AttrsPart):
                     if i == 1:
                         # TODO this must be settable, not just taken from first spectrum
                         self.reference = _LambdaReference(sp.x)
-                    self.add_spectrum(hdu.header["PIXEL-X"], hdu.header["PIXEL-Y"], sp)
+                    self.add_spectrum(sp)
         finally:
             self.enable_update()
 
@@ -259,13 +260,11 @@ class Sky(AttrsPart):
         return hdul
 
 
-    def add_spectrum(self, x, y, sp):
+    def add_spectrum(self, sp):
         """
         "Paints" pixel with given spectrum
 
         Arguments:
-            x -- x-coordinate
-            y -- y-coordinate
             sp -- Spectrum instance
 
         **Note** coordinate (x=0, y=0) corresponds to lower left pixel of cube cross-section
@@ -278,7 +277,8 @@ class Sky(AttrsPart):
         if len(sp.x) < 2:
             raise RuntimeError("Spectrum must have at least two points")
 
-        self.spectra.append(SkySpectrumItem(x, y, -1, sp))
+        sp.start_z = -1  # will cause update to check on spectrum
+        SpectrumCollection.add_spectrum(self, sp)
         self.__update()
 
     def delete_spectra(self, indexes):

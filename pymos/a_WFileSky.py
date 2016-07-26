@@ -501,7 +501,8 @@ class WFileSky(WBase):
             sp = self.choosesp.sp
             if not sp:
                 raise RuntimeError("Spectrum not loaded")
-            self.f.sky.add_spectrum(x, y, sp)
+            sp.pixel_x, sp.pixel_y = x, y
+            self.f.sky.add_spectrum(sp)
             self.__update_from_f()
             flag_emit = True
         except Exception as E:
