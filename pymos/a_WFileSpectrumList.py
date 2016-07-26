@@ -9,7 +9,7 @@ from pyfant import *
 import os
 import copy
 from pymos import *
-
+import traceback as tb
 
 class WFileSpectrumList(WBase):
     """
@@ -309,9 +309,7 @@ class WFileSpectrumList(WBase):
         assert isinstance(x, FileSpectrumList)
         self.f = x
         self.__update_from_f(True)
-        # this is called to perform file validation upon loading
-        # TODO probably not like this
-        self.__update_f()
+
         self.setEnabled(True)
 
     def get_selected_row_indexes(self):
@@ -323,18 +321,16 @@ class WFileSpectrumList(WBase):
         return sspp
 
     def update_splist_headers(self, splist):
-        """Updates heeaders of a SpectrumList objects using contents of the Headers tab"""
+        """Updates headers of a SpectrumList objects using contents of the Headers tab"""
         emsg, flag_error = "", False
         ss = ""
+        flag_emit = False
         try:
             ss = "fieldnames"
-            ff = eval(str(self.edit_fieldnames.toPlainText()))
-            if not isinstance(ff, list):
-                raise RuntimeError("fieldnames must be a list")
-            if not all([isinstance(x, str) for x in ff]):
-                raise RuntimeError("fieldnames must be a list of strings")
-
+            ff = eval_fieldnames(str(self.edit_fieldnames.toPlainText()))
+            splist.fieldnames = ff
             self.__update_from_f(True)
+            flag_emit = True
         except Exception as E:
             flag_error = True
             if ss:
@@ -342,6 +338,8 @@ class WFileSpectrumList(WBase):
             else:
                 emsg = str(E)
             self.add_log_error(emsg)
+        if flag_emit:
+            self.__emit_if()
         return not flag_error
 
     # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * #
@@ -360,8 +358,6 @@ class WFileSpectrumList(WBase):
             if event.key() == Qt.Key_Delete:
                 if source == self.twSpectra:
                     n_deleted = self.__delete_spectra()
-                    if n_deleted > 0:
-                        self.edited.emit()
         return False
 
     # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * #
@@ -513,13 +509,16 @@ class WFileSpectrumList(WBase):
 
     def on_collect_fieldnames(self):
         # TODO confirmation
-        print "OLHOLHOLHOLHOLHOLHOLHOLHOLHOLHOLHOLHOL"
 
-        self.f.splist.collect_fieldnames()
-        self.__update_from_f(True)
+        self.edit_fieldnames.setPlainText(str(self.f.splist.collect_fieldnames()))
+#        self.__update_from_f(True)
 
     # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * #
     # # Internal gear
+    
+    def __emit_if(self):
+       if self.flag_process_changes:
+           self.edited.emit()
 
     def __update_from_f(self, flag_headers=False):
         """
@@ -536,6 +535,10 @@ class WFileSpectrumList(WBase):
             n = len(splist.spectra)
             FIXED = ["spectrum"]
             more_headers = splist.fieldnames
+#            print "FIXED", fixed
+#            print "more_headers", more_headers
+#            print "fieldnames", splist.fieldnames
+#            print "FINDME43"
             all_headers = FIXED+more_headers
             nc = len(all_headers)
             ResetTableWidget(t, n, nc)
@@ -554,7 +557,7 @@ class WFileSpectrumList(WBase):
 
             if flag_headers:
                 self.__update_from_f_headers()
-        finally:
+        finally:    
             self.flag_process_changes = True
 
     def update_label_fn(self):
@@ -590,15 +593,15 @@ class WFileSpectrumList(WBase):
                 _style_widget(edit, False)
 
     def __update_f(self):
-        o = self.f
-        splist = self.f.splist
-        self.flag_valid = self.update_splist_headers(splist)
+        self.flag_valid = self.update_splist_headers(self.f.splist)
 
     def __delete_spectra(self):
         ii = self.get_selected_row_indexes()
         if len(ii) > 0:
             self.f.splist.delete_spectra(ii)
             self.__update_from_f()
+            self.__emit_if()
+
         return len(ii)
 
 

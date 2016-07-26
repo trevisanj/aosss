@@ -1,4 +1,4 @@
-__all__ = ["rubberband", "MAGNITUDE_BASE", "Bands", "style_widget"]
+__all__ = ["rubberband", "MAGNITUDE_BASE", "Bands", "style_widget", "eval_fieldnames"]
 
 import numpy as np
 from .fileccube import CompassCube
@@ -298,3 +298,17 @@ def plot_colors(ax, ccube):
             im[y, x, :] = sp.get_rgb()
 
     ax.imshow(im, interpolation="nearest")
+    
+    
+
+########################################################################################################################
+
+def eval_fieldnames(string_, varname="fieldnames"):
+    """Evaluates string_, must evaluate to list of strings"""
+    ff = eval(string_)
+    if not isinstance(ff, list):
+        raise RuntimeError("%s must be a list" % varname)
+    if not all([isinstance(x, str) for x in ff]):
+        raise RuntimeError("%s must be a list of strings" % varname)
+    return ff
+

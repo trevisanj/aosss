@@ -14,7 +14,8 @@ import numpy as np
 from pyfant.misc import *
 from astropy.io import fits
 import os
-from fileccube import *
+from .fileccube import *
+from .filespectrumlist import *
 import numpy as np
 from scipy.interpolate import interp1d
 import numbers
@@ -24,13 +25,6 @@ _MMM = [("hr_pix_size", "CDELT1"),
         ("hrfactor", "HRFACTOR"),
         ("R", "R")]
 
-
-class SkySpectrumItem(object):
-    def __init__(self, x, y, z, sp):
-        self.x = x
-        self.y = y
-        self.z = z
-        self.sp = sp
 
 class _LambdaReference(object):
     def __init__(self, x):
@@ -110,19 +104,19 @@ class Sky(AttrsPart):
         if any([x0 != 0, x1 != self.width-1, y0 != 0, y1 != self.height-1]):
             self.width = x1-x0+1
             self.height = y1-y0+1
-            for item in self.spectra:
-                item.x -= x0
-                item.y -= y0
+            for sp in self.spectra:
+                sp.x -= x0
+                sp.y -= y0
 
             # Deletes spectra out of XY range
-            for item in reversed(self.spectra):
-                if not 0 <= item.x < self.width or not 0 <= item.y < self.height:
+            for ap in reversed(self.spectra):
+                if not 0 <= sp.x < self.width or not 0 <= sp.y < self.height:
                     self.spectra.remove(item)
 
         if any([lambda0 != self.wavelength[0], lambda1 != self.wavelength[-1]]):
             # cuts remaining spectra
-            for item in reversed(self.spectra):
-                item.sp = cut_spectrum(item.sp, lambda0, lambda1)
+            for sp in reversed(self.spectra):
+                sp.cut(lambda0, lambda1)
                 if len(item.sp) == 0:
                     # If spectrum is now out of range, it is deleted
                     self.spectra.remove(item)

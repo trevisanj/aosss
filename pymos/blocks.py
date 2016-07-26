@@ -1,6 +1,7 @@
 from pyfant import *
 from pymos.misc import *
 import numpy as np
+from pymos.filespectrumlist import SpectrumList
 
 
 __all__ = ["SBlock", "Rubberband", "AddNoise", "SLBlock", "UseSBlock", "ExtractContinua", "SNR", "MergeDown"]

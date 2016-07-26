@@ -14,14 +14,98 @@ from fileccube import *
 import numpy as np
 from scipy.interpolate import interp1d
 import numbers
-
-_MMM = [("hr_pix_size", "CDELT1"),
-        ("hrfactor", "HRFACTOR"),
-        ("R", "R")]
+from pymos.misc import *
 
 
-class SpectrumList(AttrsPart):
-    attrs = ["wavelength", "spectra"]
+class SpectrumCollection(AttrsPart):
+    """Base class, maintains spectra with "more headers", HDU transfer without much interpretation"""
+    attrs = ["fieldnames", "more_headers", "spectra"]
+
+    def __init__(self):
+        AttrsPart.__init__(self)
+        self._flag_created_by_block = False  # assertion
+        self.filename = None
+        # _LambdaReference instance, can be inferred from first spectrum added
+        self.spectra = []
+        # List of field names
+        self.fieldnames = []
+        self.more_headers = {}
+
+    def __len__(self):
+        return len(self.spectra)
+
+    # NAXIS(1/2/3) apparently managed by pyfits
+    _IGNORE_HEADERS = ("NAXIS", "FIELDNAM")
+    def from_hdulist(self, hdul):
+        assert isinstance(hdul, fits.HDUList)
+        if not (hdul[0].header.get("ANCHOVA") or hdul[0].header.get("TAINHA")):
+            raise RuntimeError("Wrong HDUList")
+
+        self.spectra = []
+        for i, hdu in enumerate(hdul):
+            if i == 0:            
+                # Additional header fields
+                for name in hdu.header:
+                    if not name.startswith(self._IGNORE_HEADERS):
+                        self.more_headers[name] = hdu.header[name]
+                
+                temp = hdu.header.get("FIELDNAM", [])
+                if temp:
+                    self.fieldnames = eval_fieldnames(temp)
+            else:
+                sp = Spectrum()
+                sp.from_hdu(hdu)
+                self.add_spectrum(sp)
+
+    def to_hdulist(self):
+        # I think this is not or should not be a restriction assert len(self.spectra) > 0, "No spectra added"
+
+        dl = self.delta_lambda
+
+        hdul = fits.HDUList()
+
+        hdu = fits.PrimaryHDU()
+        hdu.header["FIELDNAM"] = str(self.fieldnames)
+        hdu.header["ANCHOVA"] = 26.9752
+
+        hdu.header.update(self.more_headers)  # TODO hope this works, if not ...
+#        for name, value in self.more_headers.iteritems():
+#            hdu.header[name] = value
+
+        hdul.append(hdu)
+
+        for sp in self.spectra:
+            hdul.append(sp.to_hdu())
+
+        return hdul
+
+    def collect_fieldnames(self):
+        """Returns a list of unique field names union'ing all spectra field names"""
+        # self.fieldnames = []
+        ff = []
+        for sp in self.spectra:
+            ff.extend(sp.more_headers.keys())
+        return list(set(ff))
+
+    def add_spectrum(self, sp):
+        """Adds spectrum, no content check"""
+        assert isinstance(sp, Spectrum)
+        self.spectra.append(sp)
+
+    def delete_spectra(self, indexes):
+        """Deletes spectra given a list of 0-based indexes"""
+        if isinstance(indexes, numbers.Integral):
+            indexes = [indexes]
+        indexes = list(set(indexes))
+        n = len(self.spectra)
+        if any([idx < 0 or idx >= n for idx in indexes]):
+            raise RuntimeError("All indexes must be (0 le index lt %d)" % n)
+        for index in reversed(indexes):
+            del self.spectra[index]
+
+
+class SpectrumList(SpectrumCollection):
+    attrs = SpectrumCollection.attrs+["wavelength"]
 
     @property
     def delta_lambda(self):
@@ -33,32 +117,16 @@ class SpectrumList(AttrsPart):
         return self.wavelength[0] > -1
 
     def __init__(self, hdulist=None):
-        AttrsPart.__init__(self)
-        self._flag_created_by_block = False  # assertion
+        SpectrumCollection.__init__(self)
         self.__flag_update = True
         self.__flag_update_pending = False
-        self.hdu = None  # PyFITS HDU object
         self.wavelength = np.array([-1., -1.])  # the wavelength axis (angstrom) (shared among all spectra in the cube)
-        self.filename = None
-        # Header data initialized to default
-        self.R = 5000
-        self.hrfactor = 10
-        self.hr_pix_size = 0.0375/self.hrfactor
-        self.width = 50
-        self.height = 30
-        # _LambdaReference instance, can be inferred from first spectrum added
-        self.spectra = []
-        # List of field names
-        self.fieldnames = []
 
         if hdulist is not None:
             self.from_hdulist(hdulist)
 
-    def __len__(self):
-        return len(self.spectra)
-
-    def __repr__(self):
-        return "Please implement SpectrumList.__repr__()"
+    ############################################################################
+    # # Interface
 
     def matrix(self):
         """Returns a (spectrum)x(wavelength) matrix of flux values"""
@@ -97,60 +165,13 @@ class SpectrumList(AttrsPart):
         self.__update()
 
     def from_hdulist(self, hdul):
-        assert isinstance(hdul, fits.HDUList)
-        try:
-            test = hdul[0].header["ANCHOVA"]
-        except KeyError:
-            raise RuntimeError("Wrong HDUList")
-
-        self.spectra = []
-
         self.__flag_update = False
         try:
-            for i, hdu in enumerate(hdul):
-                if i == 0:
-                    lambda0, lambda1, delta_lambda = [hdu.header[x] for x in "LAMBDA0", "LAMBDA1", "DELTA_LA"]
-                    if delta_lambda > 0:
-                        self.wavelength = np.arange(lambda0, lambda1 + delta_lambda, delta_lambda)
-                    else:
-                        self.wavelength = np.array([-1, -1])
-                else:
-                    sp = Spectrum()
-                    sp.from_hdu(hdu)
-                    self.add_spectrum(sp)
+            SpectrumCollection.from_hdulist(self, hdul)
         finally:
             self.enable_update()
 
-    def to_hdulist(self):
-        # I think this is not or should not be a restriction assert len(self.spectra) > 0, "No spectra added"
-
-        dl = self.delta_lambda
-
-        hdul = fits.HDUList()
-
-        hdu = fits.PrimaryHDU()
-        hdu.header["LAMBDA0"] = self.wavelength[0]
-        hdu.header["LAMBDA1"] = self.wavelength[-1]
-        hdu.header["DELTA_LA"] = dl
-        hdu.header["FIELDNAM"] = str(self.fieldnames)
-        hdu.header["ANCHOVA"] = 26.9752
-        hdul.append(hdu)
-
-        for sp in self.spectra:
-            hdul.append(sp.to_hdu())
-
-        return hdul
-
-    def collect_fieldnames(self):
-        """Builds new self.fieldnames"""
-        # self.fieldnames = []
-        ff = []
-        for sp in self.spectra:
-            ff.extend(sp.more_headers.keys())
-        self.fieldnames = list(set(ff))
-        print "OLHOLHOLHOLHOLHOLHO ", ff
-
-    def to_colors(self, visible_range=None, flag_scale=True):
+    def to_colors(self, visible_range=None, flag_scale=False, method=0):
         """Returns a [n, 3] red-green-blue (0.-1.) matrix
 
         Arguments:
@@ -159,18 +180,20 @@ class SpectrumList(AttrsPart):
                                 to use the red-to-blue scale to paint the pixels
           flag_scale -- whether to scale the luminosities proportionally
                         the weight for each spectra will be the area under the flux
+          method -- see Spectrum.get_rgb()
         """
         weights = np.zeros((len(self), 3))
         max_area = 0.
         ret = np.zeros((len(self), 3))
         for i, sp in enumerate(self.spectra):
-            ret[i, :] = sp.get_rgb(visible_range)
+            ret[i, :] = sp.get_rgb(visible_range, method)
             sp_area = np.sum(sp.y)
             max_area = max(max_area, sp_area)
             weights[i, :] = sp_area
         if flag_scale:
             weights *= 1./max_area
             ret *= weights
+        # TODO return weights if necessary
         return ret
 
     def add_spectrum(self, sp):
@@ -184,15 +207,11 @@ class SpectrumList(AttrsPart):
             if not np.all(self.wavelength == sp.wavelength):
                 raise RuntimeError("Cannot add spectrum, wavelength vector does not match existing")
 
-        self.spectra.append(sp)
+        SpectrumCollection.add_spectrum(self, sp)
         self.__update()
 
     def delete_spectra(self, indexes):
-        indexes = list(set(indexes))
-        if isinstance(indexes, numbers.Integral):
-            indexes = [indexes]
-        for index in reversed(indexes):
-            del self.spectra[index]
+        SpectrumCollection.delete_spectra(indexes)
         self.__update()
 
     def enable_update(self):
