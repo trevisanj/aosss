@@ -32,7 +32,7 @@ class SpectrumList(AttrsPart):
         """Wavelength problem already resolved?"""
         return self.wavelength[0] > -1
 
-    def __init__(self, hdu=None):
+    def __init__(self, hdulist=None):
         AttrsPart.__init__(self)
         self._flag_created_by_block = False  # assertion
         self.__flag_update = True
@@ -48,9 +48,11 @@ class SpectrumList(AttrsPart):
         self.height = 30
         # _LambdaReference instance, can be inferred from first spectrum added
         self.spectra = []
+        # List of field names
+        self.fieldnames = []
 
-        if hdu is not None:
-            self.from_hdu(hdu)
+        if hdulist is not None:
+            self.from_hdulist(hdulist)
 
     def __len__(self):
         return len(self.spectra)
@@ -119,6 +121,35 @@ class SpectrumList(AttrsPart):
         finally:
             self.enable_update()
 
+    def to_hdulist(self):
+        # I think this is not or should not be a restriction assert len(self.spectra) > 0, "No spectra added"
+
+        dl = self.delta_lambda
+
+        hdul = fits.HDUList()
+
+        hdu = fits.PrimaryHDU()
+        hdu.header["LAMBDA0"] = self.wavelength[0]
+        hdu.header["LAMBDA1"] = self.wavelength[-1]
+        hdu.header["DELTA_LA"] = dl
+        hdu.header["FIELDNAM"] = str(self.fieldnames)
+        hdu.header["ANCHOVA"] = 26.9752
+        hdul.append(hdu)
+
+        for sp in self.spectra:
+            hdul.append(sp.to_hdu())
+
+        return hdul
+
+    def collect_fieldnames(self):
+        """Builds new self.fieldnames"""
+        # self.fieldnames = []
+        ff = []
+        for sp in self.spectra:
+            ff.extend(sp.more_headers.keys())
+        self.fieldnames = list(set(ff))
+        print "OLHOLHOLHOLHOLHOLHO ", ff
+
     def to_colors(self, visible_range=None, flag_scale=True):
         """Returns a [n, 3] red-green-blue (0.-1.) matrix
 
@@ -141,29 +172,6 @@ class SpectrumList(AttrsPart):
             weights *= 1./max_area
             ret *= weights
         return ret
-
-    def to_hdulist(self):
-        # I think this is not or should not be a restriction assert len(self.spectra) > 0, "No spectra added"
-
-        dl = self.delta_lambda
-
-        hdul = fits.HDUList()
-
-        hdu = fits.PrimaryHDU()
-        hdu.header["LAMBDA0"] = self.wavelength[0]
-        hdu.header["LAMBDA1"] = self.wavelength[-1]
-        hdu.header["DELTA_LA"] = dl
-        hdu.header["ANCHOVA"] = 26.9752
-        hdul.append(hdu)
-
-        for sp in self.spectra:
-            hdu = fits.PrimaryHDU()
-            hdu.header["CDELT1"] = dl
-            hdu.header["CRVAL1"] = sp.x[0]  # **note** not subtracting dl as required in WebSimCompass format
-            hdu.data = sp.y
-            hdul.append(hdu)
-
-        return hdul
 
     def add_spectrum(self, sp):
         """Adds spectrum, checks if wavelengths match first"""
@@ -193,6 +201,7 @@ class SpectrumList(AttrsPart):
             self.__update()
             self.__flag_update_pending = False
 
+
     def __update(self):
         """Updates internal state"""
 
@@ -210,7 +219,7 @@ class SpectrumList(AttrsPart):
 class FileSpectrumList(DataFile):
     """Represents a Spectrum List file, which is also a FITS file"""
     attrs = ['splist']
-    description = "Spectrum List FITS cube"
+    description = "Spectrum List"
     default_filename = "default.splist.fits"
 
     def __init__(self):

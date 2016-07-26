@@ -1,11 +1,24 @@
-__all__ = ["rubberband", "DECADE_FACTOR", "Bands"]
+__all__ = ["rubberband", "DECADE_FACTOR", "Bands", "style_widget"]
 
 import numpy as np
-from pymos.filespectrumlist import *
+from .fileccube import CompassCube
 from pyfant import *
 import matplotlib
+# from fileccube import *
 from scipy.interpolate import interp1d
 import collections
+
+
+########################################################################################################################
+# # GUI Auxiliar
+
+
+def style_widget(spinbox, flag_changed):
+    """(Paints background yellow)/(removes stylesheet)"""
+    spinbox.setStyleSheet("QWidget {background-color: #FFFF00}" if flag_changed else "")
+
+
+########################################################################################################################
 
 
 def bc_rubber(vx):
@@ -72,6 +85,85 @@ def _rubber_pieces(x, pieces):
 DECADE_FACTOR = 100. ** (1. / 5)  # approx. 2.512
 
 
+def ufunc_gauss(x0, fwhm):
+    """Returns a Gaussian function given the x at maximum value and the fwhm. Works as a numpy ufunc
+
+    **Note** the maximum value is 1. at x=x0
+
+    Reference: https://en.wikipedia.org/wiki/Gaussian_function
+
+    Test code:
+
+      >> from pymos import *
+      >> import matplotlib.pyplot as plt
+      >> import numpy as np
+      >> f = ufunc_gauss(0, 5.)
+      >> x = np.linspace(-10, 10, 200)
+      >> y = f(x)
+      >> plt.plot(x, y)
+      >> plt.show()
+    """
+
+    # K = 1/(2*c**2)
+    # c = fwhm/(2*sqrt(2*ln(2)))
+    K = 4 * np.log(2) / fwhm ** 2
+    def f(x):
+        return np.exp(-(x - x0) ** 2 * K)
+
+    return f
+
+
+class Band(object):
+    """
+    Represents wavelength filter band, containing a few tools
+
+    This class is kept clean whereas Bands has examples and deeper documentation on parameters
+
+    Arguments:
+        tabular -- ((wl, y), ...), 0 <= y <= 1
+        parametric -- ((wl, fwhm), ...)
+        ref_jy -- integrated flux passing through filter at magnitude 0 in Jy units
+    """
+    def __init__(self, name, tabular=None, parametric=None, ref_jy=None):
+        self.name = name
+        self.tabular = tabular
+        self.parametric = parametric
+        self.ref_jy = ref_jy
+
+    def ufunc_band(self, flag_force_parametric):
+        """Uses tabular data if available and not flag_force_parametric"""
+        flag_parametric = flag_force_parametric
+        if not flag_force_parametric and self.tabular:
+            x, y = zip(*self.tabular)
+            f = interp1d(x, y, kind='linear', bounds_error=False, fill_value=0)
+        else:
+            flag_parametric = True
+
+        if flag_parametric:
+            x0, fwhm = self.parametric
+            f = ufunc_gauss(x0, fwhm)
+        return f
+
+    def range(self, flag_force_parametric=False, no_stds=3):
+        """Returns [wl0, wl1], using edges of tabular data or given number of standard deviations"""
+        flag_parametric = flag_force_parametric
+
+        if not flag_force_parametric and self.tabular:
+            points = self.tabular
+            p0, pf = points[0], points[-1]
+            # The following is assumed for the code to work
+            assert p0[1] == 0 and pf[1] == 0, "Bands.TABULAR tables must start and end with a zero"
+            ret = [p0[0], pf[0]]
+        else:
+            flag_parametric = True
+
+        if flag_parametric:
+            x0, fwhm = self.parametric
+            std = fwhm * (1. / np.sqrt(8 * np.log(2)))
+            ret = [x0 - no_stds * std, x0 + no_stds * std]
+        return ret
+
+
 class Bands(object):
     # Michael Bessel 1990
     # Taken from http://spiff.rit.edu/classes/phys440/lectures/filters/filters.html
@@ -129,43 +221,21 @@ class Bands(object):
     ("Q", (210000., 58000.))
     ))
 
-    @staticmethod
-    def ufunc_gauss(x0, fwhm):
-        """Returns a Gaussian function given the x at maximum value and the fwhm. Works as a numpy ufunc
+    bands = collections.OrderedDict()
+    for k in PARAMETRIC:
+        bands[k] = Band(k, TABULAR.get(k), PARAMETRIC.get(k))
+    # adds reference magnitude data known so far
+    bands["I"].ref_jy = 2550
+    bands["J"].ref_jy = 1600
 
-        **Note** the maximum value is 1. at x=x0
-
-        Reference: https://en.wikipedia.org/wiki/Gaussian_function
-
-        Test code:
-
-          >> from pymos import *
-          >> import matplotlib.pyplot as plt
-          >> import numpy as np
-          >> f = ufunc_gauss(0, 5.)
-          >> x = np.linspace(-10, 10, 200)
-          >> y = f(x)
-          >> plt.plot(x, y)
-          >> plt.show()
-
-        """
-
-        # K = 1/(2*c**2)
-        # c = fwhm/(2*sqrt(2*ln(2)))
-        K = 4 * np.log(2) / fwhm ** 2
-
-        def f(x):
-            return np.exp(-(x-x0)**2*K)
-
-        return f
-
-    @staticmethod
-    def ufunc_band(band_name, flag_force_parametric=False):
-        """Returns a function for the transmission filter given the band name. Works as a numpy ufunc
+    @classmethod
+    def ufunc_band(cls, band_name, flag_force_parametric=False):
+        """Returns a function(wavelength) for the transmission filter given the band name. Works as a numpy ufunc
 
         Arguments:
             band_name -- e.g. "U", "J"
             flag_force_parametric -- if set, will use parametric data even for the tabulated bands UBVRI
+
 
         Test code:
           >> from pymos import *
@@ -189,23 +259,10 @@ class Bands(object):
           >> plt.tight_layout()
           >> plt.show()
         """
+        return cls.bands[band_name].ufunc_band(flag_force_parametric)
 
-        flag_parametric = flag_force_parametric
-        if not flag_force_parametric:
-            if band_name in "UBVRI":
-                x, y = zip(*Bands.TABULAR[band_name])
-                f = interp1d(x, y, kind='linear', bounds_error=False, fill_value=0)
-            else:
-                flag_parametric = True
-
-        if flag_parametric:
-            x0, fwhm = Bands.PARAMETRIC[band_name]
-            f = Bands.ufunc_gauss(x0, fwhm)
-
-        return f
-
-    @staticmethod
-    def range(band_name, flag_force_parametric=False, no_stds=3):
+    @classmethod
+    def range(cls, band_name, flag_force_parametric=False, no_stds=3):
         """Returns wavelength range beyond which the transmission function value is zero or negligible
 
         **Note**
@@ -217,21 +274,25 @@ class Bands(object):
                        At 3 standard deviations from the center the value drops to approximately 1.1% of the maximum
         """
 
-        flag_parametric = flag_force_parametric
-        if not flag_force_parametric:
-            if band_name in "UBVRI":
-                points = Bands.TABULAR[band_name]
-                p0, pf = points[0], points[-1]
-                # The following is assumed for the code to work
-                assert p0[1] == 0 and pf[1] == 0, "Bands.TABULAR tables must start and end with a zero"
-                ret = [p0[0], pf[0]]
-            else:
-                flag_parametric = True
+        return cls.bands[band_name].range(flag_force_parametric, no_stds)
 
-        if flag_parametric:
-            x0, fwhm = Bands.PARAMETRIC[band_name]
-            std = fwhm*(1./np.sqrt(8*np.log(2)))
-            ret = [x0-no_stds*std, x0+no_stds*std]
 
-        return ret
 
+#########################################################################################################################################
+# # PLOTTERS
+
+def plot_colors(ax, ccube):
+    """
+    """
+    assert isinstance(ccube, CompassCube)
+    data = ccube.hdu.data
+    nlambda, nY, nX = data.shape
+
+
+    im = np.zeros((nY, nX, 3))
+    for x in range(nX):
+        for y in range(nY):
+            sp = ccube.get_spectrum(x, y)
+            im[y, x, :] = sp.get_rgb()
+
+    ax.imshow(im, interpolation="nearest")

@@ -13,3 +13,5 @@ from .a_XFileCCube import *
 from .a_XFileSky import *
 from .a_XFileSpectrumList import *
 from .a_XSpectrumList import *
+from .a_WScaleSpectrum import *
+from .a_XScaleSpectrum import *

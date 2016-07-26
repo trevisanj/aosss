@@ -48,12 +48,14 @@ class WFileSky(WBase):
         # Internal flag to prevent taking action when some field is updated programatically
         self.flag_process_changes = False
         # GUI update needed but cannot be applied immediately, e.g. visible range being edited
-        self.flag_plot_colors_pending = False
+        # each flag for one tab
+        self.flag_update_pending = [False, False]
+        # callables to update each visualization tab
+        self.map_update_vis = [self.plot_spectra, self.plot_colors]
         # Whether there is sth in yellow background in the Headers tab
         self.flag_header_changed = False
         self.f = None # FileSky object
         self.obj_square = None
-        self.parent_form = parent
 
 
         # # Central layout
@@ -182,11 +184,15 @@ class WFileSky(WBase):
         lwexex.setSpacing(2)
         lwex.addLayout(lwexex)
         ###
+        b = keep_ref(QPushButton("Scale..."))
+        b.clicked.connect(self.scale_clicked)
+        lwexex.addWidget(b)
+        ###
         lwexex.addWidget(keep_ref(QLabel("With selected:")))
         ###
         b = keep_ref(QPushButton("Plot &stacked"))
         b.clicked.connect(self.plot_stacked_clicked)
-        lwexex.addWidget(b)
+        lwexex.addWidget(b)        
         ###
         b = keep_ref(QPushButton("Plot &overlapped"))
         b.clicked.connect(self.plot_overlapped_clicked)
@@ -470,7 +476,7 @@ class WFileSky(WBase):
 
     def on_colors_setup_edited(self):
         if self.flag_process_changes:
-            self.flag_plot_colors_pending = True
+            self.flag_update_pending[1] = True
 
     def on_header_edited(self):
         if self.flag_process_changes:
@@ -480,7 +486,7 @@ class WFileSky(WBase):
                 changed = f_from_f() != f_from_edit()
                 sth = sth or changed
                 if edit == sndr:
-                    _style_widget(self.sender(), changed)
+                    style_widget(self.sender(), changed)
             self.set_flag_header_changed(sth)
 
     def on_place_spectrum_edited(self):
@@ -512,8 +518,7 @@ class WFileSky(WBase):
             self.__update_from_f(True)
 
     def current_tab_changed_vis(self):
-        if self.flag_plot_colors_pending:
-            self.plot_colors()
+        self.__update_vis_if_pending()
 
     def current_tab_changed_options(self):
         pass
@@ -621,6 +626,18 @@ class WFileSky(WBase):
 
     def delete_selected(self):
         self.__delete_spectra()
+        
+    def scale_clicked(self):
+        if len(self.f.sky.spectra) > 0:
+          sp = self.f.sky.spectra[self.twSpectra.currentRowIndex()].sp
+        form = XScaleSpectrum()
+        form.load(sp)
+        form.showModal()
+        if form.OK:
+            k = form.k()
+            sp.y *= k
+            self.__update_from_f()
+          
 
     # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * #
     # # Internal gear
@@ -661,8 +678,14 @@ class WFileSky(WBase):
                 i += 1
             t.resizeColumnsToContents()
 
-            self.plot_spectra()
-            self.plot_colors()
+            idx = self.tabWidgetVis.currentIndex()
+            for i, callable_ in enumerate(self.map_update_vis):
+                # Updates current visualization tab and flags update pending for other tabs
+                if i == idx:
+                    callable_()
+                    self.flag_update_pending[i] = False
+                else:
+                    self.flag_update_pending[i] = True
 
             if flag_headers:
                 self.__update_from_f_headers()
@@ -717,7 +740,7 @@ class WFileSky(WBase):
         if not flag:
             # If not changed, removes all eventual yellows
             for _, edit, _, _, _, _, _ in self._map1:
-                _style_widget(edit, False)
+                style_widget(edit, False)
 
     def __update_f(self):
         o = self.f
@@ -730,6 +753,12 @@ class WFileSky(WBase):
             self.f.sky.delete_spectra(ii)
             self.__update_from_f()
         return len(ii)
+
+    def __update_vis_if_pending(self):
+        idx = self.tabWidgetVis.currentIndex()
+        if self.flag_update_pending[idx]:
+            self.map_update_vis[idx]()
+            self.flag_update_pending[idx] = False
 
     def plot_spectra(self):
         # self.clear_markers()
@@ -867,7 +896,3 @@ def _plot_colors(ax, sky, vrange, sqx=None, sqy=None, flag_scale=False, method=0
     ax.set_ylim([-K, sky.height-.5])
     return obj_square
 
-
-def _style_widget(spinbox, flag_changed):
-    """(Paints background yellow)/(removes stylesheet)"""
-    spinbox.setStyleSheet("QWidget {background-color: #FFFF00}" if flag_changed else "")

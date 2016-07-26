@@ -23,9 +23,9 @@ VVV = FileSpectrumList.description
 
 
 ################################################################################
-class XFileSpectrumList(XLogMainWindow):
+class XFileSpectrumList(XFileMainWindow):
     def __init__(self, parent=None):
-        XLogMainWindow.__init__(self, parent)
+        XFileMainWindow.__init__(self, parent)
 
         self.__refs = []
         def keep_ref(obj):

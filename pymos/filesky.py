@@ -253,13 +253,14 @@ class Sky(AttrsPart):
         hdul.append(hdu)
 
         for item in self.spectra:
-            hdu = fits.PrimaryHDU()
-            hdu.header["PIXEL-X"] = item.x
-            hdu.header["PIXEL-Y"] = item.y
-            hdu.header["CDELT1"] = dl
-            hdu.header["CRVAL1"] = item.sp.x[0]  # **note** not subtracting dl as required in WebSimCompass format
-            hdu.data = item.sp.y
-            hdul.append(hdu)
+            hdul.append(item.sp.to_hdu())
+            # hdu = fits.PrimaryHDU()
+            # hdu.header["PIXEL-X"] = item.x
+            # hdu.header["PIXEL-Y"] = item.y
+            # hdu.header["CDELT1"] = dl
+            # hdu.header["CRVAL1"] = item.sp.x[0]  # **note** not subtracting dl as required in WebSimCompass format
+            # hdu.data = item.sp.y
+            # hdul.append(hdu)
 
         return hdul
 

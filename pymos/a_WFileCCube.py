@@ -335,7 +335,7 @@ class WFileCCube(QWidget):
             fig = self.figure1
             fig.clear()
             ax = fig.gca()
-            _plot_colors(ax, self.f.ccube)
+            plot_colors(ax, self.f.ccube)
 
             fig.tight_layout()
 
@@ -402,18 +402,3 @@ def _plot_spectra(ax, ccube):
     # plt.show()
 
 
-def _plot_colors(ax, ccube):
-    """
-    """
-    assert isinstance(ccube, CompassCube)
-    data = ccube.hdu.data
-    nlambda, nY, nX = data.shape
-
-
-    im = np.zeros((nY, nX, 3))
-    for x in range(nX):
-        for y in range(nY):
-            sp = ccube.get_spectrum(x, y)
-            im[y, x, :] = sp.get_rgb()
-
-    ax.imshow(im, interpolation="nearest")

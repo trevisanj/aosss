@@ -25,9 +25,9 @@ class WFileSpectrumList(WBase):
         def keep_ref(obj):
             self.__refs.append(obj)
             return obj
-
         self.__refs = []
-        # Whether all the values in the fields are valid or not
+
+        # Whether __update_f() went ok
         self.flag_valid = False
         # Internal flag to prevent taking action when some field is updated programatically
         self.flag_process_changes = False
@@ -35,8 +35,6 @@ class WFileSpectrumList(WBase):
         self.flag_header_changed = False
         self.f = None # FileSpectrumList object
         self.obj_square = None
-        self.parent_form = parent
-
 
         # # Central layout
         lantanide = self.centralLayout = QVBoxLayout()
@@ -189,6 +187,11 @@ class WFileSpectrumList(WBase):
         ###
         lscrw.addWidget(keep_ref(QLabel("<b>Header properties</b>")))
 
+        ###
+        b = keep_ref(QPushButton("Collect field names"))
+        b.clicked.connect(self.on_collect_fieldnames)
+        lscrw.addWidget(b)
+
         # Form layout
         lg = keep_ref(QGridLayout())
         lg.setMargin(0)
@@ -198,8 +201,18 @@ class WFileSpectrumList(WBase):
         ###
         lscrw.addSpacerItem(QSpacerItem(0, 0, QSizePolicy.Minimum, QSizePolicy.Expanding))
 
-        # field map: [(label widget, edit widget, field name, short description, long description), ...]
+        # field map: [(label widget, edit widget, field name, short description, long description, f_from_f, f_from_edit), ...]
         pp = self._map1 = []
+
+
+        ###
+        x = keep_ref(QLabel())
+        y = self.edit_fieldnames = QPlainTextEdit()
+        y.textChanged.connect(self.on_header_edited)
+        x.setBuddy(y)
+        pp.append((x, y, "&Field names", "'header' information for each spectrum", "", lambda: self.f.splist.fieldnames,
+                   lambda: self.edit_fieldnames.toPlainText()))
+        ###
 
         for i, (label, edit, name, short_descr, long_descr, f_from_f, f_from_edit) in enumerate(pp):
             # label.setStyleSheet("QLabel {text-align: right}")
@@ -315,16 +328,13 @@ class WFileSpectrumList(WBase):
         emsg, flag_error = "", False
         ss = ""
         try:
-            # ss = "width"
-            # splist.width = int(self.spinbox_width.value())
-            # ss = "height"
-            # splist.height = int(self.spinbox_height.value())
-            # ss = "hrfactor"
-            # splist.hrfactor = int(self.spinbox_hrfactor.value())
-            # ss = "hr_pix_size"
-            # splist.hr_pix_size = float(self.lineEdit_hr_pix_size.text())
-            # ss = "R"
-            # splist.R = float(self.spinbox_R.value())
+            ss = "fieldnames"
+            ff = eval(str(self.edit_fieldnames.toPlainText()))
+            if not isinstance(ff, list):
+                raise RuntimeError("fieldnames must be a list")
+            if not all([isinstance(x, str) for x in ff]):
+                raise RuntimeError("fieldnames must be a list of strings")
+
             self.__update_from_f(True)
         except Exception as E:
             flag_error = True
@@ -373,6 +383,9 @@ class WFileSpectrumList(WBase):
                 if edit == sndr:
                     _style_widget(self.sender(), changed)
             self.set_flag_header_changed(sth)
+
+
+
 
     def add_spectrum_clicked(self):
         flag_emit = False
@@ -499,6 +512,13 @@ class WFileSpectrumList(WBase):
     def export_plain_text_clicked(self):
         print "EXPORT PLAIN TEXT LATER ..."
 
+    def on_collect_fieldnames(self):
+        # TODO confirmation
+        print "OLHOLHOLHOLHOLHOLHOLHOLHOLHOLHOLHOLHOL"
+
+        self.f.splist.collect_fieldnames()
+        self.__update_from_f(True)
+
     # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * #
     # # Internal gear
 
@@ -515,12 +535,21 @@ class WFileSpectrumList(WBase):
             assert isinstance(splist, SpectrumList)
             t = self.twSpectra
             n = len(splist.spectra)
-            ResetTableWidget(t, n, 1)
-            t.setHorizontalHeaderLabels(["spectrum"])
+            FIXED = ["spectrum"]
+            more_headers = splist.fieldnames
+            all_headers = FIXED+more_headers
+            nc = len(all_headers)
+            ResetTableWidget(t, n, nc)
+            t.setHorizontalHeaderLabels(all_headers)
             i = 0
             for sp in self.f.splist.spectra:
                 twi= QTableWidgetItem(sp.one_liner_str())
                 t.setItem(i, 0, twi)
+
+                for j, h in enumerate(more_headers):
+                    twi = QTableWidgetItem(str(sp.more_headers.get(h, "xuxuxu-xaxaxa")))
+                    t.setItem(i, j+1, twi)
+
                 i += 1
             t.resizeColumnsToContents()
 
@@ -541,6 +570,7 @@ class WFileSpectrumList(WBase):
     def __update_from_f_headers(self):
         """Updates header controls only"""
         splist = self.f.splist
+        self.edit_fieldnames.setPlainText(str(splist.fieldnames))
         self.set_flag_header_changed(False)
 
     def add_log_error(self, x, flag_also_show=False):

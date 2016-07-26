@@ -1,6 +1,6 @@
 """Window to edit both main and abundances"""
 
-__all__ = ["XLogMainWindow", "NullEditor", "WBase"]
+__all__ = ["XLogMainWindow", "XFileMainWindow", "NullEditor", "WBase"]
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -15,11 +15,56 @@ class XLogMainWindow(QMainWindow):
     """Application template with file operations in two tabs: (application area) and (log)"""
 
     def __init__(self, parent=None, file_main=None, file_abonds=None):
+        QMainWindow.__init__(self, parent)
+        self.__refs = []
+        # XRunnableManager instance
+        self._manager_form = None
+
+    # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * #
+    # Interface
+
+    def keep_ref(self, obj):
+        """Adds obj to internal list to keep a reference to it.
+
+        When using PyQt, it happens that the Python object gets garbage-collected even
+        when a C++ Qt object still exists, causing a mess
+        """
+        self.__refs.append(obj)
+        return obj
+
+    def add_log_error(self, x, flag_also_show=False):
+        """Sets text of labelError."""
+        if len(x) == 0:
+            x = "(empty error)"
+            tb.print_stack()
+        x_ = x
+        x = '<span style="color: %s">%s</span>' % (COLOR_ERROR, x)
+        self.add_log(x, False)
+        if flag_also_show:
+            show_error(x_)
+
+    def add_log(self, x, flag_also_show=False):
+        """Sets text of labelDescr."""
+        if hasattr(self, "label_last_log"):
+            self.label_last_log.setText(x)
+        if hasattr(self, "textEdit_log"):
+            te = self.textEdit_log
+            te.append("%s -- %s" % (datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S'), x))
+        else:
+            get_python_logger().info(x)
+        if flag_also_show:
+            show_error(x_)
+
+
+class XFileMainWindow(XLogMainWindow):
+    """Application template with file operations in two tabs: (application area) and (log)"""
+
+    def __init__(self, parent=None, file_main=None, file_abonds=None):
         def keep_ref(obj):
             self.__refs.append(obj)
             return obj
 
-        QMainWindow.__init__(self, parent)
+        XLogMainWindow.__init__(self, parent)
         self.__refs = []
         # XRunnableManager instance
         self._manager_form = None
@@ -370,7 +415,7 @@ class XLogMainWindow(QMainWindow):
 
 
 class NullEditor(object):
-    """Class to fulfill requirement in XLogMainWindow, easiest way out, no bother"""
+    """Class to fulfill requirement in XFileMainWindow, easiest way out, no bother"""
     f = None
 
 
@@ -383,6 +428,7 @@ class WBase(QWidget):
         assert isinstance(parent, XLogMainWindow)
         QWidget.__init__(self, parent)
         self.__refs = []
+        self.parent_form = parent
 
 
     # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * #

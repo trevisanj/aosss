@@ -13,6 +13,10 @@ from astropy.io import fits
 import os
 
 class CompassCube(AttrsPart):
+    """X-Y-wavelength cube compliant with WebSim-Compass specs
+
+    Data is stored primarily in self.hdu, with a few other relevant attributes"""
+
     attrs = ["R", "hrfactor", "ifu_pix_size"]
 
     @property
@@ -81,7 +85,8 @@ class CompassCube(AttrsPart):
         sp = Spectrum()
         sp.x = np.copy(self.wavelength)
         sp.y = np.copy(self.hdu.data[:, y, x])
-
+        sp.more_headers["PIXEL-X"] = x  # why not
+        sp.more_headers["PIXEL-Y"] = y
         return sp
 
     def set_wavelength(self, w):
