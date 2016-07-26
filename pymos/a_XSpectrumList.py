@@ -27,9 +27,8 @@ class XFileSpectrumList(XFileMainWindow):
     def __init__(self, parent=None):
         XFileMainWindow.__init__(self, parent)
 
-        self.__refs = []
         def keep_ref(obj):
-            self.__refs.append(obj)
+            self._refs.append(obj)
             return obj
 
         # # Synchronized sequences

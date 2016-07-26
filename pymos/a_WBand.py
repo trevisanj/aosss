@@ -36,10 +36,9 @@ class WBand(WBase):
         WBase.__init__(self, parent)
 
         def keep_ref(obj):
-            self.__refs.append(obj)
+            self._refs.append(obj)
             return obj
 
-        self.__refs = []
         # Whether all the values in the fields are valid or not
         self.flag_valid = False
         # Internal flag to prevent taking action when some field is updated programatically

@@ -1,6 +1,6 @@
 """Window to edit both main and abundances"""
 
-__all__ = ["XLogMainWindow", "XFileMainWindow", "NullEditor", "WBase"]
+__all__ = ["XLogMainWindow", "XLogDialog", "XFileMainWindow", "NullEditor", "WBase"]
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -11,15 +11,7 @@ from pyfant.gui import *
 import os
 
 
-class XLogMainWindow(QMainWindow):
-    """Application template with file operations in two tabs: (application area) and (log)"""
-
-    def __init__(self, parent=None, file_main=None, file_abonds=None):
-        QMainWindow.__init__(self, parent)
-        self.__refs = []
-        # XRunnableManager instance
-        self._manager_form = None
-
+class _LogPart(object):
     # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * #
     # Interface
 
@@ -29,7 +21,7 @@ class XLogMainWindow(QMainWindow):
         When using PyQt, it happens that the Python object gets garbage-collected even
         when a C++ Qt object still exists, causing a mess
         """
-        self.__refs.append(obj)
+        self._refs.append(obj)
         return obj
 
     def add_log_error(self, x, flag_also_show=False):
@@ -56,16 +48,30 @@ class XLogMainWindow(QMainWindow):
             show_error(x_)
 
 
+class XLogMainWindow(QMainWindow, _LogPart):
+    def __init__(self, parent=None):
+        QMainWindow.__init__(self, parent)
+        _LogPart.__init__(self)
+        self._refs = []
+
+
+class XLogDialog(QDialog, _LogPart):
+    def __init__(self, parent=None):
+        QDialog.__init__(self, parent)
+        _LogPart.__init__(self)
+        self._refs = []
+
+
 class XFileMainWindow(XLogMainWindow):
     """Application template with file operations in two tabs: (application area) and (log)"""
 
-    def __init__(self, parent=None, file_main=None, file_abonds=None):
+    def __init__(self, parent=None):
         def keep_ref(obj):
-            self.__refs.append(obj)
+            self._refs.append(obj)
             return obj
 
         XLogMainWindow.__init__(self, parent)
-        self.__refs = []
+        self._refs = []
         # XRunnableManager instance
         self._manager_form = None
         # RunnableManager instance
@@ -165,7 +171,7 @@ class XFileMainWindow(XLogMainWindow):
         WHen using PyQt, it happens that the Python object gets garbage-collected even
         when a C++ Qt object still exists, causing a mess
         """
-        self.__refs.append(obj)
+        self._refs.append(obj)
         return obj
 
     def add_log_error(self, x, flag_also_show=False):
@@ -427,7 +433,7 @@ class WBase(QWidget):
     def __init__(self, parent):
         assert isinstance(parent, XLogMainWindow)
         QWidget.__init__(self, parent)
-        self.__refs = []
+        self._refs = []
         self.parent_form = parent
 
 
@@ -440,7 +446,7 @@ class WBase(QWidget):
         WHen using PyQt, it happens that the Python object gets garbage-collected even
         when a C++ Qt object still exists, causing a mess
         """
-        self.__refs.append(obj)
+        self._refs.append(obj)
         return obj
 
 

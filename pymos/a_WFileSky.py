@@ -22,6 +22,7 @@ import copy
 import datetime
 import traceback as tb
 from pymos import *
+from .a_XScaleSpectrum import *
 
 _COLORS_SQ = [(.1, .6, .5), (.5, .1, .7)]
 _ITER_COLORS_SQ = cycle(_COLORS_SQ)
@@ -39,10 +40,9 @@ class WFileSky(WBase):
         WBase.__init__(self, parent)
 
         def keep_ref(obj):
-            self.__refs.append(obj)
+            self._refs.append(obj)
             return obj
 
-        self.__refs = []
         # Whether all the values in the fields are valid or not
         self.flag_valid = False
         # Internal flag to prevent taking action when some field is updated programatically
@@ -629,12 +629,11 @@ class WFileSky(WBase):
         
     def scale_clicked(self):
         if len(self.f.sky.spectra) > 0:
-          sp = self.f.sky.spectra[self.twSpectra.currentRowIndex()].sp
+          sp = self.f.sky.spectra[self.twSpectra.currentRow()].sp
         form = XScaleSpectrum()
-        form.load(sp)
-        form.showModal()
-        if form.OK:
-            k = form.k()
+        form.set_spectrum(sp)
+        if form.exec_():
+            k = form.factor()
             sp.y *= k
             self.__update_from_f()
           

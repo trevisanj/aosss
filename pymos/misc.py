@@ -1,4 +1,4 @@
-__all__ = ["rubberband", "DECADE_FACTOR", "Bands", "style_widget"]
+__all__ = ["rubberband", "MAGNITUDE_BASE", "Bands", "style_widget"]
 
 import numpy as np
 from .fileccube import CompassCube
@@ -68,21 +68,7 @@ def _rubber_pieces(x, pieces):
 ########################################################################################################################
 # PHOTOMETRY
 
-# # https://en.wikipedia.org/wiki/Infrared_astronomy
-# bands = [
-# ("R", 0.65, 1.0),
-# ("I",
-# ("J", 1.1, 1.4),
-# ("H", 1.5, 1.8),
-# ("K", 2.0, 2.4),
-# ("L", 3.0, 4.0),
-# ("M", 4.6, 5.0),
-# ("N", 7.5, 14.5),
-# ("Q", 17, 25),
-# ("Z", 28, 40),
-#
-
-DECADE_FACTOR = 100. ** (1. / 5)  # approx. 2.512
+MAGNITUDE_BASE = 100. ** (1. / 5)  # approx. 2.512
 
 
 def ufunc_gauss(x0, fwhm):
@@ -221,12 +207,28 @@ class Bands(object):
     ("Q", (210000., 58000.))
     ))
 
+    # values taken from https://en.wikipedia.org/wiki/Apparent_magnitude, but I- and J-band values agree with
+    # Evans, C.J., et al., A&A 527(2011): A50.
+    REF_JY = collections.OrderedDict((
+    ("U", 1810),
+    ("B", 4260),
+    ("V", 3640),
+    ("R", 3080),
+    ("I", 2550),
+    ("Y", None),
+    ("J", 1600),
+    ("H", 1080),
+    ("K", 670),
+    ("L", None),
+    ("M", None),
+    ("N", None),
+    ("Q", None),
+
+    ))
+
     bands = collections.OrderedDict()
     for k in PARAMETRIC:
-        bands[k] = Band(k, TABULAR.get(k), PARAMETRIC.get(k))
-    # adds reference magnitude data known so far
-    bands["I"].ref_jy = 2550
-    bands["J"].ref_jy = 1600
+        bands[k] = Band(k, TABULAR.get(k), PARAMETRIC.get(k), REF_JY.get(k))
 
     @classmethod
     def ufunc_band(cls, band_name, flag_force_parametric=False):

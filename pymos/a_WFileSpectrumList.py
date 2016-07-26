@@ -23,9 +23,8 @@ class WFileSpectrumList(WBase):
         WBase.__init__(self, parent)
 
         def keep_ref(obj):
-            self.__refs.append(obj)
+            self._refs.append(obj)
             return obj
-        self.__refs = []
 
         # Whether __update_f() went ok
         self.flag_valid = False
