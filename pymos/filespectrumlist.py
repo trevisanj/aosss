@@ -2,7 +2,7 @@
 List of spectra sharing same wavenumber axis. Uses FITS format
 """
 
-__all__ = ["SpectrumList", "FileSpectrumList"]
+__all__ = ["SpectrumList", "FileSpectrumList", "SpectrumCollection"]
 
 from pyfant import DataFile, AttrsPart, Spectrum, cut_spectrum_idxs, cut_spectrum
 from pyfant import get_python_logger

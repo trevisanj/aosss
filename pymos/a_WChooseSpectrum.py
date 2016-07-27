@@ -1,4 +1,4 @@
-"""Widget to edit a FileCCube object."""
+"""Widget to choose a spectrum"""
 
 __all__ = ["WChooseSpectrum"]
 

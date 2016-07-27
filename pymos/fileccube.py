@@ -76,7 +76,7 @@ class CompassCube(AttrsPart):
 
     def get_spectrum(self, x, y):
         """
-        Returns spectrum at coordinate x, y
+        Returns spectrum at coordinate x, y (copied vectors)
 
         **Note** coordinate (x=0, y=0) corresponds to lower left pixel of cube cross-section
         """

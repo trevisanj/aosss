@@ -14,55 +14,79 @@ import numpy as np
 from pyfant.misc import *
 from astropy.io import fits
 import os
-from .fileccube import *
-from .filespectrumlist import *
+from pymos.fileccube import *
+from pymos.filespectrumlist import *
 import numpy as np
 from scipy.interpolate import interp1d
 import numbers
 
 
-_MMM = [("hr_pix_size", "CDELT1"),
-        ("hrfactor", "HRFACTOR"),
-        ("R", "R")]
+# headers to care about when importing from a CompassCube HDU
+_HEADERS_COMPASS_CUBE = ["CDELT1", "HRFACTOR", "R"]
 
 
-class _LambdaReference(object):
-    def __init__(self, x):
-        self.delta_lambda = x[1]-x[0]
-        self.ref_lambda = x[0] % self.delta_lambda
-
-class Sky(AttrsPart):
-    attrs = ["R", "hrfactor", "hr_pix_size"]
+class Sky(SpectrumCollection):
+    attrs = SpectrumCollection.attrs+["R", "hrfactor", "hr_pix_size"]
 
     @property
+    def hr_pix_size(self):
+        return self.more_headers.get("CDELT1")
+        
+    @hr_pix_size.setter
+    def hr_pix_size(self, value):
+        self.more_headers["CDELT1"] = value
+
+    @property
+    def hrfactor(self):
+        return self.more_headers.get("HRFACTOR")
+        
+    @hrfactor.setter
+    def hrfactor(self, value):
+        self.more_headers["HRFACTOR"] = value
+
+    @property
+    def R(self):
+        return self.more_headers.get("R")
+        
+    @R.setter
+    def R(self, value):
+        self.more_headers["R"] = value
+
+    @property
+    def width(self):
+        return self.more_headers.get("WIDTH")
+        
+    @width.setter
+    def width(self, value):
+        self.more_headers["WIDTH"] = value
+
+    @property
+    def height(self):
+        return self.more_headers.get("HEIGHT")
+        
+    @height.setter
+    def height(self, value):
+        self.more_headers["HEIGHT"] = value
+
+    # read-only
+    @property
     def delta_lambda(self):
-        return self.walength[1]-self.wavelength[0]
+        return self.wavelength[1]-self.wavelength[0]
 
     def __init__(self, hdu=None):
-        AttrsPart.__init__(self)
+        SpectrumCollection.__init__(self)
         self.__flag_update = True
         self.__flag_update_pending = False
-        self.hdu = None  # PyFITS HDU object
-        self.wavelength = None  # the wavelength axis (angstrom) (shared among all spectra in the cube)
-        self.filename = None
+        self.wavelength = np.array([-1., -1.])  # Like this delta_lambda property does not give error
         # Header data initialized to default
         self.R = 5000
         self.hrfactor = 10
         self.hr_pix_size = 0.0375/self.hrfactor
         self.width = 50
         self.height = 30
-        # _LambdaReference instance, can be inferred from first spectrum added
-        self.reference = None
-        self.spectra = []
 
         if hdu is not None:
             self.from_hdu(hdu)
-
-    def __len__(self):
-        raise NotImplementedError()
-
-    def __repr__(self):
-        return "Please implement SpectrumList.__repr__()"
 
     def crop(self, x0=None, x1=None, y0=None, y1=None, lambda0=None, lambda1=None):
         """
@@ -109,20 +133,18 @@ class Sky(AttrsPart):
                 sp.y -= y0
 
             # Deletes spectra out of XY range
-            for ap in reversed(self.spectra):
-                if not 0 <= sp.x < self.width or not 0 <= sp.y < self.height:
-                    self.spectra.remove(item)
+            for sp in reversed(self.spectra):
+                if not 0 <= sp.pixel_x < self.width or not 0 <= sp.pixel_y < self.height:
+                    self.spectra.remove(sp)
 
         if any([lambda0 != self.wavelength[0], lambda1 != self.wavelength[-1]]):
             # cuts remaining spectra
             for sp in reversed(self.spectra):
                 sp.cut(lambda0, lambda1)
-                if len(item.sp) == 0:
+                if len(sp) == 0:
                     # If spectrum is now out of range, it is deleted
-                    self.spectra.remove(item)
-
+                    self.spectra.remove(sp)
         self.__update()
-
 
     def from_compass_cube(self, ccube):
         assert isinstance(ccube, CompassCube)
@@ -133,11 +155,8 @@ class Sky(AttrsPart):
 
         # Reads some attributes from the headers
         # Uses self.attrs, but this is just a coincidence, may need detachment
-        for na0, na1 in _MMM:
-            try:
-                self.__setattr__(na0, hdu.header[na1])
-            except:
-                get_python_logger().exception("Failed getting header '%s'" % na1)
+        for name in _HEADERS_COMPASS_CUBE:
+            self.more_headers[name] = hdu.header.get(name, self.more_headers[name])
 
         self.__flag_update = False
         try:
@@ -146,43 +165,35 @@ class Sky(AttrsPart):
                     Yi = j + 1
                     flux0 = data[:, j, i]
                     if np.any(flux0 > 0):
-                        sp_ = ccube.get_spectrum(i, j)
+                        sp = ccube.get_spectrum(i, j)
                         # discards edges that are zeros
-                        where_positive = np.where(sp_.flux > 0)[0]
-                        sp = cut_spectrum_idxs(sp_, where_positive[0], where_positive[-1]+1)
+                        where_positive = np.where(sp.flux > 0)[0]
+                        sp.cut_idxs(where_positive[0], where_positive[-1]+1)
                         sp.pixel_x, sp.pixel_y = i, j
                         self.add_spectrum(sp)
         finally:
             self.enable_update()
 
     def from_hdulist(self, hdul):
-        assert isinstance(hdul, fits.HDUList)
-        try:
-            test = hdul[0].header["TAINHA"]
-        except KeyError:
-            raise RuntimeError("Wrong HDUList")
-
-        # in first iteration of some loop ... self.reference = _LambdaReference()
-
-        self.spectra = []
-
         self.__flag_update = False
         try:
-            for i, hdu in enumerate(hdul):
-                if i == 0:
-                    for na0, na1 in _MMM:
-                        try:
-                            self.__setattr__(na0, hdu.header[na1])
-                        except:
-                            get_python_logger().exception("Failed setting '%s' = '%s'" % (na0, na1))
-
-                else:
-                    sp = Spectrum()
-                    sp.from_hdu(hdu)
-                    if i == 1:
-                        # TODO this must be settable, not just taken from first spectrum
-                        self.reference = _LambdaReference(sp.x)
-                    self.add_spectrum(sp)
+            SpectrumCollection.from_hdulist(self, hdul)
+            
+#            for i, hdu in enumerate(hdul):
+#                if i == 0:
+#                    for na0, na1 in _MMM:
+#                        try:
+#                            self.__setattr__(na0, hdu.header[na1])
+#                        except:
+#                            get_python_logger().exception("Failed setting '%s' = '%s'" % (na0, na1))
+#
+#                else:
+#                    sp = Spectrum()
+#                    sp.from_hdu(hdu)
+#                    if i == 1:
+#                        # TODO this must be settable, not just taken from first spectrum
+#                        self.reference = _LambdaReference(sp.x)
+#                    self.add_spectrum(sp)
         finally:
             self.enable_update()
 
@@ -191,12 +202,12 @@ class Sky(AttrsPart):
         assert len(self.spectra) > 0, "No spectra added"
 
         ccube = CompassCube()
-        wl_new = ccube.wavelength = self.wavelength
+        wl_new = ccube.wavelength = self.wavelength.copy()
         dims = len(wl_new), self.height, self.width
         ccube.create1(self.R, dims, self.hr_pix_size, self.hrfactor)
-        for item in self.spectra:
-            ii0 = BSearchCeil(wl_new, item.sp.x[0])
-            ccube.hdu.data[ii0:ii0+len(item.sp), item.y, item.x] = item.sp.y
+        for sp in self.spectra:
+            ii0 = BSearchCeil(wl_new, sp.x[0])
+            ccube.hdu.data[ii0:ii0+len(sp), sp.pixel_y, sp.pixel_x] = sp.y
         ccube.set_wavelength(self.wavelength)
         return ccube
 
@@ -228,36 +239,37 @@ class Sky(AttrsPart):
             im *= weights
         return im
 
-    def to_hdulist(self):
-        if len(self.spectra) == 0:
-            raise RuntimeError("At the moment, saving file with no spectra is not supported")
-
-        dl = self.reference.delta_lambda
-
-        hdul = fits.HDUList()
-
-        hdu = fits.PrimaryHDU()
-        hdu.header["CDELT1"] = self.hr_pix_size
-        hdu.header["CDELT2"] = self.hr_pix_size
-        hdu.header["CDELT3"] = dl
-        hdu.header["CRVAL3"] = self.wavelength[0]-dl
-        hdu.header["HRFACTOR"] = self.hrfactor
-        hdu.header["R"] = self.R
-        hdu.header["TAINHA"] = 26.9752
-
-        hdul.append(hdu)
-
-        for item in self.spectra:
-            hdul.append(item.sp.to_hdu())
-            # hdu = fits.PrimaryHDU()
-            # hdu.header["PIXEL-X"] = item.x
-            # hdu.header["PIXEL-Y"] = item.y
-            # hdu.header["CDELT1"] = dl
-            # hdu.header["CRVAL1"] = item.sp.x[0]  # **note** not subtracting dl as required in WebSimCompass format
-            # hdu.data = item.sp.y
-            # hdul.append(hdu)
-
-        return hdul
+#    def to_hdulist(self):
+#        if len(self.spectra) == 0:
+#            raise RuntimeError("At the moment, saving file with no spectra is not supported")
+#            # ... because it uses the 
+#
+#        dl = self.reference.delta_lambda
+#
+#        hdul = fits.HDUList()
+#
+#        hdu = fits.PrimaryHDU()
+#        hdu.header["CDELT1"] = self.hr_pix_size
+#        hdu.header["CDELT2"] = self.hr_pix_size
+#        hdu.header["CDELT3"] = dl
+#        hdu.header["CRVAL3"] = self.wavelength[0]-dl
+#        hdu.header["HRFACTOR"] = self.hrfactor
+#        hdu.header["R"] = self.R
+#        hdu.header["TAINHA"] = 26.9752
+#
+#        hdul.append(hdu)
+#
+#        for item in self.spectra:
+#            hdul.append(item.sp.to_hdu())
+#            # hdu = fits.PrimaryHDU()
+#            # hdu.header["PIXEL-X"] = item.x
+#            # hdu.header["PIXEL-Y"] = item.y
+#            # hdu.header["CDELT1"] = dl
+#            # hdu.header["CRVAL1"] = item.sp.x[0]  # **note** not subtracting dl as required in WebSimCompass format
+#            # hdu.data = item.sp.y
+#            # hdul.append(hdu)
+#
+#        return hdul
 
 
     def add_spectrum(self, sp):
@@ -271,8 +283,6 @@ class Sky(AttrsPart):
         """
         assert isinstance(sp, Spectrum)
         # assert self.flag_created, "Cube has not been created yet"
-        # assert len(sp.wavelength) == self.hdu.data.shape[0], \
-        #     "Spectrum number of points does not match 3rd dimension of cube"
 
         if len(sp.x) < 2:
             raise RuntimeError("Spectrum must have at least two points")
@@ -281,13 +291,13 @@ class Sky(AttrsPart):
         SpectrumCollection.add_spectrum(self, sp)
         self.__update()
 
-    def delete_spectra(self, indexes):
-        indexes = list(set(indexes))
-        if isinstance(indexes, numbers.Integral):
-            indexes = [indexes]
-        for index in reversed(indexes):
-            del self.spectra[index]
-        self.__update()
+#    def delete_spectra(self, indexes):
+#        indexes = list(set(indexes))
+#        if isinstance(indexes, numbers.Integral):
+#            indexes = [indexes]
+#        for index in reversed(indexes):
+#            del self.spectra[index]
+#        self.__update()
 
     def enable_update(self):
         self.__flag_update = True
@@ -305,18 +315,18 @@ class Sky(AttrsPart):
             flag_copy -- disable vector copies to speed up but don't the spectrum
         """
 
-        sp = Spectrum()
+        ret = Spectrum()
         if len(self.spectra) > 0:
             any_ = False
-            for item in self.spectra:
-                if item.x == x and item.y == y:
+            for sp in self.spectra:
+                if sp.pixel_x == x and sp.pixel_y == y:
                     if not any_:
-                        wl_new = sp.x = self.wavelength if not flag_copy else np.copy(self.wavelength)
-                        sp.y = np.zeros(len(self.wavelength))
+                        ret.x = self.wavelength if not flag_copy else np.copy(self.wavelength)
+                        ret.y = np.zeros(len(ret.x))
                         any_ = True
-                    ii0 = BSearchCeil(wl_new, item.sp.x[0])
-                    sp.y[ii0:ii0 + len(item.sp)] = item.sp.y
-        return sp
+                    ii0 = BSearchCeil(ret.x, sp.x[0])
+                    ret.y[ii0:ii0 + len(sp)] = sp.y
+        return ret
 
     def __update(self):
         """Updates internal state
@@ -329,38 +339,33 @@ class Sky(AttrsPart):
         if not self.__flag_update:
             self.__flag_update_pending = True
             return
+            
+        self.wavelength = np.array([-1., -1.])
 
         if len(self.spectra) == 0:
             return
 
-        if not self.reference:
-            self.reference = _LambdaReference(self.spectra[0].sp.wavelength)
-
-        wlmax = max([item.sp.x[-1] for item in self.spectra])
-        wlmin = min([item.sp.x[0] for item in self.spectra])
-        dl = self.reference.delta_lambda
+        wlmax = max([sp.x[-1] for sp in self.spectra])
+        wlmin = min([sp.x[0] for sp in self.spectra])
+        sp = self.spectra[0]
+        dl = sp.x[1]-sp.x[0]
         wlmin = (wlmin//dl)*dl
         wlmax = np.ceil(wlmax/dl)*dl
         wl = self.wavelength = np.arange(wlmin, wlmax+dl, dl)
+        
+        for sp in self.spectra:
+            i0 = BSearchCeil(wl, sp.x[0])
+            assert i0 != -1, "BSearchCeil(wl, sp.x[0]) FAILED"
+            i1 = BSearchFloor(wl, sp.x[-1])
+            assert i1 != -1, "BSearchFloor(wl, sp.x[-1]) FAILED"
 
-        for item in self.spectra:
-
-            i0 = BSearchCeil(wl, item.sp.x[0])
-            assert i0 != -1, "BSearchCeil(wl, item.sp.x[0]) FAILED"
-            i1 = BSearchFloor(wl, item.sp.x[-1])
-            assert i1 != -1, "BSearchFloor(wl, item.sp.x[-1]) FAILED"
-
-            if item.sp.delta_lambda != dl or wl[i0] != item.sp.x[0] or wl[i1] != item.sp.x[-1]:
+            if sp.delta_lambda != dl or wl[i0] != sp.x[0] or wl[i1] != sp.x[-1]:
                 # # Linear interpolation: either adjust for different delta lambda or misaligned wavelengths
                 wl_new = wl[i0:i1+1]
-                f = interp1d(item.sp.x, item.sp.y)
-                sp_new = Spectrum()
-                sp_new.x = wl_new
-                sp_new.y = f(wl_new)
-                # Replaces sp
-                item.sp = sp_new
-
-            item.z = i0
+                f = interp1d(sp.x, sp.y)
+                sp.x = wl_new
+                sp.y = f(wl_new)
+            sp.z_start = i0
 
 
 class FileSky(DataFile):

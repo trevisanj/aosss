@@ -575,14 +575,6 @@ class WFileSpectrumList(WBase):
         self.edit_fieldnames.setPlainText(str(splist.fieldnames))
         self.set_flag_header_changed(False)
 
-    def add_log_error(self, x, flag_also_show=False):
-        """Delegates to parent form"""
-        self.parent_form.add_log_error(x, flag_also_show)
-
-    def add_log(self, x, flag_also_show=False):
-        """Delegates to parent form"""
-        self.parent_form.add_log(x, flag_also_show)
-
     def set_flag_header_changed(self, flag):
         self.button_apply.setEnabled(flag)
         self.button_revert.setEnabled(flag)

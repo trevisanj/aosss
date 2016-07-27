@@ -5,7 +5,22 @@
     <bookmark url="file://$PROJECT_DIR$/pymos/a_WFileSpectrumList.py" line="190" mnemonic="4" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="15a32482-a603-4ab7-aed4-812bfe142b5f" name="Default" comment="" />
+    <list default="true" id="15a32482-a603-4ab7-aed4-812bfe142b5f" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/pymos/a_WSpectrumTable.py" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pymos/a_WBand.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pymos/a_WFileCCube.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pymos/a_WScaleSpectrum.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pymos/a_XFileCCube.py" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pymos/__init__.py" afterPath="$PROJECT_DIR$/pymos/__init__.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pymos/a_WChooseSpectrum.py" afterPath="$PROJECT_DIR$/pymos/a_WChooseSpectrum.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pymos/a_WFileSky.py" afterPath="$PROJECT_DIR$/pymos/a_WFileSky.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pymos/a_WFileSpectrumList.py" afterPath="$PROJECT_DIR$/pymos/a_WFileSpectrumList.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pymos/basewindows.py" afterPath="$PROJECT_DIR$/pymos/basewindows.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pymos/fileccube.py" afterPath="$PROJECT_DIR$/pymos/fileccube.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pymos/filesky.py" afterPath="$PROJECT_DIR$/pymos/filesky.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pymos/filespectrumlist.py" afterPath="$PROJECT_DIR$/pymos/filespectrumlist.py" />
+    </list>
     <ignored path="pymos.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -25,12 +40,14 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="misc.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/pymos/misc.py">
+      <file leaf-file-name="a_WSpectrumTable.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/pymos/a_WSpectrumTable.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="40" selection-start-line="0" selection-start-column="40" selection-end-line="0" selection-end-column="40" />
-              <folding />
+            <state relative-caret-position="450">
+              <caret line="110" column="30" selection-start-line="110" selection-start-column="30" selection-end-line="110" selection-end-column="30" />
+              <folding>
+                <element signature="e#70#96#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -38,9 +55,33 @@
       <file leaf-file-name="a_WFileSpectrumList.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pymos/a_WFileSpectrumList.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="6" selection-start-line="0" selection-start-column="6" selection-end-line="0" selection-end-column="6" />
+            <state relative-caret-position="1065">
+              <caret line="555" column="0" selection-start-line="535" selection-start-column="0" selection-end-line="555" selection-end-column="0" />
+              <folding>
+                <marker date="1469613478236" expanded="true" signature="20169:20192" ph="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="filesky.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/pymos/filesky.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="396">
+              <caret line="170" column="36" selection-start-line="170" selection-start-column="36" selection-end-line="170" selection-end-column="36" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="a_WFileSky.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/pymos/a_WFileSky.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="690">
+              <caret line="468" column="25" selection-start-line="468" selection-start-column="25" selection-end-line="468" selection-end-column="25" />
+              <folding>
+                <marker date="1469614834977" expanded="true" signature="6469:6496" ph="..." />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -48,47 +89,15 @@
       <file leaf-file-name="a_XScaleSpectrum.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pymos/a_XScaleSpectrum.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="201">
-              <caret line="32" column="0" selection-start-line="32" selection-start-column="0" selection-end-line="32" selection-end-column="0" />
+            <state relative-caret-position="321">
+              <caret line="40" column="13" selection-start-line="40" selection-start-column="13" selection-end-line="40" selection-end-column="13" />
               <folding>
                 <element signature="e#69#95#0" expanded="true" />
                 <marker date="1469546233670" expanded="true" signature="824:12201" ph="..." />
                 <marker date="1469546233670" expanded="true" signature="990:5357" ph="..." />
                 <marker date="1469546233670" expanded="true" signature="6009:6521" ph="..." />
                 <marker date="1469546233670" expanded="true" signature="6552:6723" ph="..." />
-                <marker date="1469546233670" expanded="true" signature="6590:6723" ph="..." />
-                <marker date="1469546233670" expanded="true" signature="8094:12201" ph="..." />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="a_WScaleSpectrum.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/pymos/a_WScaleSpectrum.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="misc.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../../pfant/PFANT/pyfant/pyfant/misc.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="225">
-              <caret line="990" column="1" selection-start-line="990" selection-start-column="1" selection-end-line="990" selection-end-column="1" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="guiaux.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../../pfant/PFANT/pyfant/pyfant/gui/guiaux.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="121">
-              <caret line="206" column="11" selection-start-line="206" selection-start-column="11" selection-end-line="206" selection-end-column="11" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -106,9 +115,21 @@
       <file leaf-file-name="ui_XParametersEditor.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../../pfant/PFANT/pyfant/pyfant/gui/ui_XParametersEditor.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="277">
+            <state relative-caret-position="630">
               <caret line="42" column="0" selection-start-line="42" selection-start-column="0" selection-end-line="52" selection-end-column="60" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="basewindows.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/pymos/basewindows.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="695">
+              <caret line="429" column="61" selection-start-line="429" selection-start-column="61" selection-end-line="429" selection-end-column="61" />
+              <folding>
+                <marker date="1469613443068" expanded="true" signature="1573:1711" ph="..." />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -116,22 +137,10 @@
       <file leaf-file-name="a_WParametersEditor.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../../pfant/PFANT/pyfant/pyfant/gui/a_WParametersEditor.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="660">
+            <state relative-caret-position="795">
               <caret line="56" column="0" selection-start-line="56" selection-start-column="0" selection-end-line="56" selection-end-column="0" />
               <folding>
                 <element signature="e#66#92#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="a_XFileSpectrumList.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/pymos/a_XFileSpectrumList.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="488">
-              <caret line="118" column="0" selection-start-line="118" selection-start-column="0" selection-end-line="118" selection-end-column="0" />
-              <folding>
-                <element signature="e#80#105#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -151,28 +160,29 @@
         <option value="$PROJECT_DIR$/pymos/blocks.py" />
         <option value="$PROJECT_DIR$/pymos/filespectrumlist.py" />
         <option value="$PROJECT_DIR$/../../pfant/PFANT/pyfant/pyfant/data/spectrum.py" />
-        <option value="$PROJECT_DIR$/pymos/filesky.py" />
         <option value="$PROJECT_DIR$/pymos/fileccube.py" />
         <option value="$PROJECT_DIR$/pymos/a_WFileCCube.py" />
         <option value="$PROJECT_DIR$/pymos/__init__.py" />
         <option value="$PROJECT_DIR$/../../pfant/PFANT/pyfant/pyfant/gui/guiaux.py" />
-        <option value="$PROJECT_DIR$/pymos/basewindows.py" />
         <option value="$PROJECT_DIR$/pymos/a_WBand.py" />
-        <option value="$PROJECT_DIR$/pymos/a_WFileSky.py" />
         <option value="$PROJECT_DIR$/pymos/a_WFileSpectrum.py" />
-        <option value="$PROJECT_DIR$/pymos/a_WFileSpectrumList.py" />
         <option value="$PROJECT_DIR$/pymos/a_WSpectrum.py" />
         <option value="$PROJECT_DIR$/pymos/misc.py" />
         <option value="$PROJECT_DIR$/pymos/a_WScaleSpectrum.py" />
         <option value="$PROJECT_DIR$/pymos/a_XScaleSpectrum.py" />
+        <option value="$PROJECT_DIR$/pymos/filesky.py" />
+        <option value="$PROJECT_DIR$/pymos/basewindows.py" />
+        <option value="$PROJECT_DIR$/pymos/a_WFileSpectrumList.py" />
+        <option value="$PROJECT_DIR$/pymos/a_WSpectrumTable.py" />
+        <option value="$PROJECT_DIR$/pymos/a_WFileSky.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
     <option name="x" value="-3" />
     <option name="y" value="27" />
-    <option name="width" value="1372" />
-    <option name="height" value="716" />
+    <option name="width" value="774" />
+    <option name="height" value="1314" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
@@ -199,18 +209,11 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scratches" />
       <pane id="Scope" />
       <pane id="ProjectPane">
-        <subPane>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="pymos" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-          </PATH>
-        </subPane>
+        <subPane />
       </pane>
-      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -401,13 +404,13 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-3" y="27" width="1372" height="716" extended-state="6" />
-    <editor active="false" />
+    <frame x="-3" y="27" width="774" height="1314" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25549048" sideWeight="0.49434572" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25520834" sideWeight="0.49434572" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32744783" sideWeight="0.50292826" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.36833602" sideWeight="0.49707174" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.36811832" sideWeight="0.49707174" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32905295" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -448,7 +451,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
           <url>file://$PROJECT_DIR$/pymos/blocks.py</url>
-          <line>140</line>
+          <line>141</line>
           <option name="timeStamp" value="3" />
         </line-breakpoint>
       </breakpoints>
@@ -457,14 +460,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/scripts/splisted.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="300">
-          <caret line="25" column="4" selection-start-line="25" selection-start-column="4" selection-end-line="25" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/pymos/misc.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2460">
@@ -477,7 +472,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="8160">
           <caret line="550" column="24" selection-start-line="550" selection-start-column="24" selection-end-line="550" selection-end-column="24" />
-          <folding />
+          <folding>
+            <marker date="1469613478236" expanded="true" signature="20169:20192" ph="..." />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -486,8 +483,7 @@
         <state relative-caret-position="10125">
           <caret line="684" column="56" selection-start-line="684" selection-start-column="56" selection-end-line="684" selection-end-column="56" />
           <folding>
-            <element signature="e#64#90#0" expanded="false" />
-            <marker date="1469541440531" expanded="true" signature="891:6440" ph="..." />
+            <marker date="1469614834977" expanded="true" signature="6469:6496" ph="..." />
           </folding>
         </state>
       </provider>
@@ -496,11 +492,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#70#96#0" expanded="true" />
-            <marker date="1469539162150" expanded="true" signature="681:4490" ph="..." />
-            <marker date="1469539162150" expanded="true" signature="786:3161" ph="..." />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -508,7 +499,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="300">
           <caret line="25" column="4" selection-start-line="25" selection-start-column="4" selection-end-line="25" selection-end-column="4" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -516,9 +506,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2115">
           <caret line="150" column="40" selection-start-line="150" selection-start-column="40" selection-end-line="150" selection-end-column="40" />
-          <folding>
-            <marker date="1469452106094" expanded="true" signature="4469:4712" ph="..." />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -544,7 +532,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="6510">
           <caret line="440" column="18" selection-start-line="440" selection-start-column="18" selection-end-line="440" selection-end-column="18" />
-          <folding />
+          <folding>
+            <marker date="1469613478236" expanded="true" signature="20169:20192" ph="..." />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -569,9 +559,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#20#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -579,7 +567,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="300">
           <caret line="25" column="4" selection-start-line="25" selection-start-column="4" selection-end-line="25" selection-end-column="4" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -588,9 +575,7 @@
         <state relative-caret-position="1560">
           <caret line="110" column="79" selection-start-line="110" selection-start-column="79" selection-end-line="110" selection-end-column="79" />
           <folding>
-            <marker date="1469539495195" expanded="true" signature="1573:1711" ph="..." />
-            <marker date="1469539495195" expanded="true" signature="1610:1710" ph="..." />
-            <marker date="1469539495195" expanded="true" signature="14628:14741" ph="..." />
+            <marker date="1469613443068" expanded="true" signature="1573:1711" ph="..." />
           </folding>
         </state>
       </provider>
@@ -599,9 +584,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="855">
           <caret line="66" column="0" selection-start-line="66" selection-start-column="0" selection-end-line="66" selection-end-column="0" />
-          <folding>
-            <marker date="1469452106094" expanded="true" signature="4469:4712" ph="..." />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -645,96 +628,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pymos/a_XFileSky.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="16" column="19" selection-start-line="16" selection-start-column="19" selection-end-line="16" selection-end-column="19" />
-          <folding>
-            <element signature="e#71#96#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/.PyCharm2016.1/system/python_stubs/-1247972723/PyQt4/QtGui/QPlainTextEdit.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="135">
           <caret line="12" column="6" selection-start-line="12" selection-start-column="6" selection-end-line="12" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pymos/filesky.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="500">
-          <caret line="189" column="57" selection-start-line="189" selection-start-column="50" selection-end-line="189" selection-end-column="57" />
-          <folding>
-            <marker date="1469453063880" expanded="true" signature="0:184" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1469453063880" expanded="false" signature="216:514" ph="import ..." />
-            <marker date="1469453063880" expanded="true" signature="525:604" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="638:753" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="675:753" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="786:902" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="813:902" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="925:12767" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="1013:1064" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="1099:1773" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="1797:1833" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="1858:1916" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="2001:4018" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="2010:2280" ph="&quot;&quot;&quot;Reduces region, discards spectra, cuts remaining spectra...&quot;&quot;&quot;" />
-            <marker date="1469453063880" expanded="true" signature="3221:3607" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="3326:3384" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="3479:3607" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="3689:3993" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="3774:3993" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="3878:3993" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="4060:5177" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="4249:4368" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="4398:4572" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="4621:5127" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="4653:5127" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="4689:5127" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="4804:5127" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="5212:6306" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="5547:6256" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="5590:6256" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="5617:5888" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="5659:5888" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="5911:6256" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="6015:6168" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="6338:6870" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="6674:6803" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="6944:8119" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="6953:7477" ph="&quot;&quot;&quot;Returns a [nY, nX, 3] red-green-blue (0.-1.) matrix...&quot;&quot;&quot;" />
-            <marker date="1469453063880" expanded="true" signature="7644:8017" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="7685:8017" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="7766:8017" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="8040:8101" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="8146:9158" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="8744:9137" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="8799:9137" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="9198:9911" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="9207:9475" ph="&quot;&quot;&quot;&quot;Paints&quot; pixel with given spectrum...&quot;&quot;&quot;" />
-            <marker date="1469453063880" expanded="true" signature="9524:9727" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="9951:10170" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="10200:10348" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="10273:10348" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="10396:11280" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="10405:10737" ph="&quot;&quot;&quot;Creates spectrum on-the-fly containing all spectra merged for pixel (x, y)...&quot;&quot;&quot;" />
-            <marker date="1469453063880" expanded="true" signature="10796:11262" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="10859:11262" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="10907:11262" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="10940:11141" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="11305:12767" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="11314:11448" ph="&quot;&quot;&quot;Updates internal state...&quot;&quot;&quot;" />
-            <marker date="1469453063880" expanded="true" signature="11484:11549" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="12043:12767" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="12375:12742" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="12794:13501" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="12992:13049" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="13084:13221" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="13259:13430" ph="..." />
-            <marker date="1469453063880" expanded="true" signature="13459:13501" ph="..." />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -749,53 +646,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="426">
           <caret line="404" column="0" selection-start-line="404" selection-start-column="0" selection-end-line="404" selection-end-column="0" />
-          <folding>
-            <marker date="1469454039651" expanded="false" signature="68:523" ph="import ..." />
-            <marker date="1469454039651" expanded="true" signature="552:11411" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="557:631" ph="&quot;&quot;&quot;FileCCube editor widget....&quot;&quot;&quot;" />
-            <marker date="1469454039651" expanded="true" signature="737:6106" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="3769:4141" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="4938:4989" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="5199:5302" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="5414:5697" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="6112:6207" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="6231:6480" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="6330:6424" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="6486:6583" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="6621:6734" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="6782:7200" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="6825:7179" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="6871:7138" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="7206:7297" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="7323:7422" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="7361:7422" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="7449:7481" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="7513:7546" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="7552:7651" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="7683:8618" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="7738:8556" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="7806:8556" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="8654:8728" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="8764:8841" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="8868:10989" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="8953:10691" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="8983:10691" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="10722:10912" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="10846:10912" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="11019:11411" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="11081:11411" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="11444:12963" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="11449:11585" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1469454039651" expanded="true" signature="11997:12029" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="12118:12235" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="12150:12235" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="12281:12367" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="12395:12483" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="12509:12750" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="12537:12750" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="12626:12750" ph="..." />
-            <marker date="1469454039651" expanded="true" signature="12926:12963" ph="..." />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -810,9 +660,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2115">
           <caret line="150" column="40" selection-start-line="150" selection-start-column="40" selection-end-line="150" selection-end-column="40" />
-          <folding>
-            <marker date="1469452106094" expanded="true" signature="4469:4712" ph="..." />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -820,7 +668,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="300">
           <caret line="25" column="4" selection-start-line="25" selection-start-column="4" selection-end-line="25" selection-end-column="4" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -828,9 +675,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="465">
           <caret line="151" column="56" selection-start-line="151" selection-start-column="56" selection-end-line="151" selection-end-column="56" />
-          <folding>
-            <element signature="e#0#20#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -863,58 +708,15 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="562">
           <caret line="442" column="4" selection-start-line="442" selection-start-column="4" selection-end-line="442" selection-end-column="4" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pymos/basewindows.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="338">
-          <caret line="430" column="33" selection-start-line="430" selection-start-column="33" selection-end-line="430" selection-end-column="33" />
-          <folding>
-            <marker date="1469539495195" expanded="true" signature="1573:1711" ph="..." />
-            <marker date="1469539495195" expanded="true" signature="1610:1710" ph="..." />
-            <marker date="1469539495195" expanded="true" signature="14628:14741" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pymos/a_WFileSpectrum.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pymos/a_WSpectrum.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pymos/a_WFileSky.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="488">
-          <caret line="898" column="0" selection-start-line="898" selection-start-column="0" selection-end-line="898" selection-end-column="0" />
-          <folding>
-            <element signature="e#64#90#0" expanded="false" />
-            <marker date="1469541440531" expanded="true" signature="891:6440" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/pymos/a_WFileSpectrum.py" />
+    <entry file="file://$PROJECT_DIR$/pymos/a_WSpectrum.py" />
     <entry file="file://$PROJECT_DIR$/pymos/a_WBand.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="360">
           <caret line="80" column="0" selection-start-line="65" selection-start-column="0" selection-end-line="80" selection-end-column="0" />
-          <folding>
-            <element signature="e#70#96#0" expanded="true" />
-            <marker date="1469539162150" expanded="true" signature="681:4490" ph="..." />
-            <marker date="1469539162150" expanded="true" signature="786:3161" ph="..." />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -922,25 +724,16 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="75">
           <caret line="6" column="4" selection-start-line="6" selection-start-column="4" selection-end-line="6" selection-end-column="4" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/pymos/a_XFileSpectrumList.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="488">
+        <state relative-caret-position="1770">
           <caret line="118" column="0" selection-start-line="118" selection-start-column="0" selection-end-line="118" selection-end-column="0" />
           <folding>
-            <element signature="e#80#105#0" expanded="true" />
+            <element signature="e#80#105#0" expanded="false" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pymos/a_WFileSpectrumList.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="6" selection-start-line="0" selection-start-column="6" selection-end-line="0" selection-end-column="6" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -954,7 +747,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/../../pfant/PFANT/pyfant/pyfant/misc.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
+        <state relative-caret-position="14535">
           <caret line="990" column="1" selection-start-line="990" selection-start-column="1" selection-end-line="990" selection-end-column="1" />
           <folding />
         </state>
@@ -962,7 +755,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/../../pfant/PFANT/pyfant/pyfant/gui/guiaux.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="121">
+        <state relative-caret-position="2985">
           <caret line="206" column="11" selection-start-line="206" selection-start-column="11" selection-end-line="206" selection-end-column="11" />
           <folding />
         </state>
@@ -970,7 +763,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/../../pfant/PFANT/pyfant/pyfant/gui/a_WParametersEditor.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="660">
+        <state relative-caret-position="795">
           <caret line="56" column="0" selection-start-line="56" selection-start-column="0" selection-end-line="56" selection-end-column="0" />
           <folding>
             <element signature="e#66#92#0" expanded="true" />
@@ -986,35 +779,84 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/../../pfant/PFANT/pyfant/pyfant/gui/ui_XParametersEditor.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="630">
+          <caret line="42" column="0" selection-start-line="42" selection-start-column="0" selection-end-line="52" selection-end-column="60" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pymos/a_WScaleSpectrum.py" />
     <entry file="file://$PROJECT_DIR$/pymos/a_XScaleSpectrum.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="201">
-          <caret line="32" column="0" selection-start-line="32" selection-start-column="0" selection-end-line="32" selection-end-column="0" />
+        <state relative-caret-position="321">
+          <caret line="40" column="13" selection-start-line="40" selection-start-column="13" selection-end-line="40" selection-end-column="13" />
           <folding>
             <element signature="e#69#95#0" expanded="true" />
             <marker date="1469546233670" expanded="true" signature="824:12201" ph="..." />
             <marker date="1469546233670" expanded="true" signature="990:5357" ph="..." />
             <marker date="1469546233670" expanded="true" signature="6009:6521" ph="..." />
             <marker date="1469546233670" expanded="true" signature="6552:6723" ph="..." />
-            <marker date="1469546233670" expanded="true" signature="6590:6723" ph="..." />
-            <marker date="1469546233670" expanded="true" signature="8094:12201" ph="..." />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../../pfant/PFANT/pyfant/pyfant/gui/ui_XParametersEditor.py">
+    <entry file="file://$PROJECT_DIR$/pymos/filesky.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="277">
-          <caret line="42" column="0" selection-start-line="42" selection-start-column="0" selection-end-line="52" selection-end-column="60" />
+        <state relative-caret-position="396">
+          <caret line="170" column="36" selection-start-line="170" selection-start-column="36" selection-end-line="170" selection-end-column="36" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pymos/a_WScaleSpectrum.py">
+    <entry file="file://$PROJECT_DIR$/pymos/basewindows.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+        <state relative-caret-position="695">
+          <caret line="429" column="61" selection-start-line="429" selection-start-column="61" selection-end-line="429" selection-end-column="61" />
+          <folding>
+            <marker date="1469613443068" expanded="true" signature="1573:1711" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pymos/a_XFileSky.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="460">
+          <caret line="45" column="16" selection-start-line="45" selection-start-column="16" selection-end-line="45" selection-end-column="16" />
+          <folding>
+            <element signature="e#71#96#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pymos/a_WFileSpectrumList.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1065">
+          <caret line="555" column="0" selection-start-line="535" selection-start-column="0" selection-end-line="555" selection-end-column="0" />
+          <folding>
+            <marker date="1469613478236" expanded="true" signature="20169:20192" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pymos/a_WSpectrumTable.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="450">
+          <caret line="110" column="30" selection-start-line="110" selection-start-column="30" selection-end-line="110" selection-end-column="30" />
+          <folding>
+            <element signature="e#70#96#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pymos/a_WFileSky.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="690">
+          <caret line="468" column="25" selection-start-line="468" selection-start-column="25" selection-end-line="468" selection-end-column="25" />
+          <folding>
+            <marker date="1469614834977" expanded="true" signature="6469:6496" ph="..." />
+          </folding>
         </state>
       </provider>
     </entry>

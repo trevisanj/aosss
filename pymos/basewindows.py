@@ -427,6 +427,7 @@ class NullEditor(object):
 
 
 class WBase(QWidget):
+    """Widget with 'edited' signal, keep_ref(), logging tools"""
     # Emitted whenever any value changes
     edited = pyqtSignal()
 
@@ -450,3 +451,11 @@ class WBase(QWidget):
         return obj
 
 
+    def add_log_error(self, x, flag_also_show=False):
+        """Delegates to parent form"""
+        self.parent_form.add_log_error(x, flag_also_show)
+
+
+    def add_log(self, x, flag_also_show=False):
+        """Delegates to parent form"""
+        self.parent_form.add_log(x, flag_also_show)

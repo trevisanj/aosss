@@ -23,6 +23,7 @@ import datetime
 import traceback as tb
 from pymos import *
 from .a_XScaleSpectrum import *
+from .a_WSpectrumTable import *
 
 _COLORS_SQ = [(.1, .6, .5), (.5, .1, .7)]
 _ITER_COLORS_SQ = cycle(_COLORS_SQ)
@@ -179,44 +180,9 @@ class WFileSky(WBase):
         ###
         lwex.addWidget(keep_ref(QLabel("<b>Existing spectra</b>")))
         ###
-        lwexex = QHBoxLayout()
-        lwexex.setMargin(0)
-        lwexex.setSpacing(2)
-        lwex.addLayout(lwexex)
-        ###
-        b = keep_ref(QPushButton("Scale..."))
-        b.clicked.connect(self.scale_clicked)
-        lwexex.addWidget(b)
-        ###
-        lwexex.addWidget(keep_ref(QLabel("With selected:")))
-        ###
-        b = keep_ref(QPushButton("Plot &stacked"))
-        b.clicked.connect(self.plot_stacked_clicked)
-        lwexex.addWidget(b)        
-        ###
-        b = keep_ref(QPushButton("Plot &overlapped"))
-        b.clicked.connect(self.plot_overlapped_clicked)
-        lwexex.addWidget(b)
-        ###
-        b = keep_ref(QPushButton("Delete"))
-        b.clicked.connect(self.delete_selected)
-        lwexex.addWidget(b)
-        ###
-        lwexex.addSpacerItem(QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
-        ###
-        a = self.twSpectra = QTableWidget()
-        lwex.addWidget(a)
-        a.setSelectionMode(QAbstractItemView.MultiSelection)
-        a.setSelectionBehavior(QAbstractItemView.SelectRows)
-        a.setAlternatingRowColors(True)
-        #a.currentCellChanged.connect(self.on_tableWidget_currentCellChanged)
-        a.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        a.setFont(MONO_FONT)
-        a.installEventFilter(self)
-        a.setContextMenuPolicy(Qt.CustomContextMenu)
-        a.customContextMenuRequested.connect(self.on_twSpectra_customContextMenuRequested)
-
-        # a.setSizePolicy(QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Expanding))
+        w = self.wsptable = WSpectrumTable(self.parent_form)
+        w.edited.connect(self.on_spectra_edited)
+        lwex.addWidget(w)
 
         # ##### Finally...
         spp.addWidget(sa0)
@@ -413,6 +379,7 @@ class WFileSky(WBase):
     def load(self, x):
         assert isinstance(x, FileSky)
         self.f = x
+        self.wsptable.set_collection(x.sky)
         self.__update_from_f(True)
         # this is called to perform file validation upon loading
         # TODO probably not like this
@@ -488,6 +455,10 @@ class WFileSky(WBase):
                 if edit == sndr:
                     style_widget(self.sender(), changed)
             self.set_flag_header_changed(sth)
+
+    def on_spectra_edited(self):
+        self.__update_from_f()
+        self.edited.emit()
 
     def on_place_spectrum_edited(self):
         # could only update the obj_square but this is easier
@@ -604,41 +575,6 @@ class WFileSky(WBase):
             self.spinbox_Y.setValue(y)
             self.plot_colors()
 
-    def on_twSpectra_customContextMenuRequested(self, position):
-        """Mounts, shows popupmenu for the tableWidget control, and takes action."""
-        menu = QMenu()
-        actions = []
-        actions.append(menu.addAction("Delete selected (Del)"))
-        action = menu.exec_(self.twSpectra.mapToGlobal(position))
-        if action is not None:
-            idx = actions.index(action)
-            if idx == 0:
-                self.__delete_spectra()
-
-    def plot_stacked_clicked(self):
-        sspp = [self.f.sky.spectra[i].sp for i in self.get_selected_row_indexes()]
-        if len(sspp) > 0:
-            plot_spectra(sspp)
-
-    def plot_overlapped_clicked(self):
-        sspp = [self.f.sky.spectra[i].sp for i in self.get_selected_row_indexes()]
-        if len(sspp) > 0:
-            plot_spectra_overlapped(sspp)
-
-    def delete_selected(self):
-        self.__delete_spectra()
-        
-    def scale_clicked(self):
-        if len(self.f.sky.spectra) > 0:
-          sp = self.f.sky.spectra[self.twSpectra.currentRow()].sp
-        form = XScaleSpectrum()
-        form.set_spectrum(sp)
-        if form.exec_():
-            k = form.factor()
-            sp.y *= k
-            self.__update_from_f()
-          
-
     # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * #
     # # Internal gear
 
@@ -653,30 +589,12 @@ class WFileSky(WBase):
 
     def __update_from_f(self, flag_headers=False):
         """
-
           flag_headers -- resets header widgets as well
         """
         self.flag_process_changes = False
         try:
             self.update_label_fn()
-
-            sky = self.f.sky
-            assert isinstance(sky, Sky)
-            t = self.twSpectra
-            n = len(sky.spectra)
-            ResetTableWidget(t, n, 3)
-            t.setHorizontalHeaderLabels(["x", "y", "spectrum"])
-            i = 0
-            for item in self.f.sky.spectra:
-                # t.insertRow(i)
-                twi = QTableWidgetItem(str(item.x))
-                t.setItem(i, 0, twi)
-                twi = QTableWidgetItem(str(item.y))
-                t.setItem(i, 1, twi)
-                twi= QTableWidgetItem(item.sp.one_liner_str())
-                t.setItem(i, 2, twi)
-                i += 1
-            t.resizeColumnsToContents()
+            self.wsptable.update()
 
             idx = self.tabWidgetVis.currentIndex()
             for i, callable_ in enumerate(self.map_update_vis):
@@ -724,14 +642,6 @@ class WFileSky(WBase):
             else:
                 text = "(filename not set)"
             label.setText(text)
-
-    def add_log_error(self, x, flag_also_show=False):
-        """Delegates to parent form"""
-        self.parent_form.add_log_error(x, flag_also_show)
-
-    def add_log(self, x, flag_also_show=False):
-        """Delegates to parent form"""
-        self.parent_form.add_log(x, flag_also_show)
 
     def set_flag_header_changed(self, flag):
         self.button_apply.setEnabled(flag)
@@ -826,7 +736,7 @@ def _plot_spectra(ax, sky):
     if flag_empty:
         r1 = [-.5, .5]
     else:
-        max_flux = max([max(item.sp.flux) for item in sky.spectra])
+        max_flux = max([max(sp.flux) for sp in sky.spectra])
         _y = sky.wavelength
         dlambda = _y[1]-_y[0]
         r1 = [_y[0] - dlambda / 2, _y[-1] + dlambda / 2]
@@ -854,11 +764,11 @@ def _plot_spectra(ax, sky):
         draw_line(r0, [r1[1]]*2, [i-.5]* 2)
 
 
-    for item in sky.spectra:
-        n = len(item.sp)
-        flux1 = item.sp.flux * scale + item.y - .5
-        ax.plot(np.ones(n) * item.x,
-                item.sp.wavelength,
+    for sp in sky.spectra:
+        n = len(sp)
+        flux1 = sp.flux * scale + sp.pixel_y - .5
+        ax.plot(np.ones(n) * sp.pixel_x,
+                sp.wavelength,
                 flux1, color='k')
 
     # ax.set_aspect("equal")
