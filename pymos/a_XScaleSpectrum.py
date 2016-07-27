@@ -88,20 +88,20 @@ class XScaleSpectrum(XLogDialog):
         pp.append((x, y, "&Force parametric?", "(even when tabular data is available)", ""))
         ###
         x = keep_ref(QLabel())
-        y = self.edit_ref_jy = QLineEdit()
-        y.setReadOnly(True)
+        y = self.edit_ref_mean_flux = QLineEdit()
+        _toggle_widget(y, True)
         x.setBuddy(y)
-        pp.append((x, y, "Ref Jy", "", ""))
+        pp.append((x, y, "Reference mean flux (Jy)", "Mean flux passing through filter<br>for a 0-magnitude object", ""))
         ###
         x = keep_ref(QLabel())
-        y = self.edit_calc_jy = QLineEdit()
-        y.setReadOnly(True)
+        y = self.edit_calc_mean_flux = QLineEdit()
+        _toggle_widget(y, True)
         x.setBuddy(y)
-        pp.append((x, y, "Calculated Jy", "", ""))
+        pp.append((x, y, "Calculated mean flux (Jy)", "A2 / A1 = ", ""))
         ###
         x = keep_ref(QLabel())
         y = self.edit_calc_mag = QLineEdit()
-        y.setReadOnly(True)
+        _toggle_widget(y, True)
         x.setBuddy(y)
         pp.append((x, y, "Calculated apparent magnitude", "", ""))
         ###
@@ -117,7 +117,7 @@ class XScaleSpectrum(XLogDialog):
         ###
         x = keep_ref(QLabel())
         y = self.edit_calc_factor = QLineEdit()
-        y.setReadOnly(True)
+        _toggle_widget(y, True)
         x.setBuddy(y)
         pp.append((x, y, "Resulting Scaling factor", "", ""))
         ###
@@ -211,6 +211,7 @@ class XScaleSpectrum(XLogDialog):
 
     # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * #
     # # Internal gear
+            
 
     def __update(self):
         self.flag_process_changes = False
@@ -219,14 +220,14 @@ class XScaleSpectrum(XLogDialog):
             fig.clear()
             name = self.band_name()
             flag = self.flag_force_parametric()
-            carea, cmag = _calculate_and_plot(fig, self.spectrum, self.band_name(), self.flag_force_parametric())
+            cmean_flux, cmag = _calculate_and_plot(fig, self.spectrum, self.band_name(), self.flag_force_parametric())
             self.canvas0.draw()
 
             # Updates calculated state
             self.cmag = cmag
             band = Bands.bands[name]
-            self.edit_ref_jy.setText("%.2f" % band.ref_jy if band.ref_jy else "(not available)")
-            self.edit_calc_jy.setText("%.2f" % carea)
+            self.edit_ref_mean_flux.setText("%.2f" % band.ref_mean_flux if band.ref_mean_flux else "(not available)")
+            self.edit_calc_mean_flux.setText("%.2f" % cmean_flux)
             self.edit_calc_mag.setText(str(cmag) if cmag is not None else "(cannot calculate)")
             self.__update_factor()
 
@@ -247,14 +248,19 @@ class XScaleSpectrum(XLogDialog):
         self.edit_calc_factor.setText(text)
 
 def _calculate_and_plot(fig, spectrum, band_name, flag_force_parametric):
-    # axarr = fig.add_subplots(3, 1, sharex=True, squeeze=False)
+
+    # y = s*f ; s and y: fluxes ; f: filter ; all functions of wavelength
+    # out_area = integrate y over whole axis, but y = 0 outside the filter range
+    # out_mean_flux = out_area/band_area
+
+
 
     MARGIN_H = .15  # extends horizontally beyond band range
     MARGIN_V = .2  # extends vertically beyond band range
     COLOR_OTHER_BANDS = (.4, .4, .4)
     COLOR_CURRENT_BAND = (.1, .1, .1)
     COLOR_FILL_BAND = (.9, .8, .8)
-    LINE_WIDTH = 2
+    LINE_WIDTH = 1.5
     fmt_area = lambda x: "Area: %.1f" % x
 
     # # Calculations
@@ -265,23 +271,29 @@ def _calculate_and_plot(fig, spectrum, band_name, flag_force_parametric):
     plot_h_middle = (plot_l0 + plot_lf) / 2
     band_f = band.ufunc_band(flag_force_parametric)  # callable that returns the gain
     # band_area = scipy.integrate.quad(band_f, band_l0, band_lf)[0]
-    band_x = np.linspace(band_l0, band_lf, 200)
-    band_y = band_f(band_x)
-    band_area = np.trapz(band_y, band_x)
-    band_max_y = max(band_y)
+    band_x = np.linspace(band_l0, band_lf, 200) # for plotting
+    band_y = band_f(band_x)                     # for plotting
     spp = cut_spectrum(spectrum, plot_l0, plot_lf)  # spectrum for plotting
     spc = cut_spectrum(spectrum, band_l0, band_lf)  # spectrum for calculation
-    out_y = spc.y * band_f(spc.x)
+    band_f_spc_x = band_f(spc.x)  # for calculation
+    # band_area = np.trapz(band_y, band_x)
+    band_area = np.sum(band_f_spc_x)*spc.delta_lambda
+    band_max_y = max(band_y)
+
+    out_y = spc.y * band_f_spc_x
     flux_ylim = [0, np.max(spp.y) * (1 + MARGIN_V)] if len(spp) > 0 else [-.1, .1]
+    base_len = spc.x[-1]-spc.x[0]
 
     # Calculates apparent magnitude and filtered flux area
-    out_mag, out_area = None, 0
-    if band.ref_jy:
+    out_mag, out_mean_flux, out_area = None, 0, 0
+    if band.ref_mean_flux:
         if len(spc) > 0:
             # out_f = interp1d(spc.x, out_y, bounds_error=False, fill_value=0)
             # out_area = scipy.integrate.quad(out_f, spc.x[0], spc.x[-1])[0]
-            out_area = np.trapz(out_y, spc.x)
-            out_mag = -2.5 * np.log10(out_area / band.ref_jy)
+            out_area = np.sum(out_y)*spc.delta_lambda
+            #out_area = np.trapz(out_y, spc.x)
+            out_mean_flux = out_area/band_area
+            out_mag = -2.5 * np.log10(out_mean_flux / band.ref_mean_flux)
         else:
             out_mag = np.inf
 
@@ -293,6 +305,8 @@ def _calculate_and_plot(fig, spectrum, band_name, flag_force_parametric):
                     horizontalalignment="center", verticalalignment="center")
     else:
         ax.plot(spp.x, spp.y, c=COLOR_CURRENT_BAND, lw=LINE_WIDTH)
+        # shows mean flux within range
+        ax.plot([band_l0, band_lf], [out_mean_flux, out_mean_flux], linestyle="dashed", linewidth=LINE_WIDTH, color=(.4, .3, .1))
     # ax.plot(spc.x, spc.y, c=COLOR_CURRENT_BAND, lw=LINE_WIDTH, zorder=999)
     ax.set_xlim([plot_l0, plot_lf])
     ax.set_ylim(flux_ylim)
@@ -319,8 +333,9 @@ def _calculate_and_plot(fig, spectrum, band_name, flag_force_parametric):
     ax.set_ylim([0, overall_max_y * (1 + MARGIN_V)])
     ax.set_ylabel("Gain")
     idx_max = np.argmax(band_y)
-    ax.annotate(fmt_area(band_area), xy=(band_x[idx_max], band_max_y * .45),
-                horizontalalignment="center", verticalalignment="center")
+    ax.annotate("A1=%.1f" % band_area, xy=(band_x[idx_max], band_max_y * .45),
+                horizontalalignment="center", verticalalignment="center",
+                color=(.4, .2, .1))
 
     # Third subplot
     # # First subplot
@@ -332,8 +347,13 @@ def _calculate_and_plot(fig, spectrum, band_name, flag_force_parametric):
     else:
         ax.plot(spc.x, out_y, c=COLOR_CURRENT_BAND, lw=LINE_WIDTH)
         ax.fill_between(spc.x, out_y, color=COLOR_FILL_BAND)
-        ax.annotate(fmt_area(out_area), xy=((spc.x[0] + spc.x[-1]) / 2, max(out_y) * .45),
-                    horizontalalignment="center", verticalalignment="center")
+        
+        ax.plot(spc.x, band_f_spc_x*out_mean_flux, linestyle="dashed", linewidth=LINE_WIDTH, color=(.4, .3, .1), label='equivalent horizontal')
+        band_f_spc_x
+        
+        ax.annotate("A2=%.1f" % out_area, xy=((spc.x[0] + spc.x[-1]) / 2, max(out_y) * .45),
+                    horizontalalignment="center", verticalalignment="center",
+                    color=(.4, .2, .1))
     ax.set_xlim([plot_l0, plot_lf])
     ax.set_ylabel("Filtered flux")
     ax.set_ylim(flux_ylim)
@@ -341,4 +361,12 @@ def _calculate_and_plot(fig, spectrum, band_name, flag_force_parametric):
 
     fig.tight_layout()
 
-    return out_area, out_mag
+    return out_mean_flux, out_mag
+    
+def _toggle_widget(w, flag_readonly):
+    w.setReadOnly(flag_readonly)
+    sheet = ""
+    if flag_readonly:
+        sheet = "QWidget {background: #A09D9D}"
+    w.setStyleSheet(sheet)
+

@@ -341,12 +341,13 @@ class XFileMainWindow(XLogMainWindow):
             return True
         if not editor.flag_valid:
             show_error("Cannot save, %s has error(s)!" % f.description)
+            return True
         if f.filename:
             try:
                 f.save_as()
                 self.flags_changed[index] = False
                 self._update_tab_texts()
-                editor.update_label_fn()
+                editor.update_gui_label_fn()  # duck typing
                 return True
             except Exception as e:
                 show_error(str(e))
@@ -374,7 +375,7 @@ class XFileMainWindow(XLogMainWindow):
                 editor.f.save_as(str(new_filename))
                 self.flags_changed[index] = False
                 self._update_tab_texts()
-                editor.update_label_fn()
+                editor.update_gui_label_fn()
                 return True
             except Exception as e:
                 show_error(str(e))
@@ -455,7 +456,11 @@ class WBase(QWidget):
         """Delegates to parent form"""
         self.parent_form.add_log_error(x, flag_also_show)
 
-
     def add_log(self, x, flag_also_show=False):
         """Delegates to parent form"""
         self.parent_form.add_log(x, flag_also_show)
+        
+    def update_gui_label_fn(self):
+        pass
+        
+        

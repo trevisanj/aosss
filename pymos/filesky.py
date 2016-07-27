@@ -352,7 +352,7 @@ class Sky(SpectrumCollection):
         wlmin = (wlmin//dl)*dl
         wlmax = np.ceil(wlmax/dl)*dl
         wl = self.wavelength = np.arange(wlmin, wlmax+dl, dl)
-        
+
         for sp in self.spectra:
             i0 = BSearchCeil(wl, sp.x[0])
             assert i0 != -1, "BSearchCeil(wl, sp.x[0]) FAILED"

@@ -309,7 +309,7 @@ class WFileSpectrumList(WBase):
         assert isinstance(x, FileSpectrumList)
         self.f = x
         self.__update_from_f(True)
-
+        self.flag_valid = True  # assuming that file does not come with errors
         self.setEnabled(True)
 
     def get_selected_row_indexes(self):
@@ -341,6 +341,10 @@ class WFileSpectrumList(WBase):
         if flag_emit:
             self.__emit_if()
         return not flag_error
+
+    def update_gui_label_fn(self):
+        self.__update_gui_label_fn()
+
 
     # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * #
     # # Qt override
@@ -379,9 +383,6 @@ class WFileSpectrumList(WBase):
                     _style_widget(self.sender(), changed)
             self.set_flag_header_changed(sth)
 
-
-
-
     def add_spectrum_clicked(self):
         flag_emit = False
         try:
@@ -413,7 +414,7 @@ class WFileSpectrumList(WBase):
             self.edited.emit()
 
     def header_revert(self):
-        self.__update_from_f_headers()
+        self.__update_gui_header()
 
     def header_apply(self):
         if self.update_splist_headers(self.f.splist):
@@ -527,7 +528,7 @@ class WFileSpectrumList(WBase):
         """
         self.flag_process_changes = False
         try:
-            self.update_label_fn()
+            self.__update_gui_label_fn()
 
             splist = self.f.splist
             assert isinstance(splist, SpectrumList)
@@ -549,18 +550,18 @@ class WFileSpectrumList(WBase):
                 t.setItem(i, 0, twi)
 
                 for j, h in enumerate(more_headers):
-                    twi = QTableWidgetItem(str(sp.more_headers.get(h, "xuxuxu-xaxaxa")))
+                    twi = QTableWidgetItem(str(sp.more_headers.get(h)))
                     t.setItem(i, j+1, twi)
 
                 i += 1
             t.resizeColumnsToContents()
 
             if flag_headers:
-                self.__update_from_f_headers()
+                self.__update_gui_header()
         finally:    
             self.flag_process_changes = True
 
-    def update_label_fn(self):
+    def __update_gui_label_fn(self):
         if not self.f:
             text = "(not loaded)"
         elif self.f.filename:
@@ -569,7 +570,7 @@ class WFileSpectrumList(WBase):
             text = "(filename not set)"
         self.label_fn.setText(text)
 
-    def __update_from_f_headers(self):
+    def __update_gui_header(self):
         """Updates header controls only"""
         splist = self.f.splist
         self.edit_fieldnames.setPlainText(str(splist.fieldnames))

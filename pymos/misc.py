@@ -108,13 +108,13 @@ class Band(object):
     Arguments:
         tabular -- ((wl, y), ...), 0 <= y <= 1
         parametric -- ((wl, fwhm), ...)
-        ref_jy -- integrated flux passing through filter at magnitude 0 in Jy units
+        ref_mean_flux -- reference mean flux passing through filter at magnitude 0 in Jy units
     """
-    def __init__(self, name, tabular=None, parametric=None, ref_jy=None):
+    def __init__(self, name, tabular=None, parametric=None, ref_mean_flux=None):
         self.name = name
         self.tabular = tabular
         self.parametric = parametric
-        self.ref_jy = ref_jy
+        self.ref_mean_flux = ref_mean_flux
 
     def ufunc_band(self, flag_force_parametric):
         """Uses tabular data if available and not flag_force_parametric"""

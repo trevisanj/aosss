@@ -80,8 +80,8 @@ class WSpectrumTable(WBase):
         a.setSelectionMode(QAbstractItemView.MultiSelection)
         a.setSelectionBehavior(QAbstractItemView.SelectRows)
         a.setAlternatingRowColors(True)
-        #a.currentCellChanged.connect(self.on_tableWidget_currentCellChanged)
-        a.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        a.cellChanged.connect(self.on_twSpectra_cellChanged)
+        a.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.EditKeyPressed)
         a.setFont(MONO_FONT)
         a.installEventFilter(self)
         a.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -191,10 +191,46 @@ class WSpectrumTable(WBase):
                 sp.y *= k
                 self.__update_from_f()
                 self.edited.emit()
-          
+
+    def on_twSpectra_cellChanged(self, row, column):
+        if self.flag_process_changes:
+            flag_emit = False
+            text = None
+            item = self.twSpectra.item(row, column)
+            name = self.get_tw_header(column)
+            try:
+                value = str(item.text())
+                # Tries to convert to float, otherwise stores as string
+                try:
+                    value = float(value)
+                except:
+                    pass
+
+                # Certain fields must evaluate to integer because they are pixel positions
+                if name in ("PIXEL-X", "PIXEL-Y", "Z-START"):
+                    value = int(value)
+
+                self.collection.spectra[row].more_headers[name] = value
+
+                flag_emit = True
+                # replaces edited text with eventually cleaner version, e.g. decimals from integers are discarded
+                item.setText(str(value))
+
+            except Exception as E:
+                # restores original value
+                item.setText(str(self.collection.spectra[row].more_headers.get(name)))
+
+                self.add_log_error(str(E), True)
+                raise
+
+            if flag_emit:
+                self.edited.emit()
 
     # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * #
     # # Internal gear
+
+    def get_tw_header(self, column):
+        return str(self.twSpectra.horizontalHeaderItem(column).text())
 
     def __update_from_f(self):
         self.flag_process_changes = False
@@ -205,18 +241,25 @@ class WSpectrumTable(WBase):
 
             FIXED = ["spectrum"]
             more_headers = self.collection.fieldnames
-            all_headers = FIXED + more_headers
+            all_headers = more_headers+FIXED
             nc = len(all_headers)
             ResetTableWidget(t, n, nc)
             t.setHorizontalHeaderLabels(all_headers)
             i = 0
             for sp in spectra:
-                twi = QTableWidgetItem(sp.one_liner_str())
-                t.setItem(i, 0, twi)
+                j = 0
 
-                for j, h in enumerate(more_headers):
-                    twi = QTableWidgetItem(str(sp.more_headers.get(h, "xuxuxu-xaxaxa")))
-                    t.setItem(i, j + 1, twi)
+                # Spectrum.more_headers columns
+                for h in more_headers:
+                    twi = QTableWidgetItem(str(sp.more_headers.get(h)))
+                    t.setItem(i, j, twi)
+                    j += 1
+
+                # Spectrum self-generated report
+                twi = QTableWidgetItem(sp.one_liner_str())
+                twi.setFlags(twi.flags() & ~Qt.ItemIsEditable)
+                t.setItem(i, j, twi)
+                j += 1
 
                 i += 1
 

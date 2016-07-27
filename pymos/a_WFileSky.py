@@ -203,6 +203,10 @@ class WFileSky(WBase):
         lscrw.setMargin(3)
         ###
         lscrw.addWidget(keep_ref(QLabel("<b>Header properties</b>")))
+        ###
+        b = keep_ref(QPushButton("Collect field names"))
+        b.clicked.connect(self.on_collect_fieldnames)
+        lscrw.addWidget(b)
 
         # Form layout
         lg = keep_ref(QGridLayout())
@@ -215,6 +219,14 @@ class WFileSky(WBase):
 
         # field map: [(label widget, edit widget, field name, short description, long description), ...]
         pp = self._map1 = []
+
+        ###
+        x = keep_ref(QLabel())
+        y = self.edit_fieldnames = QPlainTextEdit()
+        y.textChanged.connect(self.on_header_edited)
+        x.setBuddy(y)
+        pp.append((x, y, "&Field names", "'header' information for each spectrum", "", lambda: self.f.sky.fieldnames,
+                   lambda: self.edit_fieldnames.toPlainText()))
         ###
         x = self.label_width = QLabel()
         y = self.spinbox_width = QSpinBox()
@@ -380,40 +392,12 @@ class WFileSky(WBase):
         assert isinstance(x, FileSky)
         self.f = x
         self.wsptable.set_collection(x.sky)
-        self.__update_from_f(True)
-        # this is called to perform file validation upon loading
-        # TODO probably not like this
-        self.__update_f()
+        self.__update_gui(True)
+        self.flag_valid = True  # assuming that file does not come with errors
         self.setEnabled(True)
-
-    def get_selected_row_indexes(self):
-        ii = list(set([index.row() for index in self.twSpectra.selectedIndexes()]))
-        return ii
-
-    def update_sky_headers(self, sky):
-        """Updates heeaders of a Sky objects using contents of the Headers tab"""
-        emsg, flag_error = "", False
-        ss = ""
-        try:
-            ss = "width"
-            sky.width = int(self.spinbox_width.value())
-            ss = "height"
-            sky.height = int(self.spinbox_height.value())
-            ss = "hrfactor"
-            sky.hrfactor = int(self.spinbox_hrfactor.value())
-            ss = "hr_pix_size"
-            sky.hr_pix_size = float(self.lineEdit_hr_pix_size.text())
-            ss = "R"
-            sky.R = float(self.spinbox_R.value())
-            self.__update_from_f(True)
-        except Exception as E:
-            flag_error = True
-            if ss:
-                emsg = "Field '%s': %s" % (ss, str(E))
-            else:
-                emsg = str(E)
-            self.add_log_error(emsg)
-        return not flag_error
+        
+    def update_gui_label_fn(self):
+        self.__update_gui_label_fn()
 
     # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * #
     # # Qt override
@@ -422,21 +406,6 @@ class WFileSky(WBase):
         """Sets focus to first field. Note: reason is ignored."""
         # TODO self.lineEdit_titrav.setFocus()
 
-    def eventFilter(self, source, event):
-        if event.type() == QEvent.FocusIn:
-            # text = random_name()
-            # self.__add_log(text)
-            pass
-
-        if event.type() == QEvent.KeyPress:
-            if event.key() == Qt.Key_Delete:
-                print "TUQUEJMI TUQUEJMI"
-                if source == self.twSpectra:
-                    print "ABOUT TO DELETE SPECTRA"
-                    n_deleted = self.__delete_spectra()
-                    if n_deleted > 0:
-                        self.edited.emit()
-        return False
 
     # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * #
     # # Slots
@@ -457,7 +426,7 @@ class WFileSky(WBase):
             self.set_flag_header_changed(sth)
 
     def on_spectra_edited(self):
-        self.__update_from_f()
+        self.__update_vis()
         self.edited.emit()
 
     def on_place_spectrum_edited(self):
@@ -474,7 +443,7 @@ class WFileSky(WBase):
                 raise RuntimeError("Spectrum not loaded")
             sp.pixel_x, sp.pixel_y = x, y
             self.f.sky.add_spectrum(sp)
-            self.__update_from_f()
+            self.__update_gui()
             flag_emit = True
         except Exception as E:
             self.add_log_error(str(E), True)
@@ -483,11 +452,11 @@ class WFileSky(WBase):
             self.edited.emit()
 
     def header_revert(self):
-        self.__update_from_f_headers()
+        self.__update_gui_header()
 
     def header_apply(self):
-        if self.update_sky_headers(self.f.sky):
-            self.__update_from_f(True)
+        if self.__update_f_header(self.f.sky):
+            self.__update_gui(True)
 
     def current_tab_changed_vis(self):
         self.__update_vis_if_pending()
@@ -575,8 +544,16 @@ class WFileSky(WBase):
             self.spinbox_Y.setValue(y)
             self.plot_colors()
 
+    def on_collect_fieldnames(self):
+        # TODO confirmation
+        self.edit_fieldnames.setPlainText(str(self.f.sky.collect_fieldnames()))
+
     # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * #
     # # Internal gear
+
+    def __emit_if(self):
+       if self.flag_process_changes:
+           self.edited.emit()
 
     def get_place_spectrum_xy(self):
         x = int(self.spinbox_X.value())
@@ -587,31 +564,29 @@ class WFileSky(WBase):
             raise RuntimeError("y must be in [0, %s)" % self.f.sky.height)
         return x, y
 
-    def __update_from_f(self, flag_headers=False):
-        """
-          flag_headers -- resets header widgets as well
-        """
+    def __update_gui(self, flag_header=False):
+        """Updates GUI to reflect what is in self.f"""
         self.flag_process_changes = False
         try:
-            self.update_label_fn()
+            self.__update_gui_label_fn()
             self.wsptable.update()
-
-            idx = self.tabWidgetVis.currentIndex()
-            for i, callable_ in enumerate(self.map_update_vis):
-                # Updates current visualization tab and flags update pending for other tabs
-                if i == idx:
-                    callable_()
-                    self.flag_update_pending[i] = False
-                else:
-                    self.flag_update_pending[i] = True
-
-            if flag_headers:
-                self.__update_from_f_headers()
-
+            self.__update_vis()
+            if flag_header:
+                self.__update_gui_header()
         finally:
             self.flag_process_changes = True
 
-    def update_label_fn(self):
+    def __update_vis(self):
+        idx = self.tabWidgetVis.currentIndex()
+        for i, callable_ in enumerate(self.map_update_vis):
+            # Updates current visualization tab and flags update pending for other tabs
+            if i == idx:
+                callable_()
+                self.flag_update_pending[i] = False
+            else:
+                self.flag_update_pending[i] = True
+
+    def __update_gui_label_fn(self):
         if not self.f:
             text = "(not loaded)"
         elif self.f.filename:
@@ -620,7 +595,7 @@ class WFileSky(WBase):
             text = "(filename not set)"
         self.label_fn_sky.setText(text)
 
-    def __update_from_f_headers(self):
+    def __update_gui_header(self):
         """Updates header controls only"""
         sky = self.f.sky
         self.spinbox_width.setValue(sky.width)
@@ -628,20 +603,8 @@ class WFileSky(WBase):
         self.spinbox_hrfactor.setValue(sky.hrfactor)
         self.lineEdit_hr_pix_size.setText(str(sky.hr_pix_size))
         self.spinbox_R.setValue(sky.R)
+        self.edit_fieldnames.setPlainText(str(sky.fieldnames))
         self.set_flag_header_changed(False)
-
-    def _update_labels_fn(self):
-        cwd = os.getcwd()
-        for editor, label in zip(self.editors, self.labels_fn):
-            if not label:
-                continue
-            if not editor.f:
-                text = "(not loaded)"
-            elif editor.f.filename:
-                text = os.path.relpath(editor.f.filename, ".")
-            else:
-                text = "(filename not set)"
-            label.setText(text)
 
     def set_flag_header_changed(self, flag):
         self.button_apply.setEnabled(flag)
@@ -655,14 +618,38 @@ class WFileSky(WBase):
     def __update_f(self):
         o = self.f
         sky = self.f.sky
-        self.flag_valid = self.update_sky_headers(sky)
+        self.flag_valid = self.__update_f_header(sky)
 
-    def __delete_spectra(self):
-        ii = self.get_selected_row_indexes()
-        if len(ii) > 0:
-            self.f.sky.delete_spectra(ii)
-            self.__update_from_f()
-        return len(ii)
+    def __update_f_header(self, sky):
+        """Updates headers of a Sky objects using contents of the Headers tab"""
+        emsg, flag_error = "", False
+        ss = ""
+        try:
+            ss = "fieldnames"
+            ff = eval_fieldnames(str(self.edit_fieldnames.toPlainText()))
+            sky.fieldnames = ff
+            ss = "width"
+            sky.width = int(self.spinbox_width.value())
+            ss = "height"
+            sky.height = int(self.spinbox_height.value())
+            ss = "hrfactor"
+            sky.hrfactor = int(self.spinbox_hrfactor.value())
+            ss = "hr_pix_size"
+            sky.hr_pix_size = float(self.lineEdit_hr_pix_size.text())
+            ss = "R"
+            sky.R = float(self.spinbox_R.value())
+            self.__update_gui(True)
+            flag_emit = True
+        except Exception as E:
+            flag_error = True
+            if ss:
+                emsg = "Field '%s': %s" % (ss, str(E))
+            else:
+                emsg = str(E)
+            self.add_log_error(emsg)
+        if flag_emit:
+            self.__emit_if()
+        return not flag_error
 
     def __update_vis_if_pending(self):
         idx = self.tabWidgetVis.currentIndex()
