@@ -4,7 +4,7 @@ import numpy as np
 from pymos.filespectrumlist import SpectrumList
 
 
-__all__ = ["SBlock", "Rubberband", "AddNoise", "SLBlock", "UseSBlock", "ExtractContinua", "SNR", "MergeDown"]
+__all__ = ["SBlock", "Rubberband", "AddNoise", "SLBlock", "UseSBlock", "ExtractContinua", "SNR", "MergeDownBlock", "MergeDown"]
 
 # All values in CGS
 _C = 299792458*100  # light speed in cm/s
@@ -157,14 +157,19 @@ class ExtractContinua(SLBlock):
         return output
 
 
-class MergeDown(SLBlock):
+class MergeDownBlock(SLBlock):
+    """Base class for all SpectrumList-to-Spectrumlist blocks whose output has only one row in it
+
+    This class has no gear and exists for grouping purposes only"""
+
+class MergeDown(MergeDownBlock):
     """Output contains single spectrum whose y-vector is calculated using a numpy function
 
     The numpy function must be able to operate on the first axis, e.g., np.mean(), np.std()
     """
 
     def __init__(self, func=np.std):
-        SLBlock.__init__(self)
+        MergeDownBlock.__init__(self)
         self.func = func
 
     def _do_use(self, input):
@@ -177,16 +182,18 @@ class MergeDown(SLBlock):
         output.add_spectrum(sp)
         return output
 
+class SNR(MergeDownBlock):
+    """Calculates the SNR, output has a single spectrum (the SNR(lambda))
 
-class SNR(SLBlock):
-    """Calculates the SNR, output has a single spectrum (the SNR(lambda))"""
+    Arguments:
+        continua -- SpectrumList containing the continua that will be used as the "signal" level.
+                    If not passed, will be calculated from the input spectra using the ExtractContinua block
+    """
 
     # TODO I think that it is more correct to talk about "continuum" not continua
 
     def __init__(self, continua=None):
-        SLBlock.__init__(self)
-        # SpectrumList containing the continua that will be used as the "signal" level.
-        # If not passed, will be calculated using the ExtractContinua block
+        MergeDownBlock.__init__(self)
         self.continua = continua
 
     def _do_use(self, input):

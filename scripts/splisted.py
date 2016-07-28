@@ -2,9 +2,8 @@
 
 """FileSpectrumList editor with import/export FileCCube"""
 
-from a_XFileSpectrumList import *
-from filespectrumlist import *
 from pyfant import *
+from pymos import *
 import sys
 import argparse
 import logging

@@ -251,9 +251,19 @@ def _calculate_and_plot(fig, spectrum, band_name, flag_force_parametric):
 
     # y = s*f ; s and y: fluxes ; f: filter ; all functions of wavelength
     # out_area = integrate y over whole axis, but y = 0 outside the filter range
-    # out_mean_flux = out_area/band_area
+    # weighted_mean_flux = out_area/band_area
 
 
+    mm = spectrum.calculate_magnitude(band_name, flag_force_parametric)
+    band_l0, band_lf = mm["band_l0"], mm["band_lf"]
+    weighted_mean_flux = mm["weighted_mean_flux"]
+    spc = mm["spc"]
+    band_area = mm["band_area"]
+    out_y = mm["out_y"]
+    band_f = mm["band_f"]
+    band_f_spc_x = mm["band_f_spc_x"]
+    out_area = mm["out_area"]
+    cmag = mm["cmag"]
 
     MARGIN_H = .15  # extends horizontally beyond band range
     MARGIN_V = .2  # extends vertically beyond band range
@@ -261,41 +271,14 @@ def _calculate_and_plot(fig, spectrum, band_name, flag_force_parametric):
     COLOR_CURRENT_BAND = (.1, .1, .1)
     COLOR_FILL_BAND = (.9, .8, .8)
     LINE_WIDTH = 1.5
-    fmt_area = lambda x: "Area: %.1f" % x
-
-    # # Calculations
-    band = Bands.bands[band_name]
-    band_l0, band_lf = band.range(flag_force_parametric)  # band practical limits
-    band_span_x = band_lf - band_l0
-    plot_l0, plot_lf = band_l0 - band_span_x * MARGIN_H, band_lf + band_span_x * MARGIN_H
-    plot_h_middle = (plot_l0 + plot_lf) / 2
-    band_f = band.ufunc_band(flag_force_parametric)  # callable that returns the gain
-    # band_area = scipy.integrate.quad(band_f, band_l0, band_lf)[0]
     band_x = np.linspace(band_l0, band_lf, 200) # for plotting
     band_y = band_f(band_x)                     # for plotting
-    spp = cut_spectrum(spectrum, plot_l0, plot_lf)  # spectrum for plotting
-    spc = cut_spectrum(spectrum, band_l0, band_lf)  # spectrum for calculation
-    band_f_spc_x = band_f(spc.x)  # for calculation
-    # band_area = np.trapz(band_y, band_x)
-    band_area = np.sum(band_f_spc_x)*spc.delta_lambda
+    band_span_x = band_lf - band_l0
     band_max_y = max(band_y)
-
-    out_y = spc.y * band_f_spc_x
+    plot_l0, plot_lf = band_l0 - band_span_x * MARGIN_H, band_lf + band_span_x * MARGIN_H
+    plot_h_middle = (plot_l0 + plot_lf) / 2
+    spp = cut_spectrum(spectrum, plot_l0, plot_lf)  # spectrum for plotting
     flux_ylim = [0, np.max(spp.y) * (1 + MARGIN_V)] if len(spp) > 0 else [-.1, .1]
-    base_len = spc.x[-1]-spc.x[0]
-
-    # Calculates apparent magnitude and filtered flux area
-    out_mag, out_mean_flux, out_area = None, 0, 0
-    if band.ref_mean_flux:
-        if len(spc) > 0:
-            # out_f = interp1d(spc.x, out_y, bounds_error=False, fill_value=0)
-            # out_area = scipy.integrate.quad(out_f, spc.x[0], spc.x[-1])[0]
-            out_area = np.sum(out_y)*spc.delta_lambda
-            #out_area = np.trapz(out_y, spc.x)
-            out_mean_flux = out_area/band_area
-            out_mag = -2.5 * np.log10(out_mean_flux / band.ref_mean_flux)
-        else:
-            out_mag = np.inf
 
     # # First subplot
     ax = fig.add_subplot(311)
@@ -306,7 +289,7 @@ def _calculate_and_plot(fig, spectrum, band_name, flag_force_parametric):
     else:
         ax.plot(spp.x, spp.y, c=COLOR_CURRENT_BAND, lw=LINE_WIDTH)
         # shows mean flux within range
-        ax.plot([band_l0, band_lf], [out_mean_flux, out_mean_flux], linestyle="dashed", linewidth=LINE_WIDTH, color=(.4, .3, .1))
+        ax.plot([band_l0, band_lf], [weighted_mean_flux, weighted_mean_flux], linestyle="dashed", linewidth=LINE_WIDTH, color=(.4, .3, .1))
     # ax.plot(spc.x, spc.y, c=COLOR_CURRENT_BAND, lw=LINE_WIDTH, zorder=999)
     ax.set_xlim([plot_l0, plot_lf])
     ax.set_ylim(flux_ylim)
@@ -348,9 +331,7 @@ def _calculate_and_plot(fig, spectrum, band_name, flag_force_parametric):
         ax.plot(spc.x, out_y, c=COLOR_CURRENT_BAND, lw=LINE_WIDTH)
         ax.fill_between(spc.x, out_y, color=COLOR_FILL_BAND)
         
-        ax.plot(spc.x, band_f_spc_x*out_mean_flux, linestyle="dashed", linewidth=LINE_WIDTH, color=(.4, .3, .1), label='equivalent horizontal')
-        band_f_spc_x
-        
+        ax.plot(spc.x, band_f_spc_x*weighted_mean_flux, linestyle="dashed", linewidth=LINE_WIDTH, color=(.4, .3, .1), label='equivalent horizontal')
         ax.annotate("A2=%.1f" % out_area, xy=((spc.x[0] + spc.x[-1]) / 2, max(out_y) * .45),
                     horizontalalignment="center", verticalalignment="center",
                     color=(.4, .2, .1))
@@ -361,8 +342,10 @@ def _calculate_and_plot(fig, spectrum, band_name, flag_force_parametric):
 
     fig.tight_layout()
 
-    return out_mean_flux, out_mag
-    
+    return weighted_mean_flux, cmag
+
+
+
 def _toggle_widget(w, flag_readonly):
     w.setReadOnly(flag_readonly)
     sheet = ""

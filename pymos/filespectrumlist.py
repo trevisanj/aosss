@@ -15,10 +15,11 @@ import numpy as np
 from scipy.interpolate import interp1d
 import numbers
 from pymos.misc import *
-
+from pymos.blocks import *
+import copy
 
 class SpectrumCollection(AttrsPart):
-    """Base class, maintains spectra with "more headers", HDU transfer without much interpretation"""
+    """Base class, maintains spectra with "more headers", HDU transfer without much interpretation, slicing with "[]" """
     attrs = ["fieldnames", "more_headers", "spectra"]
 
     def __init__(self):
@@ -33,6 +34,11 @@ class SpectrumCollection(AttrsPart):
 
     def __len__(self):
         return len(self.spectra)
+
+    # def __getitem__(self, item):
+    #     """Return copy of self with sliced self.spectra"""
+    #     ret = copy.copy(self)
+    #     ret.spectra = self.spectra.__getitem__(item)
 
     # NAXIS(1/2/3) apparently managed by pyfits
     _IGNORE_HEADERS = ("NAXIS", "FIELDNAM")
@@ -102,6 +108,25 @@ class SpectrumCollection(AttrsPart):
             raise RuntimeError("All indexes must be (0 le index lt %d)" % n)
         for index in reversed(indexes):
             del self.spectra[index]
+
+    def merge_with(self, other):
+        """Adds spectra from other SpectrumCollection to self"""
+        assert isinstance(other, SpectrumCollection)
+        for sp in other.spectra:
+            self.add_spectrum(sp)
+
+    def to_csv(self, sep=","):
+        """Generates tabulated text
+
+        Returns list of strings
+        """
+        lines = []
+        lines.append(sep.join(self.fieldnames+[str(x)  for x in self.wavelength])+"\n")
+        for sp in self.spectra:
+            lines.append(sep.join([repr(sp.more_headers.get(fieldname)) for fieldname in self.fieldnames]+
+                                  [str(flux) for flux in sp.y])+"\n")
+        return lines
+
 
 
 class SpectrumList(SpectrumCollection):
@@ -211,7 +236,7 @@ class SpectrumList(SpectrumCollection):
         self.__update()
 
     def delete_spectra(self, indexes):
-        SpectrumCollection.delete_spectra(indexes)
+        SpectrumCollection.delete_spectra(self, indexes)
         self.__update()
 
     def enable_update(self):
@@ -219,6 +244,69 @@ class SpectrumList(SpectrumCollection):
         if self.__flag_update_pending:
             self.__update()
             self.__flag_update_pending = False
+
+
+    def query_merge_down(self, expr, group_by=None):
+        """Rudimentary query system for "merge down" operations
+
+        Arguments:
+            expr -- expression which will be eval()'ed with expected result to be a MergeDownBlock
+                    Example: "SNR()"
+            group_by -- sequence of spectrum "more_headers" fieldnames.
+                        If not passed, will treat the whole SpectrumCollection as a single group.
+                        If passed, will split the collection in groups and perform the "merge down" operations separately
+                        for each group
+
+        Returns: (SpectrumCollection containing query result, list of error strings)
+        """
+
+        ret, errors = None, []
+
+        # Creates the block
+        try:
+            from blocks import *  # TODO make it locals to pass to eval()
+            block = eval(expr)  # , {}, {})
+            if not isinstance(block, MergeDownBlock):
+                raise RuntimeError("Must evaluate to a MergeDownBlock, but evaluated to a %s" % (block.__class__.__name__))
+        except Exception as E:
+            msg = "Expression ''%s``: %s" % (expr, str(E))
+            errors.append(msg)
+
+        if not errors:
+            try:
+                # Creates the groups
+                if not group_by:
+                    ret = block.use(self)
+                else:
+                    groups = []
+                    grouping_keys = [tuple([spectrum.more_headers.get(fieldname) for fieldname in group_by]) for spectrum in self.spectra]
+                    unique_keys = set(grouping_keys)
+                    sk = zip(self.spectra, grouping_keys)
+                    for unique_key in unique_keys:
+                        group = SpectrumList()
+                        for spectrum, grouping_key in sk:
+                            if grouping_key == unique_key:
+                                group.add_spectrum(spectrum)
+                        groups.append(group)
+
+                    ret = SpectrumList()
+                    ret.fieldnames = group_by  # new SpectrumList will have the group field names
+
+                    # Uses block in each group
+                    for group in groups:
+                        splist = block.use(group)
+
+                        # copies "group by" fields from first input spectrum to output spectrum
+                        sp = splist.spectra[0]
+                        for fieldname in group_by:
+                            sp.more_headers[fieldname] = group.spectra[0].more_headers[fieldname]
+                        ret.merge_with(splist)
+            except Exception as E:
+                msg = "Calculating output: %s" % str(E)
+                errors.append(msg)
+                ret = []
+
+        return ret, errors
 
 
     def __update(self):
@@ -233,6 +321,8 @@ class SpectrumList(SpectrumCollection):
 
         # Nothing to update so far
         pass
+
+
 
 
 class FileSpectrumList(DataFile):

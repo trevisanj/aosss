@@ -433,7 +433,7 @@ class WBase(QWidget):
     edited = pyqtSignal()
 
     def __init__(self, parent):
-        assert isinstance(parent, XLogMainWindow)
+        assert isinstance(parent, (XLogMainWindow, XLogDialog))
         QWidget.__init__(self, parent)
         self._refs = []
         self.parent_form = parent
