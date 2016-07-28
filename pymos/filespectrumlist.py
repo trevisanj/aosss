@@ -280,7 +280,8 @@ class SpectrumList(SpectrumCollection):
                 else:
                     groups = []
                     grouping_keys = [tuple([spectrum.more_headers.get(fieldname) for fieldname in group_by]) for spectrum in self.spectra]
-                    unique_keys = set(grouping_keys)
+                    unique_keys = list(set(grouping_keys))
+                    unique_keys.sort()
                     sk = zip(self.spectra, grouping_keys)
                     for unique_key in unique_keys:
                         group = SpectrumList()
@@ -305,6 +306,7 @@ class SpectrumList(SpectrumCollection):
                 msg = "Calculating output: %s" % str(E)
                 errors.append(msg)
                 ret = []
+                get_python_logger().exception("query_merge_down")
 
         return ret, errors
 

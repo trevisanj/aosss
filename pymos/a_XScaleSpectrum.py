@@ -27,8 +27,8 @@ import copy
 import datetime
 import traceback as tb
 from pymos import *
-#import scipy
-#from scipy.interpolate import interp1d
+import collections
+
 
 
 class XScaleSpectrum(XLogDialog):
@@ -40,6 +40,8 @@ class XScaleSpectrum(XLogDialog):
         def keep_ref(obj):
             self._refs.append(obj)
             return obj
+
+        self.setWindowTitle("Scale spectrum")
 
         # Internal flag to prevent taking action when some field is updated programatically
         self.flag_process_changes = False
@@ -254,7 +256,7 @@ def _calculate_and_plot(fig, spectrum, band_name, flag_force_parametric):
     # weighted_mean_flux = out_area/band_area
 
 
-    mm = spectrum.calculate_magnitude(band_name, flag_force_parametric)
+    mm = spectrum.calculate_magnitude(band_name, flag_force_parametric, False)
     band_l0, band_lf = mm["band_l0"], mm["band_lf"]
     weighted_mean_flux = mm["weighted_mean_flux"]
     spc = mm["spc"]

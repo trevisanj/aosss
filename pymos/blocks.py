@@ -187,7 +187,7 @@ class SNR(MergeDownBlock):
 
     Arguments:
         continua -- SpectrumList containing the continua that will be used as the "signal" level.
-                    If not passed, will be calculated from the input spectra using the ExtractContinua block
+                    If not passed, will be calculated from the input spectra using a Rubberband(True) block
     """
 
     # TODO I think that it is more correct to talk about "continuum" not continua
@@ -198,7 +198,7 @@ class SNR(MergeDownBlock):
 
     def _do_use(self, input):
         if self.continua is None:
-            continua = ExtractContinua().use(input)
+            continua = UseSBlock(Rubberband(True)).use(input)
         else:
             continua = self.continua
         mean_cont = MergeDown(np.mean).use(continua)

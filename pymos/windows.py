@@ -34,6 +34,7 @@ from .a_XScaleSpectrum import *
 from .filespectrumlist import *
 from .a_WChooseSpectrum import *
 from .a_XScaleSpectrum import *
+import collections
 
 
 _COLORS_SQ = [(.1, .6, .5), (.5, .1, .7)]
@@ -44,7 +45,20 @@ def _style_widget(w, flag_changed):
     """(Paints background yellow)/(removes stylesheet)"""
     w.setStyleSheet("QWidget {background-color: #FFFF00}" if flag_changed else "")
 
+# Because several windows of the same class may be created, we'll give them different titles to help avoid confusion
+_window_titles = collections.Counter()
+def _get_window_title(prefix):
+    _window_titles[prefix] += 1
+    i = _window_titles[prefix]
+    if i == 1:
+        return prefix
+    else:
+        return "%s #%d" % (prefix, i)
 
+
+def _str_exc(E):
+    """Generates a string from an Exception"""
+    return "%s: %s" % (E.__class__.__name__, str(E))
 
 class WSpectrumTable(WBase):
     """
@@ -116,6 +130,10 @@ class WSpectrumTable(WBase):
         ###
         b = keep_ref(QPushButton("Calc.Mag."))
         b.clicked.connect(self.calc_mag_clicked)
+        lwexex.addWidget(b)
+        ###
+        b = keep_ref(QPushButton("Open in new window"))
+        b.clicked.connect(self.open_in_new_clicked)
         lwexex.addWidget(b)
         ###
         b = keep_ref(QPushButton("Delete"))
@@ -250,6 +268,19 @@ class WSpectrumTable(WBase):
         if flag_emit:
             self.edited.emit(flag_changed_header)
 
+    def open_in_new_clicked(self):
+        ii = self.get_selected_row_indexes()
+        if len(ii) > 0:
+            other = copy.deepcopy(self.collection)
+            other.spectra = [other.spectra[i] for i in ii]
+            f = FileSpectrumList()
+            f.splist = other
+
+            form = self.keep_ref(XFileSpectrumList())
+            form.load(f)
+            form.show()
+
+
     def delete_selected(self):
         n = self.__delete_spectra()
         if n > 0:
@@ -295,8 +326,7 @@ class WSpectrumTable(WBase):
             except Exception as E:
                 # restores original value
                 item.setText(str(self.collection.spectra[row].more_headers.get(name)))
-
-                self.add_log_error(str(E), True)
+                self.add_log_error(_str_exc(E), True)
                 raise
 
             if flag_emit:
@@ -311,9 +341,8 @@ class WSpectrumTable(WBase):
                 with open(str(new_filename), "w") as file:
                     file.writelines(lines)
             except Exception as E:
-                msg = str("Error exporting text file: %s" % str(E))
-                self.add_log_error(msg)
-                show_error(msg)
+                msg = str("Error exporting text file: %s" % _str_exc(E))
+                self.add_log_error(msg, True)
                 raise
 
     def on_query(self):
@@ -334,8 +363,8 @@ class WSpectrumTable(WBase):
                 self.__update_gui()
                 flag_emit = True
         except Exception as E:
-            msg = "Error merging: %s" % str(E)
-            show_error(msg)
+            msg = "Error merging: %s" % _str_exc(E)
+            self.add_log_error(msg, True)
             raise
 
         if flag_emit:
@@ -411,6 +440,8 @@ class XQuery(XLogMainWindow):
             self._refs.append(obj)
             return obj
 
+        self.setWindowTitle(_get_window_title("Query"))
+
         self.splist = None
 
         # # Central layout
@@ -437,7 +468,7 @@ class XQuery(XLogMainWindow):
         x = keep_ref(QLabel())
         y = self.edit_group_by = QLineEdit()
         x.setBuddy(y)
-        pp.append((x, y, "'&Group by' fieldnames", "", ""))
+        pp.append((x, y, "'&Group by' fieldnames", "Comma-separated without quotes", ""))
 
         for i, (label, edit, name, short_descr, long_descr) in enumerate(pp):
             # label.setStyleSheet("QLabel {text-align: right}")
@@ -484,7 +515,7 @@ class XQuery(XLogMainWindow):
         try:
             expr = str(self.edit_expr.text())
             s_group_by = str(self.edit_group_by.text())
-            group_by = [y for y in [x.strip() for x in s_group_by.split(",")] if len(y) > 0]
+            group_by = [str(y).upper() for y in [x.strip() for x in s_group_by.split(",")] if len(y) > 0]
             other, errors = self.splist.query_merge_down(expr, group_by)
 
             if errors:
@@ -499,9 +530,8 @@ class XQuery(XLogMainWindow):
                 # form.show()
 
         except Exception as E:
-            msg = "Error running query: %s" % str(E)
-            self.add_log_error(msg)
-            show_error(msg)
+            msg = "Error running query: %s" % _str_exc(E)
+            self.add_log_error(msg, True)
             raise
 
 
@@ -769,14 +799,6 @@ class WFileSpectrumList(WBase):
         self.flag_valid = True  # assuming that file does not come with errors
         self.setEnabled(True)
 
-    def get_selected_row_indexes(self):
-        ii = list(set([index.row() for index in self.twSpectra.selectedIndexes()]))
-        return ii
-
-    def get_selected_spectra(self):
-        sspp = [self.f.splist.spectra[i] for i in self.get_selected_row_indexes()]
-        return sspp
-
     def update_splist_headers(self, splist):
         """Updates headers of a SpectrumList objects using contents of the Headers tab"""
         emsg, flag_error = "", False
@@ -791,9 +813,9 @@ class WFileSpectrumList(WBase):
         except Exception as E:
             flag_error = True
             if ss:
-                emsg = "Field '%s': %s" % (ss, str(E))
+                emsg = "Field '%s': %s" % (ss, _str_exc(E))
             else:
-                emsg = str(E)
+                emsg = _str_exc(E)
             self.add_log_error(emsg)
         if flag_emit:
             self.__emit_if()
@@ -807,18 +829,6 @@ class WFileSpectrumList(WBase):
 
     def setFocus(self, reason=None):
         """Sets focus to first field. Note: reason is ignored."""
-
-    def eventFilter(self, source, event):
-        if event.type() == QEvent.FocusIn:
-            # text = random_name()
-            # self.__add_log(text)
-            pass
-
-        if event.type() == QEvent.KeyPress:
-            if event.key() == Qt.Key_Delete:
-                if source == self.twSpectra:
-                    n_deleted = self.__delete_spectra()
-        return False
 
     # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * #
     # # Slots
@@ -850,7 +860,7 @@ class WFileSpectrumList(WBase):
             self.__update_gui()
             flag_emit = True
         except Exception as E:
-            self.add_log_error(str(E), True)
+            self.add_log_error(_str_exc(E), True)
             raise
         if flag_emit:
             self.edited.emit()
@@ -885,7 +895,7 @@ class WFileSpectrumList(WBase):
                     s = "wavelength_range"
                     lambda0, lambda1 = eval(kk["wavelength_range"])
                 except Exception as E:
-                    self.add_log_error("Failed evaluating %s: %s: %s" % (s, E.__class__.__name__, str(E)), True)
+                    self.add_log_error("Failed evaluating %s: %s" % (s, _str_exc(E)), True)
                     continue
 
                 # Works with clone, then replaces original, to ensure atomic operation
@@ -894,14 +904,14 @@ class WFileSpectrumList(WBase):
                 try:
                     clone.splist.crop(lambda0, lambda1)
                 except Exception as E:
-                    self.add_log_error("Crop operation failed: %s: %s" % (E.__class__.__name__, str(E)), True)
+                    self.add_log_error("Crop operation failed: %s" % _str_exc(E), True)
                     continue
 
                 self.__new_window(clone)
                 break
 
         except Exception as E:
-            self.add_log_error("Crop failed: %s" % str(E), True)
+            self.add_log_error("Crop failed: %s" % _str_exc(E), True)
             raise
 
     def rubberband_clicked(self):
@@ -1028,6 +1038,8 @@ class XFileSpectrumList(XFileMainWindow):
             self._refs.append(obj)
             return obj
 
+        self.setWindowTitle(_get_window_title("Spectrum List Editor"))
+
         # # Synchronized sequences
         _VVV = FileSpectrumList.description
         self.tab_texts[0] =  "FileSpectrumList editor (Alt+&1)"
@@ -1050,7 +1062,6 @@ class XFileSpectrumList(XFileMainWindow):
             f.load()
             self.ce.load(f)
 
-        self.setWindowTitle("Spectrum List Editor")
 
     # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * #
     # Interface
@@ -1534,7 +1545,7 @@ class WFileSky(WBase):
             self.__update_gui()
             flag_emit = True
         except Exception as E:
-            self.add_log_error(str(E), True)
+            self.add_log_error(_str_exc(E), True)
             raise
         if flag_emit:
             self.edited.emit()
@@ -1583,7 +1594,7 @@ class WFileSky(WBase):
                     s = "wavelength_range"
                     lambda0, lambda1 = eval(kk["wavelength_range"])
                 except Exception as E:
-                    self.add_log_error("Failed evaluating %s: %s: %s" % (s, E.__class__.__name__, str(E)), True)
+                    self.add_log_error("Failed evaluating %s: %s" % (s, _str_exc(E)), True)
                     continue
 
                 # Works with clone, then replaces original, to ensure atomic operation
@@ -1592,7 +1603,7 @@ class WFileSky(WBase):
                 try:
                     clone.sky.crop(x0, x1, y0, y1, lambda0, lambda1)
                 except Exception as E:
-                    self.add_log_error("Crop operation failed: %s: %s" % (E.__class__.__name__, str(E)), True)
+                    self.add_log_error("Crop operation failed: %s" % _str_exc(E), True)
                     continue
 
                 form1 = self.keep_ref(self.parent_form.__class__())
@@ -1605,7 +1616,7 @@ class WFileSky(WBase):
                 break
 
         except Exception as E:
-            self.add_log_error("Crop failed: %s" % str(E), True)
+            self.add_log_error("Crop failed: %s" % _str_exc(E), True)
             raise
 
     def export_ccube_clicked(self):
@@ -1619,7 +1630,7 @@ class WFileSky(WBase):
                 fccube.ccube = ccube
                 fccube.save_as(fn)
             except Exception as E:
-                self.add_log_error("Failed export: %s: %s" % (E.__class__.__name__, str(E)), True)
+                self.add_log_error("Failed export: %s" % _str_exc(E), True)
                 raise
 
     def replot_colors(self):
@@ -1731,9 +1742,9 @@ class WFileSky(WBase):
         except Exception as E:
             flag_error = True
             if ss:
-                emsg = "Field '%s': %s" % (ss, str(E))
+                emsg = "Field '%s': %s" % (ss, _str_exc(E))
             else:
-                emsg = str(E)
+                emsg = _str_exc(E)
             self.add_log_error(emsg)
         if flag_emit:
             self.__emit_if()
@@ -1759,7 +1770,7 @@ class WFileSky(WBase):
             self.canvas0.draw()
 
         except Exception as E:
-            self.add_log_error(str(E))
+            self.add_log_error(_str_exc(E))
             get_python_logger().exception("Could not plot spectra")
 
     def plot_colors(self):
@@ -1789,7 +1800,7 @@ class WFileSky(WBase):
 
             self.flag_plot_colors_pending = False
         except Exception as E:
-            self.add_log_error(str(E))
+            self.add_log_error(_str_exc(E))
             get_python_logger().exception("Could not plot colors")
 
 
@@ -1891,6 +1902,9 @@ class XFileSky(XFileMainWindow):
         def keep_ref(obj):
             self._refs.append(obj)
             return obj
+
+        self.setWindowTitle(_get_window_title("Data Cube Editor"))
+
 
         # # Synchronized sequences
         _VVV = FileSky.description
