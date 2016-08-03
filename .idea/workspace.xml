@@ -1,25 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="BookmarkManager">
-    <bookmark url="file://$PROJECT_DIR$/pymos/a_WFileSpectrumList.py" line="209" mnemonic="3" />
-    <bookmark url="file://$PROJECT_DIR$/pymos/a_WFileSpectrumList.py" line="190" mnemonic="4" />
-  </component>
   <component name="ChangeListManager">
     <list default="true" id="15a32482-a603-4ab7-aed4-812bfe142b5f" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/pymos/a_WSpectrumTable.py" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/pymos/a_WBand.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/pymos/a_WFileCCube.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/pymos/a_WScaleSpectrum.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/pymos/a_XFileCCube.py" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pymos/__init__.py" afterPath="$PROJECT_DIR$/pymos/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pymos/a_WChooseSpectrum.py" afterPath="$PROJECT_DIR$/pymos/a_WChooseSpectrum.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pymos/a_WFileSky.py" afterPath="$PROJECT_DIR$/pymos/a_WFileSky.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pymos/a_WFileSpectrumList.py" afterPath="$PROJECT_DIR$/pymos/a_WFileSpectrumList.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pymos/basewindows.py" afterPath="$PROJECT_DIR$/pymos/basewindows.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pymos/fileccube.py" afterPath="$PROJECT_DIR$/pymos/fileccube.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pymos/filesky.py" afterPath="$PROJECT_DIR$/pymos/filesky.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pymos/filespectrumlist.py" afterPath="$PROJECT_DIR$/pymos/filespectrumlist.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pymos/blocks.py" afterPath="$PROJECT_DIR$/pymos/blocks.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pymos/misc.py" afterPath="$PROJECT_DIR$/pymos/misc.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pymos/windows.py" afterPath="$PROJECT_DIR$/pymos/windows.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/scripts/skyed.py" afterPath="$PROJECT_DIR$/scripts/skyed.py" />
     </list>
     <ignored path="pymos.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -40,48 +27,76 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="a_WSpectrumTable.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/pymos/a_WSpectrumTable.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="450">
-              <caret line="110" column="30" selection-start-line="110" selection-start-column="30" selection-end-line="110" selection-end-column="30" />
-              <folding>
-                <element signature="e#70#96#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="a_WFileSpectrumList.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/pymos/a_WFileSpectrumList.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1065">
-              <caret line="555" column="0" selection-start-line="535" selection-start-column="0" selection-end-line="555" selection-end-column="0" />
-              <folding>
-                <marker date="1469613478236" expanded="true" signature="20169:20192" ph="..." />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="filesky.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pymos/filesky.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="396">
-              <caret line="170" column="36" selection-start-line="170" selection-start-column="36" selection-end-line="170" selection-end-column="36" />
+            <state relative-caret-position="2055">
+              <caret line="147" column="0" selection-start-line="147" selection-start-column="0" selection-end-line="147" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="a_WFileSky.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/pymos/a_WFileSky.py">
+      <file leaf-file-name="skyed.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/scripts/skyed.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="690">
-              <caret line="468" column="25" selection-start-line="468" selection-start-column="25" selection-end-line="468" selection-end-column="25" />
+            <state relative-caret-position="75">
+              <caret line="9" column="0" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
               <folding>
-                <marker date="1469614834977" expanded="true" signature="6469:6496" ph="..." />
+                <element signature="e#79#98#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="fileccube.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/pymos/fileccube.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="285">
+              <caret line="20" column="0" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="blocks.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/pymos/blocks.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="502">
+              <caret line="231" column="0" selection-start-line="231" selection-start-column="0" selection-end-line="231" selection-end-column="0" />
+              <folding>
+                <marker date="1470235023160" expanded="true" signature="3141:3981" ph="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="splisted.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/scripts/splisted.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="15">
+              <caret line="1" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="28" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="filespectrumlist.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/pymos/filespectrumlist.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="121">
+              <caret line="253" column="30" selection-start-line="253" selection-start-column="30" selection-end-line="253" selection-end-column="30" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="windows.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/pymos/windows.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="91">
+              <caret line="463" column="43" selection-start-line="463" selection-start-column="40" selection-end-line="463" selection-end-column="43" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -89,24 +104,8 @@
       <file leaf-file-name="a_XScaleSpectrum.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pymos/a_XScaleSpectrum.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="321">
+            <state relative-caret-position="225">
               <caret line="40" column="13" selection-start-line="40" selection-start-column="13" selection-end-line="40" selection-end-column="13" />
-              <folding>
-                <element signature="e#69#95#0" expanded="true" />
-                <marker date="1469546233670" expanded="true" signature="824:12201" ph="..." />
-                <marker date="1469546233670" expanded="true" signature="990:5357" ph="..." />
-                <marker date="1469546233670" expanded="true" signature="6009:6521" ph="..." />
-                <marker date="1469546233670" expanded="true" signature="6552:6723" ph="..." />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="a_XParametersEditor.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../../pfant/PFANT/pyfant/pyfant/gui/a_XParametersEditor.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="120">
-              <caret line="10" column="62" selection-start-line="10" selection-start-column="62" selection-end-line="10" selection-end-column="62" />
               <folding />
             </state>
           </provider>
@@ -125,23 +124,9 @@
       <file leaf-file-name="basewindows.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pymos/basewindows.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="695">
-              <caret line="429" column="61" selection-start-line="429" selection-start-column="61" selection-end-line="429" selection-end-column="61" />
-              <folding>
-                <marker date="1469613443068" expanded="true" signature="1573:1711" ph="..." />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="a_WParametersEditor.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../../pfant/PFANT/pyfant/pyfant/gui/a_WParametersEditor.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="795">
-              <caret line="56" column="0" selection-start-line="56" selection-start-column="0" selection-end-line="56" selection-end-column="0" />
-              <folding>
-                <element signature="e#66#92#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="6345">
+              <caret line="429" column="21" selection-start-line="429" selection-start-column="21" selection-end-line="429" selection-end-column="21" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -154,11 +139,8 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/scripts/skyed.py" />
         <option value="$PROJECT_DIR$/pymos/a_XFileSpectrumList.py" />
         <option value="$PROJECT_DIR$/pymos/a_XFileSky.py" />
-        <option value="$PROJECT_DIR$/pymos/blocks.py" />
-        <option value="$PROJECT_DIR$/pymos/filespectrumlist.py" />
         <option value="$PROJECT_DIR$/../../pfant/PFANT/pyfant/pyfant/data/spectrum.py" />
         <option value="$PROJECT_DIR$/pymos/fileccube.py" />
         <option value="$PROJECT_DIR$/pymos/a_WFileCCube.py" />
@@ -175,14 +157,18 @@
         <option value="$PROJECT_DIR$/pymos/a_WFileSpectrumList.py" />
         <option value="$PROJECT_DIR$/pymos/a_WSpectrumTable.py" />
         <option value="$PROJECT_DIR$/pymos/a_WFileSky.py" />
+        <option value="$PROJECT_DIR$/scripts/skyed.py" />
+        <option value="$PROJECT_DIR$/pymos/filespectrumlist.py" />
+        <option value="$PROJECT_DIR$/pymos/windows.py" />
+        <option value="$PROJECT_DIR$/pymos/blocks.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
     <option name="x" value="-3" />
     <option name="y" value="27" />
-    <option name="width" value="774" />
-    <option name="height" value="1314" />
+    <option name="width" value="1372" />
+    <option name="height" value="716" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
@@ -195,7 +181,7 @@
     <ConfirmationsSetting value="0" id="Remove" />
   </component>
   <component name="ProjectView">
-    <navigator currentView="ProjectPane" proportions="" version="1">
+    <navigator proportions="" version="1">
       <flattenPackages />
       <showMembers />
       <showModules />
@@ -208,21 +194,16 @@
       <manualOrder />
       <foldersAlwaysOnTop value="true" />
     </navigator>
-    <panes>
-      <pane id="Scratches" />
-      <pane id="Scope" />
-      <pane id="ProjectPane">
-        <subPane />
-      </pane>
-    </panes>
+    <panes />
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../studies/0" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PythonContentEntriesConfigurable" />
     <property name="settings.editor.splitter.proportion" value="0.2" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/../studies/0" />
       <recent name="$PROJECT_DIR$/pymos" />
     </key>
   </component>
@@ -404,26 +385,26 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-3" y="27" width="774" height="1314" extended-state="6" />
-    <editor active="true" />
+    <frame x="-3" y="27" width="1372" height="716" extended-state="6" />
+    <editor active="false" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25520834" sideWeight="0.49434572" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32744783" sideWeight="0.50292826" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.36811832" sideWeight="0.49707174" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.36672053" sideWeight="0.49707174" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32905295" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25549048" sideWeight="0.5056543" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3990307" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32905295" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3990307" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -451,7 +432,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
           <url>file://$PROJECT_DIR$/pymos/blocks.py</url>
-          <line>141</line>
+          <line>157</line>
           <option name="timeStamp" value="3" />
         </line-breakpoint>
       </breakpoints>
@@ -460,41 +441,8 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/pymos/misc.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2460">
-          <caret line="164" column="0" selection-start-line="164" selection-start-column="0" selection-end-line="164" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pymos/a_WFileSpectrumList.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="8160">
-          <caret line="550" column="24" selection-start-line="550" selection-start-column="24" selection-end-line="550" selection-end-column="24" />
-          <folding>
-            <marker date="1469613478236" expanded="true" signature="20169:20192" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pymos/a_WFileSky.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="10125">
-          <caret line="684" column="56" selection-start-line="684" selection-start-column="56" selection-end-line="684" selection-end-column="56" />
-          <folding>
-            <marker date="1469614834977" expanded="true" signature="6469:6496" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pymos/a_WBand.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/pymos/a_WFileSky.py" />
+    <entry file="file://$PROJECT_DIR$/pymos/a_WBand.py" />
     <entry file="file://$PROJECT_DIR$/scripts/splisted.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="300">
@@ -506,7 +454,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2115">
           <caret line="150" column="40" selection-start-line="150" selection-start-column="40" selection-end-line="150" selection-end-column="40" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -522,32 +469,11 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="30">
           <caret line="2" column="0" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#19#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pymos/a_WFileSpectrumList.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="6510">
-          <caret line="440" column="18" selection-start-line="440" selection-start-column="18" selection-end-line="440" selection-end-column="18" />
-          <folding>
-            <marker date="1469613478236" expanded="true" signature="20169:20192" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pymos/a_XFileSky.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="16" column="19" selection-start-line="16" selection-start-column="19" selection-end-line="16" selection-end-column="19" />
-          <folding>
-            <element signature="e#71#96#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/pymos/a_WFileSpectrumList.py" />
+    <entry file="file://$PROJECT_DIR$/pymos/a_XFileSky.py" />
     <entry file="file://$PROJECT_DIR$/../../pfant/PFANT/pyfant/pyfant/gui/parameter.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1170">
@@ -559,7 +485,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <marker date="1470235023160" expanded="true" signature="3141:3981" ph="..." />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -574,9 +502,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1560">
           <caret line="110" column="79" selection-start-line="110" selection-start-column="79" selection-end-line="110" selection-end-column="79" />
-          <folding>
-            <marker date="1469613443068" expanded="true" signature="1573:1711" ph="..." />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -584,7 +510,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="855">
           <caret line="66" column="0" selection-start-line="66" selection-start-column="0" selection-end-line="66" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -614,20 +539,10 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#19#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/pymos/.fuse_hidden00000cd800000004" />
-    <entry file="file://$PROJECT_DIR$/scripts/skyed.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="4" column="0" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/.PyCharm2016.1/system/python_stubs/-1247972723/PyQt4/QtGui/QPlainTextEdit.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="135">
@@ -635,47 +550,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pymos/fileccube.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="31" column="33" selection-start-line="31" selection-start-column="33" selection-end-line="31" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pymos/a_WFileCCube.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="426">
-          <caret line="404" column="0" selection-start-line="404" selection-start-column="0" selection-end-line="404" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/pymos/a_WFileCCube.py" />
     <entry file="file://$PROJECT_DIR$/../../pfant/PFANT/pyfant/pyfant/data/spectrum.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="165">
           <caret line="144" column="58" selection-start-line="144" selection-start-column="58" selection-end-line="144" selection-end-column="58" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pymos/filespectrumlist.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2115">
-          <caret line="150" column="40" selection-start-line="150" selection-start-column="40" selection-end-line="150" selection-end-column="40" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/splisted.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="300">
-          <caret line="25" column="4" selection-start-line="25" selection-start-column="4" selection-end-line="25" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pymos/blocks.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="465">
-          <caret line="151" column="56" selection-start-line="151" selection-start-column="56" selection-end-line="151" selection-end-column="56" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -690,7 +569,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1035">
           <caret line="74" column="0" selection-start-line="71" selection-start-column="0" selection-end-line="74" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -698,9 +576,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="225">
           <caret line="15" column="9" selection-start-line="15" selection-start-column="9" selection-end-line="15" selection-end-column="9" />
-          <folding>
-            <element signature="e#0#19#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -713,13 +588,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/pymos/a_WFileSpectrum.py" />
     <entry file="file://$PROJECT_DIR$/pymos/a_WSpectrum.py" />
-    <entry file="file://$PROJECT_DIR$/pymos/a_WBand.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="360">
-          <caret line="80" column="0" selection-start-line="65" selection-start-column="0" selection-end-line="80" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/pymos/a_WBand.py" />
     <entry file="file://$PROJECT_DIR$/../../pfant/PFANT/pyfant/pyfant/pipeline.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="75">
@@ -727,16 +596,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pymos/a_XFileSpectrumList.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1770">
-          <caret line="118" column="0" selection-start-line="118" selection-start-column="0" selection-end-line="118" selection-end-column="0" />
-          <folding>
-            <element signature="e#80#105#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/pymos/a_XFileSpectrumList.py" />
     <entry file="file://$PROJECT_DIR$/pymos/misc.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -749,7 +609,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="14535">
           <caret line="990" column="1" selection-start-line="990" selection-start-column="1" selection-end-line="990" selection-end-column="1" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -757,16 +616,15 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2985">
           <caret line="206" column="11" selection-start-line="206" selection-start-column="11" selection-end-line="206" selection-end-column="11" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/../../pfant/PFANT/pyfant/pyfant/gui/a_WParametersEditor.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="795">
+        <state relative-caret-position="840">
           <caret line="56" column="0" selection-start-line="56" selection-start-column="0" selection-end-line="56" selection-end-column="0" />
           <folding>
-            <element signature="e#66#92#0" expanded="true" />
+            <element signature="e#66#92#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -790,73 +648,89 @@
     <entry file="file://$PROJECT_DIR$/pymos/a_WScaleSpectrum.py" />
     <entry file="file://$PROJECT_DIR$/pymos/a_XScaleSpectrum.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="321">
+        <state relative-caret-position="225">
           <caret line="40" column="13" selection-start-line="40" selection-start-column="13" selection-end-line="40" selection-end-column="13" />
-          <folding>
-            <element signature="e#69#95#0" expanded="true" />
-            <marker date="1469546233670" expanded="true" signature="824:12201" ph="..." />
-            <marker date="1469546233670" expanded="true" signature="990:5357" ph="..." />
-            <marker date="1469546233670" expanded="true" signature="6009:6521" ph="..." />
-            <marker date="1469546233670" expanded="true" signature="6552:6723" ph="..." />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/pymos/filesky.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="396">
-          <caret line="170" column="36" selection-start-line="170" selection-start-column="36" selection-end-line="170" selection-end-column="36" />
+        <state relative-caret-position="2055">
+          <caret line="147" column="0" selection-start-line="147" selection-start-column="0" selection-end-line="147" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/pymos/basewindows.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="695">
-          <caret line="429" column="61" selection-start-line="429" selection-start-column="61" selection-end-line="429" selection-end-column="61" />
+        <state relative-caret-position="6345">
+          <caret line="429" column="21" selection-start-line="429" selection-start-column="21" selection-end-line="429" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pymos/a_XFileSky.py" />
+    <entry file="file://$PROJECT_DIR$/pymos/a_WFileSpectrumList.py" />
+    <entry file="file://$PROJECT_DIR$/pymos/a_WSpectrumTable.py" />
+    <entry file="file://$PROJECT_DIR$/pymos/a_WFileSky.py" />
+    <entry file="file://$PROJECT_DIR$/scripts/skyed.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="9" column="0" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
           <folding>
-            <marker date="1469613443068" expanded="true" signature="1573:1711" ph="..." />
+            <element signature="e#79#98#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pymos/a_XFileSky.py">
+    <entry file="file://$PROJECT_DIR$/pymos/fileccube.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="460">
-          <caret line="45" column="16" selection-start-line="45" selection-start-column="16" selection-end-line="45" selection-end-column="16" />
+        <state relative-caret-position="285">
+          <caret line="20" column="0" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pymos/filespectrumlist.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="121">
+          <caret line="253" column="30" selection-start-line="253" selection-start-column="30" selection-end-line="253" selection-end-column="30" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pymos/windows.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="91">
+          <caret line="463" column="43" selection-start-line="463" selection-start-column="40" selection-end-line="463" selection-end-column="43" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../studies/0/test-skyed.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pymos/blocks.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="502">
+          <caret line="231" column="0" selection-start-line="231" selection-start-column="0" selection-end-line="231" selection-end-column="0" />
           <folding>
-            <element signature="e#71#96#0" expanded="false" />
+            <marker date="1470235023160" expanded="true" signature="3141:3981" ph="..." />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pymos/a_WFileSpectrumList.py">
+    <entry file="file://$PROJECT_DIR$/scripts/splisted.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1065">
-          <caret line="555" column="0" selection-start-line="535" selection-start-column="0" selection-end-line="555" selection-end-column="0" />
-          <folding>
-            <marker date="1469613478236" expanded="true" signature="20169:20192" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pymos/a_WSpectrumTable.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="450">
-          <caret line="110" column="30" selection-start-line="110" selection-start-column="30" selection-end-line="110" selection-end-column="30" />
-          <folding>
-            <element signature="e#70#96#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pymos/a_WFileSky.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="690">
-          <caret line="468" column="25" selection-start-line="468" selection-start-column="25" selection-end-line="468" selection-end-column="25" />
-          <folding>
-            <marker date="1469614834977" expanded="true" signature="6469:6496" ph="..." />
-          </folding>
+        <state relative-caret-position="15">
+          <caret line="1" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="28" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>

@@ -22,7 +22,7 @@ if __name__ == "__main__":
     form = XFileSky()
 
     if args.fn is not None:
-        form.load(args.fn)
+        form.load_filename(args.fn)
 
     form.show()
     sys.exit(app.exec_())

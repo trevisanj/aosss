@@ -463,7 +463,7 @@ class XQuery(XLogMainWindow):
         x = keep_ref(QLabel())
         y = self.edit_expr = QLineEdit("SNR()")
         x.setBuddy(y)
-        pp.append((x, y, "&Block expresion", "Example: 'SNR()'", ""))
+        pp.append((x, y, "&Block expresion", "Other examples: 'MergeDown(np.mean)'", ""))
         ###
         x = keep_ref(QLabel())
         y = self.edit_group_by = QLineEdit()
@@ -915,13 +915,13 @@ class WFileSpectrumList(WBase):
             raise
 
     def rubberband_clicked(self):
-        self.__use_sblock(Rubberband(flag_upper=True))
+        self.__use_sblock(SB_Rubberband(flag_upper=True))
 
     def add_noise_clicked(self):
         specs = (("std", {"labelText": "Noise standard deviation", "value": 1.}),)
         form = XParametersEditor(specs=specs, title="Select sub-range")
         if form.exec_():
-            block = AddNoise(**form.GetKwargs())
+            block = SB_AddNoise(**form.GetKwargs())
             self.__use_sblock(block)
 
     def extract_continua_clicked(self):

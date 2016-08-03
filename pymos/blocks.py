@@ -4,7 +4,7 @@ import numpy as np
 from pymos.filespectrumlist import SpectrumList
 
 
-__all__ = ["SBlock", "Rubberband", "AddNoise", "SLBlock", "UseSBlock", "ExtractContinua", "SNR", "MergeDownBlock", "MergeDown"]
+__all__ = ["SBlock", "SB_ElementWise", "SB_Rubberband", "SB_AddNoise", "SLBlock", "UseSBlock", "ExtractContinua", "SNR", "MergeDownBlock", "MergeDown"]
 
 # All values in CGS
 _C = 299792458*100  # light speed in cm/s
@@ -60,7 +60,7 @@ class SBlock(BaseBlock):
         return input
 
 
-class Rubberband(SBlock):
+class SB_Rubberband(SBlock):
     """Returns a rubber band"""
 
     def __init__(self, flag_upper=True):
@@ -79,7 +79,7 @@ class Rubberband(SBlock):
         return output
 
 
-class AddNoise(SBlock):
+class SB_AddNoise(SBlock):
     def __init__(self, std=1.):
         SBlock.__init__(self)
         # Standard deviation of noise
@@ -92,14 +92,30 @@ class AddNoise(SBlock):
         return output
 
 
-class FNuToFLambda(SBlock):
+class SB_FNuToFLambda(SBlock):
     """
     Flux-nu to flux-lambda conversion. Assumes the wavelength axis is in angstrom
     """
     def _do_use(self, input):
+        raise NotImplementedError()
         output = self._new_output()
         output.y = input.y
 
+class SB_ElementWise(SBlock):
+    """Applies function to input.flux. function must return vector of same dimension as input"""
+
+    def __init__(self, func):
+        SBlock.__init__(self)
+        self.func = func
+
+    def _do_use(self, input):
+        output = self._new_output()
+        output.wavelength = self.copy_or_not(input.wavelength)
+        output.flux = self.func(input.flux)
+        if len(output.flux) != len(output.wavelength):
+            raise RuntimeError(
+                "func returned vector of length %d, but should be %d" % (len(output.flux), len(output.wavelength)))
+        return output
 
 
 ########################################################################################################################
@@ -149,7 +165,7 @@ class ExtractContinua(SLBlock):
     # TODO this is not a great system. Just de-noising could substantially improve the extracted continua
 
     def _do_use(self, input):
-        output = UseSBlock(Rubberband(flag_upper=True)).use(input)
+        output = UseSBlock(SB_Rubberband(flag_upper=True)).use(input)
         spectrum_std = MergeDown(func=np.std).use(input)
         mean_std = np.mean(spectrum_std.spectra[0].y)
         for spectrum in output.spectra:
@@ -183,11 +199,14 @@ class MergeDown(MergeDownBlock):
         return output
 
 class SNR(MergeDownBlock):
-    """Calculates the SNR, output has a single spectrum (the SNR(lambda))
+    """Calculates the SNR(lambda) = Power_signal(lambda)/Power_noise(lambda)
 
     Arguments:
         continua -- SpectrumList containing the continua that will be used as the "signal" level.
-                    If not passed, will be calculated from the input spectra using a Rubberband(True) block
+                    If not passed, will be calculated from the input spectra using a SB_Rubberband(True) block
+
+    References:
+        [1] https://en.wikipedia.org/wiki/Signal_averaging
     """
 
     # TODO I think that it is more correct to talk about "continuum" not continua
@@ -198,14 +217,15 @@ class SNR(MergeDownBlock):
 
     def _do_use(self, input):
         if self.continua is None:
-            continua = UseSBlock(Rubberband(True)).use(input)
+            continua = UseSBlock(SB_Rubberband(True)).use(input)
         else:
             continua = self.continua
-        mean_cont = MergeDown(np.mean).use(continua)
-        std_spectra = MergeDown(np.std).use(input)
+        cont_2 = UseSBlock(SB_ElementWise(np.square)).use(continua)  # continua squared
+        mean_cont_2 = MergeDown(np.mean).use(cont_2)
+        var_spectra = MergeDown(np.var).use(input)
         output = self._new_output()
         sp = Spectrum()
         sp.wavelength = self.copy_or_not(input.wavelength)
-        sp.flux = mean_cont.spectra[0].flux/std_spectra.spectra[0].flux
+        sp.flux = mean_cont_2.spectra[0].flux/var_spectra.spectra[0].flux
         output.add_spectrum(sp)
         return output

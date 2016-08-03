@@ -37,7 +37,7 @@ def rubberband(vx):
     without crossing x, where x = X[i, :], i <= 0 < no (see below).
 
 
-    This was inspired on OPUS Rubberband baseline correction (RBBC) [1]. However,
+    This was inspired on OPUS SB_Rubberband baseline correction (RBBC) [1]. However,
     this one is parameterless, whereas OPUS RBBC asks for a number of points.
 
     References:
