@@ -9,7 +9,7 @@
     
 :two: Clone the _pymos_ repository: `git clone https://github.com/trevisanj/pymos`
 
-:three: Run `add_paths.py` in _bash_ or _tcsh_ mode (similar to step in PFANT installation)
+:three: Run `add-paths.py` in _bash_ or _tcsh_ mode (similar to step in PFANT installation)
 
 :four: Testing
 
