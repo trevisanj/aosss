@@ -3,6 +3,7 @@
 Adds lines to ~/.bashrc file or other specified + appends paths to environment variables
 
 **Note** Will work only on if os.name == "posix"
+
 """
 
 import os
@@ -55,13 +56,12 @@ if __name__ == "__main__":
 
   # file to be changed/created
   t = args.target if args.target is not DEF_TARGET else os.path.join(home, fn_conf)
-  # directory containing this script ("root" directory of PFANT repository)
+  # directory containing this script ("root" directory of pymos repository)
   p = os.path.dirname(os.path.realpath(__file__))
 
   map_ = [
     ("PYTHONPATH", "%s"% p, get_cmd0),
-    (path_var, "%s/scripts" % p, get_cmd1),
-         ]
+    (path_var, "%s/scripts" % p, get_cmd1)]
 
   ll = [f(p) for v, p, f in map_]  # list of commands
 
@@ -89,6 +89,12 @@ if __name__ == "__main__":
       print x
     print "***END***"
 
+
+
+
+      # print "File '%s' now contains:\n--- BEGIN ---" % t
+      # print s
+      # print "--- END ---"
   else:
     print2("No changes made to file '%s'" % t)
 
@@ -99,5 +105,4 @@ if __name__ == "__main__":
   else:
     print2("Running another tcsh")
     os.system("tcsh")
-
 
