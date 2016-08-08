@@ -4,7 +4,7 @@
 
 :one: Install the _pyfant_ package following instructions at http://github.com/trevisanj/PFANT. Within these instructions, please:
 
-  - choose to clone the PFANT repository (don't download PFANT release
+  - choose to clone the _PFANT_ repository (don't download zip file, as the _PFANT_ project is constantly being updated to fulfill needs of the _pymos_ project, and you may eventually need to `git pull` the _PFANT_ repository)
   - there is no need to compile the Fortran code for the sake of pymos
     
 :two: Clone the _pymos_ repository: `git clone https://github.com/trevisanj/pymos`
