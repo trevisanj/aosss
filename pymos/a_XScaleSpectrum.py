@@ -256,7 +256,7 @@ def _calculate_and_plot(fig, spectrum, band_name, flag_force_parametric):
     # weighted_mean_flux = out_area/band_area
 
 
-    mm = spectrum.calculate_magnitude(band_name, flag_force_parametric, False)
+    mm = spectrum.calculate_magnitude(band_name, flag_force_parametric)
     band_l0, band_lf = mm["band_l0"], mm["band_lf"]
     weighted_mean_flux = mm["weighted_mean_flux"]
     spc = mm["spc"]
