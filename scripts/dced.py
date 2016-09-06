@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-"""FileSpectrumList editor with import/export FileCCube"""
+"""Data Cube Editor, import/export WebSim-COMPASS data cubes"""
 
 from pymos import *
 from pyfant import *
@@ -15,7 +15,7 @@ if __name__ == "__main__":
     description=__doc__,
     formatter_class=SmartFormatter
     )
-    parser.add_argument('fn', type=str, help="file name, supports '%s' and '%s'" % (FileSky.description, FileCCube.description), nargs='?')
+    parser.add_argument('fn', type=str, help="file name, supports '%s' and '%s'" % (FileDCube.description, FileCCube.description), nargs='?')
     args = parser.parse_args()
 
     app = get_QApplication([])

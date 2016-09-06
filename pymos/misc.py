@@ -1,12 +1,11 @@
 __all__ = ["rubberband", "style_widget", "eval_fieldnames"]
 
 import numpy as np
-from .fileccube import CompassCube
+
 from pyfant import *
-import matplotlib
+
+
 # from fileccube import *
-from scipy.interpolate import interp1d
-import collections
 
 
 ########################################################################################################################
@@ -88,14 +87,4 @@ def plot_colors(ax, ccube):
     
 
 ########################################################################################################################
-
-def eval_fieldnames(string_, varname="fieldnames"):
-    """Evaluates string_, must evaluate to list of strings. Also converts field names to uppercase"""
-    ff = eval(string_)
-    if not isinstance(ff, list):
-        raise RuntimeError("%s must be a list" % varname)
-    if not all([isinstance(x, str) for x in ff]):
-        raise RuntimeError("%s must be a list of strings" % varname)
-    ff = [x.upper() for x in ff]
-    return ff
 

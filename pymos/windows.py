@@ -1,41 +1,25 @@
-"""Widget to edit a FileSky object."""
+"""Widget to edit a FileDCube object."""
 
 __all__ = ["WSpectrumTable", "XQuery", "XFileSpectrumList", "XFileSky"]
 
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
-from pyfant import *
-from pyfant.gui.guiaux import *
-from pyfant.gui import XRunnableManager  # Everything related to XRunnableManager stays as a template for a future optimization manager
+import collections
+import copy
+import matplotlib.pyplot as plt
+import numbers
+import numpy as np
 import os
 import os.path
-import re
-import matplotlib.pyplot as plt
-from pyfant.gui.a_XParametersEditor import *
-from pymos import *
+from itertools import product, combinations, cycle
+
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from pyfant.gui import *
+
 from pyfant import *
-import random
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT # as NavigationToolbar2QT
-import matplotlib.pyplot as plt
-import numpy as np
-from itertools import product, combinations, cycle
-import os
-import math
-import numbers
-import copy
-import datetime
-import traceback as tb
+from pyfant.data.filespectrumlist import *
+from pyfant.gui import *
 from pymos import *
-from .a_XScaleSpectrum import *
-from .filespectrumlist import *
 from .a_WChooseSpectrum import *
 from .a_XScaleSpectrum import *
-import collections
-
 
 _COLORS_SQ = [(.1, .6, .5), (.5, .1, .7)]
 _ITER_COLORS_SQ = cycle(_COLORS_SQ)
@@ -62,7 +46,7 @@ def _str_exc(E):
 
 class WSpectrumTable(WBase):
     """
-    FileSky editor widget.
+    FileDCube editor widget.
 
     Arguments:
       parent=None
@@ -995,7 +979,7 @@ class WFileSpectrumList(WBase):
         self.flag_valid = self.update_splist_headers(self.f.splist)
 
     def __new_window(self, clone):
-        """Opens new FileSky in new window"""
+        """Opens new FileDCube in new window"""
         form1 = self.keep_ref(self.parent_form.__class__())
         form1.load(clone)
         form1.show()
@@ -1126,14 +1110,14 @@ class XFileSpectrumList(XFileMainWindow):
         """Converts from FileCCube to FileSpectrumList format, if necessary"""
         if isinstance(f, FileCCube):
             f1 = FileSpectrumList()
-            f1.sky.from_compass_cube(f.ccube)
+            f1.dcube.from_compass_cube(f.ccube)
             f = f1
         return f
 
 
 class WFileSky(WBase):
     """
-    FileSky editor widget.
+    FileDCube editor widget.
 
     Arguments:
       parent=None
@@ -1157,7 +1141,7 @@ class WFileSky(WBase):
         self.map_update_vis = [self.plot_spectra, self.plot_colors]
         # Whether there is sth in yellow background in the Headers tab
         self.flag_header_changed = False
-        self.f = None  # FileSky object
+        self.f = None  # FileDCube object
         self.obj_square = None
 
         # # Central layout
@@ -1288,7 +1272,7 @@ class WFileSky(WBase):
         spp.addWidget(sa0)
         spp.addWidget(wex)
 
-        # #### Second tab (NEW FileSky)
+        # #### Second tab (NEW FileDCube)
         sa1 = keep_ref(QScrollArea())
         tt0.addTab(sa1, "&Header")
         sa1.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
@@ -1324,7 +1308,7 @@ class WFileSky(WBase):
         y = self.edit_fieldnames = QPlainTextEdit()
         y.textChanged.connect(self.on_header_edited)
         x.setBuddy(y)
-        pp.append((x, y, "&Field names", "'header' information for each spectrum", "", lambda: self.f.sky.fieldnames,
+        pp.append((x, y, "&Field names", "'header' information for each spectrum", "", lambda: self.f.dcube.fieldnames,
                    lambda: self.edit_fieldnames.toPlainText()))
         ###
         x = self.label_width = QLabel()
@@ -1333,7 +1317,7 @@ class WFileSky(WBase):
         y.setMinimum(1)
         y.setMaximum(100)
         x.setBuddy(y)
-        pp.append((x, y, "&width", "hi-resolution (HR) width (pixels)", "", lambda: self.f.sky.width,
+        pp.append((x, y, "&width", "hi-resolution (HR) width (pixels)", "", lambda: self.f.dcube.width,
                    lambda: self.spinbox_width.value()))
         ###
         x = self.label_height = QLabel()
@@ -1343,7 +1327,7 @@ class WFileSky(WBase):
         y.setMaximum(100)
         x.setBuddy(y)
         pp.append(
-            (x, y, "&height", "HR height (pixels)", "", lambda: self.f.sky.height, lambda: self.spinbox_height.value()))
+            (x, y, "&height", "HR height (pixels)", "", lambda: self.f.dcube.height, lambda: self.spinbox_height.value()))
         ###
         x = self.label_hrfactor = QLabel()
         y = self.spinbox_hrfactor = QSpinBox()
@@ -1351,7 +1335,7 @@ class WFileSky(WBase):
         y.setMinimum(1)
         y.setMaximum(100)
         x.setBuddy(y)
-        pp.append((x, y, "&hrfactor", "(HR width)/(ifu width)", "", lambda: self.f.sky.hrfactor,
+        pp.append((x, y, "&hrfactor", "(HR width)/(ifu width)", "", lambda: self.f.dcube.hrfactor,
                    lambda: self.spinbox_hrfactor.value()))
         ###
         x = self.label_hr_pix_size = QLabel()
@@ -1360,7 +1344,7 @@ class WFileSky(WBase):
         y.textEdited.connect(self.on_header_edited)
         y.setValidator(QDoubleValidator(0, 1, 7))
         x.setBuddy(y)
-        pp.append((x, y, "&hr_pix_size", "HR pixel width/height (arcsec)", "", lambda: self.f.sky.hr_pix_size,
+        pp.append((x, y, "&hr_pix_size", "HR pixel width/height (arcsec)", "", lambda: self.f.dcube.hr_pix_size,
                    lambda: float(self.lineEdit_hr_pix_size.text())))
         ###
         x = self.label_hrfactor = QLabel()
@@ -1371,7 +1355,7 @@ class WFileSky(WBase):
         y.setSingleStep(100)
         x.setBuddy(y)
         pp.append(
-            (x, y, "&R", "resolution (delta lambda)/lambda", "", lambda: self.f.sky.R, lambda: self.spinbox_R.value()))
+            (x, y, "&R", "resolution (delta lambda)/lambda", "", lambda: self.f.dcube.R, lambda: self.spinbox_R.value()))
 
         for i, (label, edit, name, short_descr, long_descr, f_from_f, f_from_edit) in enumerate(pp):
             # label.setStyleSheet("QLabel {text-align: right}")
@@ -1489,9 +1473,9 @@ class WFileSky(WBase):
     # # Interface
 
     def load(self, x):
-        assert isinstance(x, FileSky)
+        assert isinstance(x, FileDCube)
         self.f = x
-        self.wsptable.set_collection(x.sky)
+        self.wsptable.set_collection(x.dcube)
         self.__update_gui(True)
         self.flag_valid = True  # assuming that file does not come with errors
         self.setEnabled(True)
@@ -1541,7 +1525,7 @@ class WFileSky(WBase):
             if not sp:
                 raise RuntimeError("Spectrum not loaded")
             sp.pixel_x, sp.pixel_y = x, y
-            self.f.sky.add_spectrum(sp)
+            self.f.dcube.add_spectrum(sp)
             self.__update_gui()
             flag_emit = True
         except Exception as E:
@@ -1554,7 +1538,7 @@ class WFileSky(WBase):
         self.__update_gui_header()
 
     def header_apply(self):
-        if self.__update_f_header(self.f.sky):
+        if self.__update_f_header(self.f.dcube):
             self.__update_gui(True)
 
     def current_tab_changed_vis(self):
@@ -1572,7 +1556,7 @@ class WFileSky(WBase):
 
     def crop_clicked(self):
         try:
-            sky = self.f.sky
+            sky = self.f.dcube
 
             specs = (("x_range", {"value": "[%d, %d]" % (0, sky.width - 1)}),
                      ("y_range", {"value": "[%d, %d]" % (0, sky.height - 1)}),
@@ -1601,7 +1585,7 @@ class WFileSky(WBase):
                 clone = copy.deepcopy(self.f)
                 clone.filename = None
                 try:
-                    clone.sky.crop(x0, x1, y0, y1, lambda0, lambda1)
+                    clone.dcube.crop(x0, x1, y0, y1, lambda0, lambda1)
                 except Exception as E:
                     self.add_log_error("Crop operation failed: %s" % _str_exc(E), True)
                     continue
@@ -1625,7 +1609,7 @@ class WFileSky(WBase):
         if fn:
             try:
                 fn = str(fn)
-                ccube = self.f.sky.to_compass_cube()
+                ccube = self.f.dcube.to_compass_cube()
                 fccube = FileCCube()
                 fccube.ccube = ccube
                 fccube.save_as(fn)
@@ -1638,14 +1622,14 @@ class WFileSky(WBase):
 
     def on_colors_click(self, event):
         x, y = int(event.xdata + .5), int(event.ydata + .5)
-        if 0 <= x < self.f.sky.width and 0 <= y < self.f.sky.height:
+        if 0 <= x < self.f.dcube.width and 0 <= y < self.f.dcube.height:
             self.spinbox_X.setValue(x)
             self.spinbox_Y.setValue(y)
             self.plot_colors()
 
     def on_collect_fieldnames(self):
         # TODO confirmation
-        self.edit_fieldnames.setPlainText(str(self.f.sky.collect_fieldnames()))
+        self.edit_fieldnames.setPlainText(str(self.f.dcube.collect_fieldnames()))
 
     # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * #
     # # Internal gear
@@ -1656,11 +1640,11 @@ class WFileSky(WBase):
 
     def get_place_spectrum_xy(self):
         x = int(self.spinbox_X.value())
-        if not (0 <= x < self.f.sky.width):
-            raise RuntimeError("x must be in [0, %s)" % self.f.sky.width)
+        if not (0 <= x < self.f.dcube.width):
+            raise RuntimeError("x must be in [0, %s)" % self.f.dcube.width)
         y = int(self.spinbox_Y.value())
-        if not (0 <= y < self.f.sky.height):
-            raise RuntimeError("y must be in [0, %s)" % self.f.sky.height)
+        if not (0 <= y < self.f.dcube.height):
+            raise RuntimeError("y must be in [0, %s)" % self.f.dcube.height)
         return x, y
 
     def __update_gui(self, flag_header=False):
@@ -1696,7 +1680,7 @@ class WFileSky(WBase):
 
     def __update_gui_header(self):
         """Updates header controls only"""
-        sky = self.f.sky
+        sky = self.f.dcube
         self.spinbox_width.setValue(sky.width)
         self.spinbox_height.setValue(sky.height)
         self.spinbox_hrfactor.setValue(sky.hrfactor)
@@ -1716,11 +1700,11 @@ class WFileSky(WBase):
 
     def __update_f(self):
         o = self.f
-        sky = self.f.sky
+        sky = self.f.dcube
         self.flag_valid = self.__update_f_header(sky)
 
     def __update_f_header(self, sky):
-        """Updates headers of a Sky objects using contents of the Headers tab"""
+        """Updates headers of a DataCube objects using contents of the Headers tab"""
         emsg, flag_error = "", False
         ss = ""
         try:
@@ -1765,7 +1749,7 @@ class WFileSky(WBase):
             fig = self.figure0
             fig.clear()
             ax = fig.gca(projection='3d')
-            _plot_spectra(ax, self.f.sky)
+            _plot_spectra(ax, self.f.dcube)
             fig.tight_layout()
             self.canvas0.draw()
 
@@ -1793,7 +1777,7 @@ class WFileSky(WBase):
                 sqx, sqy = self.get_place_spectrum_xy()
             except:
                 pass  # Nevermind (does not draw square)
-            self.obj_square = _plot_colors(ax, self.f.sky, vrange, sqx, sqy, flag_scale, method)
+            self.obj_square = _plot_colors(ax, self.f.dcube, vrange, sqx, sqy, flag_scale, method)
 
             fig.tight_layout()
             self.canvas1.draw()
@@ -1814,7 +1798,7 @@ def _plot_spectra(ax, sky):
     Y pixel coordinate   z
     Z wavelength         y
     """
-    assert isinstance(sky, Sky)
+    assert isinstance(sky, DataCube)
 
     flag_empty = len(sky.spectra) == 0
     r0 = [-.5, sky.width + .5]
@@ -1869,14 +1853,14 @@ def _plot_colors(ax, sky, vrange, sqx=None, sqy=None, flag_scale=False, method=0
 
     Arguments
       ax -- matplotlib axis
-      sky -- Sky instance
+      sky -- DataCube instance
       vrange -- visible range
       sqx -- "place spectrum" x
       sqy -- "place spectrum" y
 
     Returns: matplotlib plot object representing square, or None
     """
-    assert isinstance(sky, Sky)
+    assert isinstance(sky, DataCube)
     im = sky.to_colors(vrange, flag_scale, method)
     ax.imshow(im, interpolation="nearest")
     ax.invert_yaxis()
@@ -1907,13 +1891,13 @@ class XFileSky(XFileMainWindow):
 
 
         # # Synchronized sequences
-        _VVV = FileSky.description
-        self.tab_texts[0] =  "FileSky editor (Alt+&1)"
+        _VVV = FileDCube.description
+        self.tab_texts[0] =  "FileDCube editor (Alt+&1)"
         self.tabWidget.setTabText(0, self.tab_texts[0])
         self.save_as_texts[0] = "Save %s as..." % _VVV
         self.open_texts[0] = "Load %s" % _VVV
-        self.clss[0] = FileSky
-        self.clsss[0] = (FileSky, FileCCube)  # file types that can be opened
+        self.clss[0] = FileDCube
+        self.clsss[0] = (FileDCube, FileCCube)  # file types that can be opened
         self.wilds[0] = "*.fits"
 
         lv = keep_ref(QVBoxLayout(self.gotting))
@@ -1923,8 +1907,8 @@ class XFileSky(XFileMainWindow):
         self.editors[0] = ce
 
         # # Loads default file by default
-        if os.path.isfile(FileSky.default_filename):
-            f = FileSky()
+        if os.path.isfile(FileDCube.default_filename):
+            f = FileDCube()
             f.load()
             self.ce.load(f)
 
@@ -1989,9 +1973,9 @@ class XFileSky(XFileMainWindow):
         self._update_tab_texts()
 
     def _filter_on_load(self, f):
-        """Converts from FileCCube to FileSky format, if necessary"""
+        """Converts from FileCCube to FileDCube format, if necessary"""
         if isinstance(f, FileCCube):
-            f1 = FileSky()
-            f1.sky.from_compass_cube(f.ccube)
+            f1 = FileDCube()
+            f1.dcube.from_compass_cube(f.ccube)
             f = f1
         return f

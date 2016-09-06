@@ -4,11 +4,9 @@ __all__ = ["WChooseSpectrum"]
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+
 from pyfant import *
 from pyfant.gui.guiaux import *
-from fileccube import *
-from pyfant import random_name
-import numpy as np
 
 
 class WChooseSpectrum(QWidget):

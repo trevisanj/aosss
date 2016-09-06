@@ -1,8 +1,8 @@
-from pyfant import *
-from pymos.misc import *
 import numpy as np
-from pymos.filespectrumlist import SpectrumList
 
+from pyfant import *
+from pyfant.data.filespectrumlist import SpectrumList
+from pymos.misc import *
 
 __all__ = ["SBlock", "SB_ElementWise", "SB_Rubberband", "SB_AddNoise", "SLBlock", "UseSBlock", "ExtractContinua", "SNR", "MergeDownBlock", "MergeDown"]
 
