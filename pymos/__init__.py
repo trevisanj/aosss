@@ -6,6 +6,6 @@
 # from .basewindows import *
 # from .blocks import *
 # from .misc import *
-# from .misc import *
+from .misc import *
 # from .windows import *
 #
