@@ -1,11 +1,11 @@
-__all__ = ["load_spectrum_from_cube"]
+__all__ = ["load_spectrum_from_fits_cube_or_not"]
 
 import numpy as np
 from pyfant import *
 from astropy.io import fits
 
 
-def load_spectrum_from_cube(filename, x=0, y=0):
+def load_spectrum_from_fits_cube_or_not(filename, x=0, y=0):
     """Loads FITS file and gets given spectrum in data cube.
 
     This routine intends to deal with files such as "C000793_reduced.fits" """
