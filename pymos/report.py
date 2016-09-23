@@ -4,8 +4,9 @@ import os
 from astropy.io import fits
 from pyfant import *
 from matplotlib import pyplot as plt
-# import glob
-
+from .misc import *
+import numpy as np
+import traceback
 
 ###############################################################################
 # # HTML fragment generation routines
@@ -27,9 +28,9 @@ def _h(title, n=1):
     return "<h%d>%s</h%d>\n" % (n, title, n)
 
 # FITS files: <simid>+"_"+_fitss[i]+".fits"
-_fitss = ["cube_hr", "cube_seeing", "ifu_noseeing", "mask_fiber_in_aperture",
+FILE_KEYWORDS = ["cube_hr", "cube_seeing", "ifu_noseeing", "mask_fiber_in_aperture",
           "reduced", "reduced_snr", "sky", "skysub", "spintg", "spintg_noseeing",
-          "therm", "aparicio"]
+          "therm"]
 
 def _color(s, color):
     """Returns inline colored text"""
@@ -64,7 +65,13 @@ def create_websim_report(simid, dir_=".", fn_output=None):
     else:
         file_prefix, _ = os.path.splitext(fn_output)
     f_fn_fits = lambda middle: os.path.join(dir_, "%s_%s.fits" % (simid, middle))
-    filelist = []
+    flag_log, fn_log = True, "%s.out" % simid
+
+
+
+# TODO probably load_par separate
+# TODO probably load_all_fits() instead of load_bulk()
+    items = load_bulk(simid, dir_)
 
     # My first generator!!!
     def gen_fn_fig():
@@ -81,29 +88,32 @@ def create_websim_report(simid, dir_=".", fn_output=None):
         html.write(_h("Simulation # %s" % simid))
 
         html.write(_h("1. File list", 2))
-        l_s = ["<ul>\n"]
-        for middle in _fitss:
-            fn = f_fn_fits(middle)
-            l_s.append("  <li>"+fn)
-            if not os.path.isfile(fn):
-                l_s.append(" (not present)")
-            else:
-                filelist.append(fn)
-            l_s.append("</li>\n")
-        l_s.append("</ul>\n")
+        l_s = ["<pre>\n"]
+        for item in items:
+            l_s.append(item.filename+(" (not present)" if not item.flag_exists else "")+"\n")
+
+        # Log file is an extra case
+        l_s.append(fn_log)
+        if not os.path.isfile(fn_log):
+            l_s.append(" (not present)")
+        l_s.append("\n")
+
+        l_s.append("</pre>\n")
         html.write("".join(l_s))
-        filelist.sort()  # guarantees that 'spintg' comes before 'spintg_noseeing' and 'therm'
+
+# TODO probably the .par file will be treated separately
 
 
         # html.write(_h("2. FITS headers", 2))
-        html.write(_h("2. File Contents", 2))
+        html.write(_h("2. FITS files", 2))
         html.write('<table style="border: 6px solid #003000;">\n')
-        for fn in filelist:
+        for item in items:
             html.write('<tr>\n<td style="text-align: right; vertical-align: top; border-bottom: 3px solid #003000;">\n')
-            html.write("<b>%s</b>" % fn)
+            html.write("<b>%s</b>" % item.filename)
             html.write('</td>\n<td style="vertical-align: top; border-bottom: 3px solid #003000;">\n')
             try:
-                with fits.open(fn) as hdul:
+                # Opens as fits to dump header
+                with fits.open(item.filename) as hdul:
                     hdul.verify()
                     try:
                         s_h = repr(hdul[0].header)
@@ -112,123 +122,100 @@ def create_websim_report(simid, dir_=".", fn_output=None):
                         s_h = repr(hdul[0].header)
                 html.write("<pre>%s</pre>\n" % s_h)
             except:
-                get_python_logger().exception("Failed to dump header from file '%s'" % fn)
+                get_python_logger().exception("Failed to dump header from file '%s'" % item.filename)
                 html.write(_color("Header dump failed", "red"))
             html.write("</td>\n")
 
 
-            print "Generating visualization for file '%s' ..." % fn
+            print "Generating visualization for file '%s' ..." % item.filename
             html.write('<td style="vertical-align: top; border-bottom: 3px solid #003000; text-align: center">\n')
             try:
                 fig = None
-                fileobj = None
 
-                if ("spintg_noseeing" in fn) or ("therm" in fn):
-                    sp = load_spectrum_fits_messed_x(fn, sp_ref)
-                    if sp:
-                        fileobj = FileSpectrum()
-                        fileobj.spectrum = sp
-                else:
-                    fileobj = load_any_file(fn)
-
-                if isinstance(fileobj, FileWebsimCube) and (not "cube_seeing" in fn):
+                if isinstance(item.fileobj, FileWebsimCube) and (not "cube_seeing" in item.filename):
                     # note: skips "ifu_seeing" because it takes too long to renderize
                     fig = plt.figure()
                     ax = fig.gca(projection='3d')
                     datacube = DataCube()
-                    datacube.from_websim_cube(fileobj.wcube)
+                    datacube.from_websim_cube(item.fileobj.wcube)
                     draw_cube_3d(ax, datacube)
                     fig.tight_layout()
-                elif isinstance(fileobj, FileSpectrum):
-                    if "spintg." in fn:
-                        sp_ref = fileobj.spectrum
-                    fig = draw_spectra([fileobj.spectrum])
-                    # https://github.com/matplotlib/matplotlib/issues/2305/
-                    DPI = float(fig.get_dpi())
-                    fig.set_size_inches(640./DPI, 270./DPI)
+                elif isinstance(item.fileobj, FileSpectrum):
+                    if item.keyword == "spintg":
+                        sp_ref = item.fileobj.spectrum
+                    fig = draw_spectra([item.fileobj.spectrum])
+                    set_figure_size(fig, 640, 270)
                     fig.tight_layout()
+                elif isinstance(item.fileobj, FileFits):
+                    if item.keyword == "mask_fiber_in_aperture":
+                        fig = _draw_mask(item.fileobj)
+                    elif item.keyword == "cube_seeing":
+                        fig = _draw_field(item.fileobj)
 
                 if fig:
                     fn_fig = next_fn_fig.next()
                     # print "GONNA SAVE FIGURE AS "+str(fn_fig)
                     fig.savefig(fn_fig)
                     html.write('<img src="%s"></img>' % fn_fig)
-                elif fileobj:
-                    html.write("(visualization not available for this file (class: %s)" % fileobj.__class__.description)
+                elif item.fileobj:
+                    html.write("(visualization not available for this file (class: %s)" % item.fileobj.__class__.description)
                 else:
+
+# TODO I already have the error information, so can improve this
+
                     html.write("(could not load file)")
-            except:
-                get_python_logger().exception("Failed to load file '%s'" % fn)
-                html.write(_color("Header dump failed", "red"))
+            except Exception as E:
+                get_python_logger().exception("Failed to load file '%s'" % item.filename)
+                html.write(_color("Visualization failed: "+str(E), "red"))
+                html.write('<pre style="text-align: left">\n'+("\n".join(traceback.format_stack()))+"</pre>\n")
             html.write("</td>\n")
-
-
-
 
 
             html.write("</tr>\n")
         html.write("</table>\n")
 
-
-
-
-
-
-
-
-
-
-
-
-        # html.write(_h("3. Visualization", 2))
-        # html.write('<table style="border: 6px solid #003000;">\n')
-        # for fn in filelist:
-        #     print "Generating visualization for file '%s' ..." % fn
-        #     html.write('<tr>\n<td style="text-align: right; vertical-align: top; border-bottom: 2px solid #003000;">\n')
-        #     html.write(_h(fn, 3))
-        #     html.write('</td>\n<td style="border-bottom: 2px solid #003000; text-align: center">\n')
-        #     try:
-        #         fig = None
-        #         fileobj = None
-        #
-        #         if ("spintg_noseeing" in fn) or ("therm" in fn):
-        #             sp = load_spectrum_fits_messed_x(fn, sp_ref)
-        #             if sp:
-        #                 fileobj = FileSpectrum()
-        #                 fileobj.spectrum = sp
-        #         else:
-        #             fileobj = load_any_file(fn)
-        #
-        #         if isinstance(fileobj, FileWebsimCube) and (not "cube_seeing" in fn):
-        #             # note: skips "ifu_seeing" because it takes too long to renderize
-        #             fig = plt.figure()
-        #             ax = fig.gca(projection='3d')
-        #             datacube = DataCube()
-        #             datacube.from_websim_cube(fileobj.wcube)
-        #             draw_cube_3d(ax, datacube)
-        #             fig.tight_layout()
-        #         elif isinstance(fileobj, FileSpectrum):
-        #             if "spintg." in fn:
-        #                 sp_ref = fileobj.spectrum
-        #             fig = draw_spectra([fileobj.spectrum])
-        #             # https://github.com/matplotlib/matplotlib/issues/2305/
-        #             DPI = float(fig.get_dpi())
-        #             fig.set_size_inches(640./DPI, 270./DPI)
-        #             fig.tight_layout()
-        #
-        #         if fig:
-        #             fn_fig = next_fn_fig.next()
-        #             # print "GONNA SAVE FIGURE AS "+str(fn_fig)
-        #             fig.savefig(fn_fig)
-        #             html.write('<img src="%s"></img>' % fn_fig)
-        #         elif fileobj:
-        #             html.write("(visualization not available for this file (class: %s)" % fileobj.__class__.description)
-        #         else:
-        #             html.write("(could not load file)")
-        #     except:
-        #         get_python_logger().exception("Failed to load file '%s'" % fn)
-        #         html.write(_color("Header dump failed", "red"))
-        #     html.write("</td>\n</tr>\n")
-        # html.write("</table>\n")
+        if  flag_log:
+            html.write(_h("3. Log file dump", 2))
+            html.write("<pre>\n")
+            try:
+                with open(fn_log, "r") as file_log:
+                    html.write(file_log.read())
+            except Exception as E:
+                get_python_logger().exception("Failed to dump log file '%s'" % fn_log)
+                html.write("("+str(E)+")")
+            html.write("</pre>\n")
 
     return fn_output
+
+
+def _draw_mask(filefits):
+    """Draws the image for the Cxxxxx_mask_fiber_in_aperture.fits file. Returns figure"""
+    hdu = filefits.hdulist[0]
+    fig = plt.figure()
+    plt.imshow(hdu.data)
+    plt.xlabel("pixel-x")
+    plt.ylabel("pixel-y")
+    HEIGHT = 300.
+    nr, nc = hdu.data.shape
+    width = HEIGHT/nr*nc
+    set_figure_size(fig, width, HEIGHT)
+    plt.tight_layout()
+    return fig
+
+
+def _draw_field(filefits):
+    """Draws data cube in grayscale. Values are calculated as 2-vector-norm"""
+    hdu = filefits.hdulist[0]
+    data = hdu.data
+    grayscale = np.linalg.norm(data, 2, 0)
+    fig = plt.figure()
+    plt.imshow(grayscale, cmap='Greys_r')
+    plt.xlabel("pixel-x")
+    plt.ylabel("pixel-y")
+    HEIGHT = 300.
+    nr, nc = grayscale.shape
+    width = HEIGHT/nr*nc
+    set_figure_size(fig, width, HEIGHT)
+    plt.tight_layout()
+    return fig
+
