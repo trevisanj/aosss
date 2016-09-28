@@ -128,7 +128,7 @@ def create_websim_report(simid, dir_=".", fn_output=None):
                     html.write('<td style="border-bottom: 1px solid #003000;">%s</td></tr>\n' % va)
                 html.write("</table>\n")
         else:
-            html.write(_color("File '%s' not present" % fn_log, "red"))
+            html.write(_color("File '%s' not present" % fn_par, "red"))
 
 
         # html.write(_h("2. FITS headers", 2))
