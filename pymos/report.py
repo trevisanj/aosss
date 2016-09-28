@@ -64,9 +64,11 @@ def create_websim_report(simid, dir_=".", fn_output=None):
         fn_output = file_prefix + ".html"
     else:
         file_prefix, _ = os.path.splitext(fn_output)
-    f_fn_fits = lambda middle: os.path.join(dir_, "%s_%s.fits" % (simid, middle))
-    flag_log, fn_log = True, "%s.out" % simid
-
+    #f_fn_fits = lambda middle: os.path.join(dir_, "%s_%s.fits" % (simid, middle))
+    fn_log = os.path.join(dir_, "%s.out" % simid)
+    fn_par = os.path.join(dir_, "%s.par" % simid)
+    flag_log = os.path.isfile(fn_log)
+    flag_par = os.path.isfile(fn_par)
 
 
 # TODO probably load_par separate
@@ -92,6 +94,12 @@ def create_websim_report(simid, dir_=".", fn_output=None):
         for item in items:
             l_s.append(item.filename+(" (not present)" if not item.flag_exists else "")+"\n")
 
+        # ".par" file is an extra case
+        l_s.append(fn_par)
+        if not os.path.isfile(fn_par):
+            l_s.append(" (not present)")
+        l_s.append("\n")
+
         # Log file is an extra case
         l_s.append(fn_log)
         if not os.path.isfile(fn_log):
@@ -101,16 +109,37 @@ def create_websim_report(simid, dir_=".", fn_output=None):
         l_s.append("</pre>\n")
         html.write("".join(l_s))
 
-# TODO probably the .par file will be treated separately
+
+        html.write(_h("2. Simulation specification", 2))
+        if  flag_par:
+            flag_par_ok = True
+            try:
+                filepar = FilePar()
+                filepar.load(fn_par)
+            except Exception as E:
+                flag_par_ok = False
+                get_python_logger().exception("Failed to load file '%s'" % fn_par)
+                html.write("(" + str(E) + ")")
+
+            if flag_par_ok:
+                html.write('<table cellspacing=0 cellpadding=3 style="border: 6px solid #003000;">\n')
+                for kw, va in filepar.params.iteritems():
+                    html.write('<tr><td style="border-bottom: 1px solid #003000; font-weight: bold">%s</td>\n' % kw)
+                    html.write('<td style="border-bottom: 1px solid #003000;">%s</td></tr>\n' % va)
+                html.write("</table>\n")
+        else:
+            html.write(_color("File '%s' not present" % fn_log, "red"))
 
 
         # html.write(_h("2. FITS headers", 2))
-        html.write(_h("2. FITS files", 2))
-        html.write('<table style="border: 6px solid #003000;">\n')
+        html.write(_h("3. FITS files", 2))
+        html.write('<table cellspacing=0 cellpadding=3 style="border: 6px solid #003000;">\n')
         for item in items:
-            html.write('<tr>\n<td style="text-align: right; vertical-align: top; border-bottom: 3px solid #003000;">\n')
-            html.write("<b>%s</b>" % item.filename)
-            html.write('</td>\n<td style="vertical-align: top; border-bottom: 3px solid #003000;">\n')
+            html.write('<tr>\n<td colspan=2 style="vertical-align: top; border-bottom: 3px solid #003000;">\n')
+            html.write("<b>%s</b>" % os.path.basename(item.filename))
+            html.write('</td>\n</tr>\n')
+
+            html.write('<tr>\n<td style="vertical-align: top; border-bottom: 6px solid #003000;">\n')
             try:
                 # Opens as fits to dump header
                 with fits.open(item.filename) as hdul:
@@ -128,10 +157,10 @@ def create_websim_report(simid, dir_=".", fn_output=None):
 
 
             print "Generating visualization for file '%s' ..." % item.filename
-            html.write('<td style="vertical-align: top; border-bottom: 3px solid #003000; text-align: center">\n')
+            html.write('<td style="vertical-align: top; border-bottom: 6px solid #003000; text-align: center">\n')
             try:
                 fig = None
-
+                FIGURE_WIDTH = 570
                 if isinstance(item.fileobj, FileWebsimCube) and (not "cube_seeing" in item.filename):
                     # note: skips "ifu_seeing" because it takes too long to renderize
                     fig = plt.figure()
@@ -139,12 +168,13 @@ def create_websim_report(simid, dir_=".", fn_output=None):
                     datacube = DataCube()
                     datacube.from_websim_cube(item.fileobj.wcube)
                     draw_cube_3d(ax, datacube)
+                    set_figure_size(fig, FIGURE_WIDTH, 480. / 640 * FIGURE_WIDTH)
                     fig.tight_layout()
                 elif isinstance(item.fileobj, FileSpectrum):
                     if item.keyword == "spintg":
                         sp_ref = item.fileobj.spectrum
                     fig = draw_spectra([item.fileobj.spectrum])
-                    set_figure_size(fig, 640, 270)
+                    set_figure_size(fig, FIGURE_WIDTH, 270. / 640 * FIGURE_WIDTH)
                     fig.tight_layout()
                 elif isinstance(item.fileobj, FileFits):
                     if item.keyword == "mask_fiber_in_aperture":
@@ -160,22 +190,22 @@ def create_websim_report(simid, dir_=".", fn_output=None):
                 elif item.fileobj:
                     html.write("(visualization not available for this file (class: %s)" % item.fileobj.__class__.description)
                 else:
-
-# TODO I already have the error information, so can improve this
-
+                    # TODO I already have the error information, so can improve this
                     html.write("(could not load file)")
+
+                # html.write("hello")
+
             except Exception as E:
                 get_python_logger().exception("Failed to load file '%s'" % item.filename)
                 html.write(_color("Visualization failed: "+str(E), "red"))
                 html.write('<pre style="text-align: left">\n'+("\n".join(traceback.format_stack()))+"</pre>\n")
             html.write("</td>\n")
-
-
             html.write("</tr>\n")
         html.write("</table>\n")
 
+
+        html.write(_h("4. Log file dump", 2))
         if  flag_log:
-            html.write(_h("3. Log file dump", 2))
             html.write("<pre>\n")
             try:
                 with open(fn_log, "r") as file_log:
@@ -184,6 +214,9 @@ def create_websim_report(simid, dir_=".", fn_output=None):
                 get_python_logger().exception("Failed to dump log file '%s'" % fn_log)
                 html.write("("+str(E)+")")
             html.write("</pre>\n")
+        else:
+            html.write(_color("File '%s' not present" % fn_log, "red"))
+
 
     return fn_output
 

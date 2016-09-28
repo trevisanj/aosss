@@ -5,7 +5,6 @@ from pyfant import *
 from astropy.io import fits
 import os.path
 from collections import OrderedDict
-from filepar import *
 
 
 def load_spectrum_from_fits_cube_or_not(filename, x=0, y=0):
@@ -40,7 +39,6 @@ FILE_MAP = OrderedDict((
  ("spintg", FileSpectrumFits),
  ("spintg_noseeing", "messed"),  # particular case
  ("therm", "messed"),            # particular case
- ("PAR", FilePar)             # particular case
 ))
 #
 # FILE_KEYWORDS = FILE_MAP.keys()
@@ -69,10 +67,8 @@ def load_bulk(simid, dir_='.'):
     ret = []
     sp_ref = None  # reference spectrum for x-axis of messed files
     for keyword, class_ in FILE_MAP.iteritems():
-        if keyword == "PAR":
-            fn = simid+".par"
-        else:
-            fn = os.path.join(dir_, "%s_%s.fits" % (simid, keyword))
+        fn = os.path.join(dir_, "%s_%s.fits" % (simid, keyword))
+
         flag_exists = os.path.isfile(fn)
         flag_supported = class_ is not None
         error = None
