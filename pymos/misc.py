@@ -1,10 +1,13 @@
-__all__ = ["load_spectrum_from_fits_cube_or_not", "load_bulk"]
+__all__ = ["load_spectrum_from_fits_cube_or_not", "load_bulk", "create_spectrum_lists"]
 
-import numpy as np
-from pyfant import *
 from astropy.io import fits
 import os.path
 from collections import OrderedDict
+import glob
+import os
+from pyfant import *
+import re
+import numpy as np
 
 
 def load_spectrum_from_fits_cube_or_not(filename, x=0, y=0):
@@ -97,3 +100,101 @@ def load_bulk(simid, dir_='.'):
             ret.append(BulkItem(keyword, fileobj, fn, flag_exists, flag_supported,
                             error))
     return ret
+
+
+def create_spectrum_lists(dir_):
+    """Create several .splist files, grouping spectra by their wavelength vector"""
+
+    fnfn = glob.glob(os.path.join(dir_, "C*.par"))
+    # # Loads everything that's needed from disk
+    fileobjs = []  # (FilePar, FileSpectrumFits) pairs
+    for fn in fnfn:
+        try:
+            gg = re.search('C(\d+)', fn)
+            if gg is None:
+                raise RuntimeError(
+                    "'.par' file name '%s' does not have pattern 'Cnnnnnn'" % fn)
+
+            fp = FilePar()
+            fp.load(fn)
+
+            spectrum_filename = os.path.join(dir_, gg.group() + "_spintg.fits")
+            fsp = FileSpectrumFits()
+            fsp.load(spectrum_filename)
+
+            fileobjs.append((fp, fsp))
+        except:
+            get_python_logger().exception(
+                "Failed to add spectrum corresponding to file '%s'" % fn)
+
+    # Groups files by their wavelength axis
+    groups = []  # list of lists: [[(FilePar0, FileSpectrumFits0), ...], ...]
+    for pair in fileobjs:
+        if len(groups) == 0:
+            groups.append([pair])
+        else:
+            flag_match = False
+            for group in groups:
+                wl0 = group[0][1].spectrum.wavelength
+                wl1 = pair[1].spectrum.wavelength
+                if len(wl0) == len(wl1) and np.all(wl0 == wl1):
+                    flag_match = True
+                    group.append(pair)
+                    break
+            if not flag_match:
+                groups.append([pair])
+
+    # Now creates the spectrum list files
+    for h, group in enumerate(groups):
+
+        # # Finds differences in simulation specifications
+        # Finds names of parameters that differ at least in one file using set operations
+        for i, (fp, _) in enumerate(group):
+            s = set(fp.params.items())
+            if i == 0:
+                s_union = s
+                s_overlap = s
+            else:
+                s_union = s_union | s
+                s_overlap = s_overlap & s
+        keys = dict(s_union - s_overlap).keys()
+        key_dict = make_fits_keys_dict(keys)
+
+        # get_python_logger().info("FITS headers to feature in all spectra:")
+        # get_python_logger().info(str(key_dict))
+
+
+        fspl = FileSpectrumList()
+        nmin, nmax = 9999999, 0
+        for fp, fsp in group:
+            try:
+                gg = re.search('C(\d+)', fp.filename)
+                if gg is None:
+                    raise RuntimeError(
+                        "'.par' file name '%s' does not have pattern 'Cnnnnnn'" % fp.filename)
+                n = int(gg.groups()[0])
+                nmin = min(n, nmin)
+                nmax = max(n, nmax)
+
+                sp = fsp.spectrum
+                # gets rid of all FITS headers (TODO not sure if this is a good idea yet)
+                sp.more_headers.clear()
+                sp.more_headers["ORIGIN"] = os.path.basename(fsp.filename)
+
+                # copies to spectrum header all key-value pairs that differ among .par files
+                for k in keys:
+                    # .upper()[:8]
+                    sp.more_headers[key_dict[k]] = fp.params.get(k)
+                    # print "OLHOLHOLHO"
+
+                fspl.splist.add_spectrum(sp)
+            except:
+                get_python_logger().exception(
+                    "Failed to add spectrum corresponding to file '%s'" % fp.filename)
+
+        fn = os.path.join(dir_, "%sC%06d-C%06d.splist" % (
+            ("group%d-" % h) if len(groups) > 0 else "", nmin, nmax))
+        fspl.save_as(fn)
+        get_python_logger().info("Created file '%s'" % fn)
+
+
