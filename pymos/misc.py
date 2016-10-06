@@ -183,8 +183,30 @@ def create_spectrum_lists(dir_):
 
                 # copies to spectrum header all key-value pairs that differ among .par files
                 for k in keys:
-                    # .upper()[:8]
-                    sp.more_headers[key_dict[k]] = fp.params.get(k)
+
+                    # unwanted parameters
+                    # - simu name is redundant with simu_id
+                    # - ext_link has info such as "Resource id #4"
+                    if k in ["ext_link", "simu_name"]:
+                        # TODO not efficient to have this here, should remove from keys
+                        continue
+
+                    value = fp.params.get(k)
+                    if value is not None:
+                        # Content-sensitive conversion
+                        if k == "obj_ftemplate":
+                            # Template filename comes with full local
+                            # (i.e. Websim server) path, which is unnecessary
+                            # for our identification
+                            value = os.path.basename(value)
+                        elif k == "psf_file":
+                            # PSF filename also comes with its full path,
+                            # which if probably irrelevant
+                            value = os.path.basename(value)
+                        # else:
+                        #       # .get(k)
+
+                    sp.more_headers[key_dict[k]] = value
                     # print "OLHOLHOLHO"
 
                 fspl.splist.add_spectrum(sp)
