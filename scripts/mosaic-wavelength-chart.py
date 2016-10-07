@@ -17,7 +17,11 @@ import matplotlib as mpl
 import numpy as np
 import numbers
 import os.path
-
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
+from pyfant import *
+from pyfant.gui.guiaux import *
+import sys
 
 ###############################################################################
 # # External setup
@@ -69,7 +73,10 @@ ll = [MyLine("CaHK", 3900),
       MyLine("CaI", 6162),
       MyLine(r"H$\alpha$", 6562.8, width=HA_WIDTH),
       MyLine("OI triplet", [7777.194, 7777.417, 7777.539]),
-      MyLine("CaII triplet", [8498, 8542, 8662])
+      MyLine("CaII triplet", [8498, 8542, 8662]),
+      MyLine("He II", [1640]),
+      MyLine("Lyman limit", 912.),
+
       ]
 
 cc = [MyCoverage("HMM", [(4000, 18000)]),
@@ -80,11 +87,11 @@ cc = [MyCoverage("HMM", [(4000, 18000)]),
       ]
 
 ###############################################################################
-def draw(telluric_spectra):
+def draw(fig, telluric_spectra, redshift=0):
     l0, lf = 3000, Bands.range(LAST_BAND)[1]
     x =  np.logspace(np.log10(l0), np.log10(lf), 1000, base=10.)
-    plt.figure()
-    ax = plt.gca()
+
+    ax = fig.gca()
     ax.set_axisbelow(True)
 
     # # grid
@@ -142,14 +149,16 @@ def draw(telluric_spectra):
     Y_TOP = NUM_SLOTS
     COLOR_LINES = np.array([.3, 0., .3])
     for line in ll:
+        wl = [x*(1+redshift) for x in line.wl]
         if line.width > 0:
-            plt.fill_between([line.wl[0]-line.width/2, line.wl[0]+line.width/2],
+            width = line.width*(1+redshift)
+            plt.fill_between([wl[0]-width/2, wl[0]+width/2],
                              [Y_TOP, Y_TOP], [0, 0], color=COLOR_LINES, alpha=1)
-            x_ann = line.wl[0]+line.width/2
+            x_ann = wl[0]+width/2
         else:
-            for x in line.wl:
+            for x in wl:
                 plt.plot([x, x], [0, Y_TOP], c=COLOR_LINES, alpha=1)
-            x_ann = max(line.wl)
+            x_ann = max(wl)
         plt.annotate(line.name, xy=(x_ann, Y_TOP-.2), rotation=-90, color=COLOR_TEXT)
 
 
@@ -166,13 +175,77 @@ def draw(telluric_spectra):
         plt.annotate(coverage.name, xy=(x_ann+40, y-HEIGHT/2), color=COLOR_TEXT, verticalalignment="center")
         y -= 1
 
-
-
     plt.xlim([l0, lf])
     plt.ylim([0, NUM_SLOTS+.01])
     plt.xlabel("Wavelength ($\AA$)")
     plt.tight_layout()
-    plt.show()
+
+
+
+class RedshiftWindow(QMainWindow):
+    def __init__(self, telluric_spectra):
+        QMainWindow.__init__(self)
+
+        self._refs = []
+        def keep_ref(obj):
+            self._refs.append(obj)
+            return obj
+
+        self.telluric_spectra = telluric_spectra
+
+        lw1 = keep_ref(QVBoxLayout())
+
+        lwset = keep_ref(QHBoxLayout())
+        lw1.addLayout(lwset)
+        ###
+        laa = keep_ref(QLabel("&Redshift"))
+        lwset.addWidget(laa)
+        ###
+        sbx = self.spinBox_redshift = QDoubleSpinBox()
+        laa.setBuddy(sbx)
+        sbx.setSingleStep(.01)
+        sbx.setDecimals(2)
+        sbx.setMinimum(-.5)
+        sbx.setMaximum(17)
+        # sbx.valueChanged.connect(self.spinBoxValueChanged)
+        lwset.addWidget(sbx)
+        ###
+        b = keep_ref(QPushButton("Redra&w"))
+        lwset.addWidget(b)
+        b.clicked.connect(self.redraw)
+        ###
+        lwset.addSpacerItem(QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
+
+
+        ###
+        wm = keep_ref(QWidget())
+        # wm.setMargin(0)
+        lw1.addWidget(wm)
+        self.figure, self.canvas, self.lfig = get_matplotlib_layout(wm)
+
+        cw = self.centralWidget = QWidget()
+        cw.setLayout(lw1)
+        self.setCentralWidget(cw)
+        self.setWindowTitle("MOSAIC Wavelength Chart")
+
+        self.redraw()
+
+    def get_redshift(self):
+        return float(self.spinBox_redshift.value())
+
+
+    # def spinBoxValueChanged(self, *args):
+    #     self.label_redshiftValue.setText(str(self.get_redshift()))
+
+
+    def redraw(self):
+        try:
+            fig = self.figure
+            fig.clear()
+            draw(fig, self.telluric_spectra, self.get_redshift())
+            self.canvas.draw()
+        except Exception as E:
+            get_python_logger().exception("Could draw figure")
 
 
 
@@ -202,9 +275,12 @@ if __name__ == "__main__":
         except:
             get_python_logger().exception("Failed to load '%s'" % path_)
 
-
-
     if args.plot:
-        draw(telluric_spectra)
+        fig = plt.figure()
+        draw(fig, telluric_spectra)
+        plt.show()
     else:
-        print "Not yet"
+        app = get_QApplication([])
+        form = RedshiftWindow(telluric_spectra)
+        form.show()
+        sys.exit(app.exec_())
