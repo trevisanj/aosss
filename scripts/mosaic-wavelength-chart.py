@@ -9,7 +9,7 @@ Two modes are available:
 """
 
 import argparse
-from pymos import *
+from ao3s import *
 from pyfant import *
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter

@@ -4,7 +4,7 @@ Creates report for a given set of WEBSIM-COMPASS output files
 """
 import argparse
 from pyfant import *
-from pymos import *
+from ao3s import *
 import logging
 import glob
 
