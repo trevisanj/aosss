@@ -1,16 +1,4 @@
-*.dat
-*.mod
-*.moo
-*.opa
-*.norm
-session-*
-multi-session-*
 *.log
-*.pyc
-*.spec
-*.fits
-*.cont
-th*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -1,4 +1,5 @@
-__all__ = ["load_spectrum_from_fits_cube_or_not", "load_bulk", "create_spectrum_lists"]
+__all__ = ["load_spectrum_from_fits_cube_or_not", "load_bulk", "create_spectrum_lists",
+           "get_ao3s_dir"]
 
 from astropy.io import fits
 import os.path
@@ -8,6 +9,14 @@ import os
 from pyfant import *
 import re
 import numpy as np
+
+def get_ao3s_dir(*args):
+  """Returns full path to the ao3s package
+
+  Arguments will be added the end of os.path.join
+  """
+  p = os.path.join(os.path.dirname(os.path.realpath(__file__)), *args)
+  return p
 
 
 def load_spectrum_from_fits_cube_or_not(filename, x=0, y=0):
@@ -31,12 +40,12 @@ def load_spectrum_from_fits_cube_or_not(filename, x=0, y=0):
 
 
 FILE_MAP = OrderedDict((
- ("cube_hr", FileWebsimCube),
+ ("cube_hr", FileFullCube),
  ("cube_seeing", FileFits),
- ("ifu_noseeing", FileWebsimCube),
+ ("ifu_noseeing", FileFullCube),
  ("mask_fiber_in_aperture", FileFits),  # TODO, handle this file because it is nice
- ("reduced", FileWebsimCube),
- ("reduced_snr", FileWebsimCube),
+ ("reduced", FileFullCube),
+ ("reduced_snr", FileFullCube),
  ("sky", FileSpectrumFits),
  ("skysub", FileSpectrumFits),
  ("spintg", FileSpectrumFits),

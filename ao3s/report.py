@@ -161,7 +161,7 @@ def create_websim_report(simid, dir_=".", fn_output=None):
             try:
                 fig = None
                 FIGURE_WIDTH = 570
-                if isinstance(item.fileobj, FileWebsimCube) and (not "cube_seeing" in item.filename):
+                if isinstance(item.fileobj, FileFullCube) and (not "cube_seeing" in item.filename):
                     # note: skips "ifu_seeing" because it takes too long to renderize
                     fig = plt.figure()
                     ax = fig.gca(projection='3d')
