@@ -3,7 +3,7 @@ Adaptive Optics Systems Simulation Support
 
 Welcome!
 
-## Installation
+#<a name=S1></a>1 Installation
 
 :one: Install _pyfant_ package from http://github.com/trevisanj/pyfant
    
@@ -11,16 +11,9 @@ Welcome!
 
 :three: Run `sudo python setup.py develop`
 
-:four: Testing
+## 1.1 Installing updates
 
-  - Create any working directory of your choice. This will be used to work with your data files
-  - From there, type `cubeed.py`
-  - Press `Ctrl+D` to create new data cube
-  - You can now start adding spectra to the cube
-
-## Installing updates
-
-:one: Pull updates from from Github:
+:one: Pull updates from from GitHub:
 
 ```shell
 cd <ao3s folder>
@@ -28,3 +21,7 @@ git pull
 ```
 
 :two: Run `setup.py` again: `sudo python setup.py develop`
+
+#<a name=S2></a>2 Programs Available
+
+:bulb: To print a list of all command-line tools, run `ao3s-programs.py`

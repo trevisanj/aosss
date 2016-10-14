@@ -1,22 +1,31 @@
-__all__ = ["load_spectrum_from_fits_cube_or_not", "load_bulk", "create_spectrum_lists",
-           "get_ao3s_dir"]
+__all__ = ["get_ao3s_path", "get_ao3s_data_path", "get_ao3s_scripts_path",
+"load_spectrum_from_fits_cube_or_not", "FILE_MAP", "BulkItem", "load_bulk", "create_spectrum_lists"]
+
 
 from astropy.io import fits
 import os.path
 from collections import OrderedDict
 import glob
 import os
-from pyfant import *
 import re
 import numpy as np
+from pyfant import *
 
-def get_ao3s_dir(*args):
-  """Returns full path to the ao3s package
 
-  Arguments will be added the end of os.path.join
-  """
-  p = os.path.join(os.path.dirname(os.path.realpath(__file__)), *args)
+def get_ao3s_path(*args):
+  """Returns full path ao3s package. Arguments are added at the end of os.path.join()"""
+  p = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), *args))
   return p
+
+
+def get_ao3s_data_path(*args):
+    """Returns path to ao3s scripts. Arguments are added to the end os os.path.join()"""
+    return get_ao3s_path("data", *args)
+
+
+def get_ao3s_scripts_path(*args):
+    """Returns path to ao3s scripts. Arguments are added to the end os os.path.join()"""
+    return get_ao3s_path("..", "scripts", *args)
 
 
 def load_spectrum_from_fits_cube_or_not(filename, x=0, y=0):

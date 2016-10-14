@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/pymos.iml" filepath="$PROJECT_DIR$/.idea/pymos.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/ao3s.iml" filepath="$PROJECT_DIR$/.idea/ao3s.iml" />
     </modules>
   </component>
 </project>
