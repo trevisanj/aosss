@@ -15,4 +15,3 @@ setup(
     install_requires = ['numpy', 'scipy', 'astropy', 'matplotlib', 'fortranformat'],  # matplotlib never gets installed correctly by pip, but anyway...
     scripts = glob('scripts/*.py')  # Considers system scripts all .py files in 'scripts' directory
 )
-
