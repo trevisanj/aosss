@@ -123,7 +123,7 @@ def create_websim_report(simid, dir_=".", fn_output=None):
 
             if flag_par_ok:
                 html.write('<table cellspacing=0 cellpadding=3 style="border: 6px solid #003000;">\n')
-                for kw, va in filepar.params.iteritems():
+                for kw, va in filepar.params.items():
                     html.write('<tr><td style="border-bottom: 1px solid #003000; font-weight: bold">%s</td>\n' % kw)
                     html.write('<td style="border-bottom: 1px solid #003000;">%s</td></tr>\n' % va)
                 html.write("</table>\n")
@@ -156,7 +156,7 @@ def create_websim_report(simid, dir_=".", fn_output=None):
             html.write("</td>\n")
 
 
-            print "Generating visualization for file '%s' ..." % item.filename
+            print("Generating visualization for file '%s' ..." % item.filename)
             html.write('<td style="vertical-align: top; border-bottom: 6px solid #003000; text-align: center">\n')
             try:
                 fig = None
@@ -165,9 +165,9 @@ def create_websim_report(simid, dir_=".", fn_output=None):
                     # note: skips "ifu_seeing" because it takes too long to renderize
                     fig = plt.figure()
                     ax = fig.gca(projection='3d')
-                    datacube = DataCube()
-                    datacube.from_websim_cube(item.fileobj.wcube)
-                    draw_cube_3d(ax, datacube)
+                    sparsecube = SparseCube()
+                    sparsecube.from_full_cube(item.fileobj.wcube)
+                    draw_cube_3d(ax, sparsecube)
                     set_figure_size(fig, FIGURE_WIDTH, 480. / 640 * FIGURE_WIDTH)
                     fig.tight_layout()
                 elif isinstance(item.fileobj, FileSpectrum):
@@ -183,7 +183,7 @@ def create_websim_report(simid, dir_=".", fn_output=None):
                         fig = _draw_field(item.fileobj)
 
                 if fig:
-                    fn_fig = next_fn_fig.next()
+                    fn_fig = next(next_fn_fig)
                     # print "GONNA SAVE FIGURE AS "+str(fn_fig)
                     fig.savefig(fn_fig)
                     html.write('<img src="%s"></img>' % fn_fig)

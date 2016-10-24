@@ -1,5 +1,6 @@
-#!/usr/bin/python
-# -*- coding: utf8 -*-
+#!/usr/bin/env python3
+
+
 """
 Draws a [wavelength] x [various stacked information] chart
 
@@ -7,6 +8,7 @@ Two modes are available:
   - GUI mode (default): opens a GUI allowing for setup parameters
   - Plot mode (--plot): plots the chart directly in default way
 """
+
 
 import argparse
 from aosss import *
@@ -22,6 +24,7 @@ from PyQt4.QtGui import *
 from pyfant import *
 from pyfant.gui.guiaux import *
 import sys
+
 
 ###############################################################################
 # # External setup

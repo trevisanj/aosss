@@ -1,7 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
+
 """
 Creates report for a given set of WEBSIM-COMPASS output files
 """
+
+
 import argparse
 from pyfant import *
 from aosss import *

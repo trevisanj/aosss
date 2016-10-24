@@ -8,7 +8,7 @@
 # from .misc import *
 from .misc import *
 from .report import *
-import misc
-import mosaic
-import report
+from . import misc
+from . import mosaic
+from . import report
 # from .spectrograph import *

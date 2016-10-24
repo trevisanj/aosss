@@ -87,7 +87,7 @@ def load_bulk(simid, dir_='.'):
 
     ret = []
     sp_ref = None  # reference spectrum for x-axis of messed files
-    for keyword, class_ in FILE_MAP.iteritems():
+    for keyword, class_ in FILE_MAP.items():
         fn = os.path.join(dir_, "%s_%s.fits" % (simid, keyword))
 
         flag_exists = os.path.isfile(fn)
@@ -120,23 +120,41 @@ def load_bulk(simid, dir_='.'):
     return ret
 
 
-def create_spectrum_lists(dir_, stage="spintg"):
+def create_spectrum_lists(dir_, pipeline_stage="spintg"):
     """
     Create several .splist files, grouping spectra by their wavelength vector
 
     Arguments:
         dir_ -- input & output directory
-        stage="spintg" -- input "stage", i.e., which stage of the pipeline will be loaded.
+        pipeline_stage="spintg" -- input "stage", i.e., which stage of the pipeline will be loaded.
             Valid values:
-                "
                 "spintg" -- integrated spectrum (final stage)
+                "ifu_noseeing" -- take first spectrum of 7x1 data cube TODO explain
 
-
+                NO "cube_hr" -- extracts spectrum from files "C*_cube_hr.fits".
+                NO              These files are FITS data cubes with the template spectrum placed
+                NO               in the center
     """
+
+    if pipeline_stage == "spintg":
+
+        def simid_to_spectrum(simid):
+            fn = os.path.join(dir_, simid + "_spintg.fits")
+            fsp = FileSpectrumFits()
+            fsp.load(fn)
+            return fsp.spectrum
+
+    elif pipeline_stage == "ifu_noseeing":
+
+        def simid_to_spectrum(simid):
+            fn = os.path.join(dir_, simid + "_ifu_noseeing.fits")
+            fsp = FileFullCube()
+            fsp.load(fn)
+            return fsp.spectrum
 
     fnfn = glob.glob(os.path.join(dir_, "C*.par"))
     # # Loads everything that's needed from disk
-    fileobjs = []  # (FilePar, FileSpectrumFits) pairs
+    spectra = []  # [(FilePar0, Spectrum0), ...]
     for fn in fnfn:
         try:
             gg = re.search('C(\d+)', fn)
@@ -147,18 +165,16 @@ def create_spectrum_lists(dir_, stage="spintg"):
             fp = FilePar()
             fp.load(fn)
 
-            spectrum_filename = os.path.join(dir_, gg.group() + "_spintg.fits")
-            fsp = FileSpectrumFits()
-            fsp.load(spectrum_filename)
+            sp = simid_to_spectrum(gg.group())
 
-            fileobjs.append((fp, fsp))
+            spectra.append((fp, sp))
         except:
             get_python_logger().exception(
                 "Failed to add spectrum corresponding to file '%s'" % fn)
 
     # Groups files by their wavelength axis
-    groups = []  # list of lists: [[(FilePar0, FileSpectrumFits0), ...], ...]
-    for pair in fileobjs:
+    groups = []  # list of lists: [[(FilePar0, Spectrum0), ...], ...]
+    for pair in spectra:
         if len(groups) == 0:
             groups.append([pair])
         else:
@@ -186,7 +202,7 @@ def create_spectrum_lists(dir_, stage="spintg"):
             else:
                 s_union = s_union | s
                 s_overlap = s_overlap & s
-        keys = dict(s_union - s_overlap).keys()
+        keys = list(dict(s_union - s_overlap).keys())
         key_dict = make_fits_keys_dict(keys)
 
         # get_python_logger().info("FITS headers to feature in all spectra:")
@@ -195,7 +211,7 @@ def create_spectrum_lists(dir_, stage="spintg"):
 
         fspl = FileSpectrumList()
         nmin, nmax = 9999999, 0
-        for fp, fsp in group:
+        for fp, sp in group:
             try:
                 gg = re.search('C(\d+)', fp.filename)
                 if gg is None:
@@ -205,10 +221,13 @@ def create_spectrum_lists(dir_, stage="spintg"):
                 nmin = min(n, nmin)
                 nmax = max(n, nmax)
 
-                sp = fsp.spectrum
+                # determines what to put in "ORIGIN" header
+                origin = sp.more_headers.get("ORIGIN")
+                origin = origin if origin else os.path.basename(sp.filename)
+
                 # gets rid of all FITS headers (TODO not sure if this is a good idea yet)
                 sp.more_headers.clear()
-                sp.more_headers["ORIGIN"] = os.path.basename(fsp.filename)
+                sp.more_headers["ORIGIN"] = origin
 
                 # copies to spectrum header all key-value pairs that differ among .par files
                 for k in keys:

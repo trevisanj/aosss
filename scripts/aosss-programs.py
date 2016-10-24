@@ -1,11 +1,14 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
+
 
 """Lists all programs available with `aosss` package"""
+
 
 from pyfant import *
 from aosss import *
 import argparse
 import os
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -20,9 +23,9 @@ if __name__ == "__main__":
     scriptinfo = get_script_info(p)
 
     if len(scriptinfo) == 0:
-        print "No scripts found in '%s'" % p
+        print("No scripts found in '%s'" % p)
     else:
         linesp, module_len = format_script_info(scriptinfo, format=args.format)
 
-        print "\n".join(linesp)
+        print("\n".join(linesp))
 

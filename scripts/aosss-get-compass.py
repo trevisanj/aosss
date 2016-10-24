@@ -1,4 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
+
+
 """
 Downloads a number of Websim-Compass simulations
 
@@ -14,6 +16,7 @@ Based on shell script by Mathieu Puech
 **Note** Will work only on if os.name == "posix" (Linux, UNIX ...)
 """
 
+
 import os
 import argparse
 import sys
@@ -21,9 +24,11 @@ from pyfant import *
 import re
 import glob
 
+
 def print2(s):
   """function to standarde message lines."""
-  print 'GET-COMPASS: %s' % s
+  print('GET-COMPASS: %s' % s)
+
 
 if __name__ == "__main__":
     if os.name != "posix":
@@ -38,7 +43,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
 
-    print args.numbers
+    print(args.numbers)
 
     numbers = []
     for candidate in args.numbers:
@@ -49,7 +54,7 @@ if __name__ == "__main__":
                     raise RuntimeError("Could not parse range")
                 n0 = int(groups.groups()[0])
                 n1 = int(groups.groups()[1])
-                numbers.extend(range(n0, n1+1))
+                numbers.extend(list(range(n0, n1+1)))
             else:
                 numbers.append(int(candidate))
         except Exception as E:
@@ -60,7 +65,7 @@ if __name__ == "__main__":
     simids = ["C%06d" % n for n in numbers]
     print2("List of simulation IDs: "+", ".join(simids))
 
-    print "AAAAAAAAAAAAAAAAAAAA", args.max
+    print("AAAAAAAAAAAAAAAAAAAA", args.max)
 
     if len(numbers) > args.max:
         print2("Number of simulations to get (%d) exceeds maximum number (%d)" % (len(numbers), args.max))

@@ -1,14 +1,19 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
+
+
 """Lists MOSAIC Spectrograph modes"""
+
 
 import aosss
 import argparse
 import pyfant
 import logging
 import rows
-import StringIO
+import io
+
 
 pyfant.misc.logging_level = logging.INFO
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -32,8 +37,8 @@ if __name__ == "__main__":
     dicts = [mode.to_dict() for mode in modes_filtered]
 
     table = rows.import_from_dicts(dicts)
-    fobj = StringIO.StringIO()
+    fobj = io.StringIO()
     rows.export_to_txt(table, fobj)
     fobj.seek(0)
     for line in fobj:
-        print line
+        print(line)
