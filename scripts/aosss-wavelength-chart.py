@@ -9,7 +9,7 @@ Two modes are available:
 """
 
 import argparse
-from ao3s import *
+from aosss import *
 from pyfant import *
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
@@ -245,7 +245,7 @@ class RedshiftWindow(QMainWindow):
             draw(fig, self.telluric_spectra, self.get_redshift())
             self.canvas.draw()
         except Exception as E:
-            get_python_logger().exception("Could draw figure")
+            get_python_logger().exception("Could not draw figure")
 
 
 

@@ -1,9 +1,9 @@
 #!/usr/bin/python
 
-"""Lists all programs available with `ao3s` package"""
+"""Lists all programs available with `aosss` package"""
 
 from pyfant import *
-from ao3s import *
+from aosss import *
 import argparse
 import os
 

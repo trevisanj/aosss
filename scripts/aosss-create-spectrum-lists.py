@@ -9,7 +9,7 @@ All spectra in each .splist file must have the same wavelength vector
 import glob
 import os
 from pyfant import *
-from ao3s import *
+from aosss import *
 import re
 import numpy as np
 import logging

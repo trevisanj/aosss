@@ -13,18 +13,18 @@ from pyfant import *
 
 
 def get_ao3s_path(*args):
-  """Returns full path ao3s package. Arguments are added at the end of os.path.join()"""
+  """Returns full path aosss package. Arguments are added at the end of os.path.join()"""
   p = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), *args))
   return p
 
 
 def get_ao3s_data_path(*args):
-    """Returns path to ao3s scripts. Arguments are added to the end os os.path.join()"""
+    """Returns path to aosss scripts. Arguments are added to the end os os.path.join()"""
     return get_ao3s_path("data", *args)
 
 
 def get_ao3s_scripts_path(*args):
-    """Returns path to ao3s scripts. Arguments are added to the end os os.path.join()"""
+    """Returns path to aosss scripts. Arguments are added to the end os os.path.join()"""
     return get_ao3s_path("..", "scripts", *args)
 
 
@@ -120,8 +120,19 @@ def load_bulk(simid, dir_='.'):
     return ret
 
 
-def create_spectrum_lists(dir_):
-    """Create several .splist files, grouping spectra by their wavelength vector"""
+def create_spectrum_lists(dir_, stage="spintg"):
+    """
+    Create several .splist files, grouping spectra by their wavelength vector
+
+    Arguments:
+        dir_ -- input & output directory
+        stage="spintg" -- input "stage", i.e., which stage of the pipeline will be loaded.
+            Valid values:
+                "
+                "spintg" -- integrated spectrum (final stage)
+
+
+    """
 
     fnfn = glob.glob(os.path.join(dir_, "C*.par"))
     # # Loads everything that's needed from disk
