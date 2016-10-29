@@ -1,7 +1,6 @@
 # Ignoring PyCharm project
 .idea
 
-
 *.log
 *.bak
 

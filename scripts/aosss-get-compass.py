@@ -23,11 +23,12 @@ import sys
 from pyfant import *
 import re
 import glob
+import aosss
 
 
 def print2(s):
   """function to standarde message lines."""
-  print('GET-COMPASS: %s' % s)
+  print(('GET-COMPASS: %s' % s))
 
 
 if __name__ == "__main__":
@@ -42,33 +43,11 @@ if __name__ == "__main__":
                      help='List of simulation numbers (single value and ranges accepted, e.g. 1004, 1004-1040)')
     args = parser.parse_args()
 
-
-    print(args.numbers)
-
-    numbers = []
-    for candidate in args.numbers:
-        try:
-            if '-' in candidate:
-                groups = re.match('(\d+)\s*-\s*(\d+)$', candidate)
-                if groups is None:
-                    raise RuntimeError("Could not parse range")
-                n0 = int(groups.groups()[0])
-                n1 = int(groups.groups()[1])
-                numbers.extend(list(range(n0, n1+1)))
-            else:
-                numbers.append(int(candidate))
-        except Exception as E:
-            print2("SKIPPED Argument '%s': %s" % (candidate, str(E)))
-
-
-    numbers = set(numbers)
-    simids = ["C%06d" % n for n in numbers]
+    simids = aosss.compile_simids(args.numbers)
     print2("List of simulation IDs: "+", ".join(simids))
 
-    print("AAAAAAAAAAAAAAAAAAAA", args.max)
-
-    if len(numbers) > args.max:
-        print2("Number of simulations to get (%d) exceeds maximum number (%d)" % (len(numbers), args.max))
+    if len(simids) > args.max:
+        print2("Number of simulations to download (%d) exceeds maximum number (%d)" % (len(simids), args.max))
         print2("Use --max option to raise this maximum number")
         sys.exit()
 

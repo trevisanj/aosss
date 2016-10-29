@@ -1,5 +1,6 @@
-__all__ = ["get_ao3s_path", "get_ao3s_data_path", "get_ao3s_scripts_path",
-"load_spectrum_from_fits_cube_or_not", "FILE_MAP", "BulkItem", "load_bulk", "create_spectrum_lists"]
+__all__ = ["get_aosss_path", "get_aosss_data_path", "get_aosss_scripts_path",
+"load_spectrum_from_fits_cube_or_not", "FILE_MAP", "BulkItem", "load_bulk", "create_spectrum_lists",
+"compile_simids"]
 
 
 from astropy.io import fits
@@ -12,20 +13,51 @@ import numpy as np
 from pyfant import *
 
 
-def get_ao3s_path(*args):
+def compile_simids(specs):
+    """
+    Compiles a list of simulation IDs (e.g., 'C000793') from a sequence of specifications
+
+    Arguments:
+        specs -- [spec0, spec1, ...], where each element may be:
+            a number (convertible to int), or
+            a range such as '1000-1010' (string)
+
+    Returns: list of strings starting with "C"
+    """
+    numbers = []
+    for candidate in specs:
+        try:
+            if '-' in candidate:
+                groups = re.match('(\d+)\s*-\s*(\d+)$', candidate)
+                if groups is None:
+                    raise RuntimeError("Could not parse range")
+                n0 = int(groups.groups()[0])
+                n1 = int(groups.groups()[1])
+                numbers.extend(list(range(n0, n1 + 1)))
+            else:
+                numbers.append(int(candidate))
+        except Exception as E:
+            print2("SKIPPED Argument '%s': %s" % (candidate, str(E)))
+    numbers = set(numbers)
+    simids = ["C%06d" % n for n in numbers]
+
+    return simids
+
+
+def get_aosss_path(*args):
   """Returns full path aosss package. Arguments are added at the end of os.path.join()"""
   p = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), *args))
   return p
 
 
-def get_ao3s_data_path(*args):
+def get_aosss_data_path(*args):
     """Returns path to aosss scripts. Arguments are added to the end os os.path.join()"""
-    return get_ao3s_path("data", *args)
+    return get_aosss_path("data", *args)
 
 
-def get_ao3s_scripts_path(*args):
+def get_aosss_scripts_path(*args):
     """Returns path to aosss scripts. Arguments are added to the end os os.path.join()"""
-    return get_ao3s_path("..", "scripts", *args)
+    return get_aosss_path("..", "scripts", *args)
 
 
 def load_spectrum_from_fits_cube_or_not(filename, x=0, y=0):
@@ -87,7 +119,7 @@ def load_bulk(simid, dir_='.'):
 
     ret = []
     sp_ref = None  # reference spectrum for x-axis of messed files
-    for keyword, class_ in FILE_MAP.items():
+    for keyword, class_ in list(FILE_MAP.items()):
         fn = os.path.join(dir_, "%s_%s.fits" % (simid, keyword))
 
         flag_exists = os.path.isfile(fn)

@@ -270,7 +270,7 @@ if __name__ == "__main__":
 
     telluric_spectra = []
     for fn in telluric_filenames:
-        path_ = get_ao3s_data_path(fn)
+        path_ = get_aosss_data_path(fn)
         try:
             fileobj = FileSpectrumFits()
             fileobj.load(path_)

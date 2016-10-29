@@ -19,13 +19,13 @@ if __name__ == "__main__":
                         choices=["text", "markdown-list", "markdown-table"])
     args = parser.parse_args()
 
-    p = get_ao3s_scripts_path()
+    p = get_aosss_scripts_path()
     scriptinfo = get_script_info(p)
 
     if len(scriptinfo) == 0:
-        print("No scripts found in '%s'" % p)
+        print(("No scripts found in '%s'" % p))
     else:
         linesp, module_len = format_script_info(scriptinfo, format=args.format)
 
-        print("\n".join(linesp))
+        print(("\n".join(linesp)))
 

@@ -1,4 +1,5 @@
-__all__ = ["create_websim_report"]
+__all__ = ["create_simulation_report", "create_index"]
+
 
 import os
 from astropy.io import fits
@@ -7,11 +8,27 @@ from matplotlib import pyplot as plt
 from .misc import *
 import numpy as np
 import traceback
+import glob
 
-###############################################################################
+
+def create_index(dir_="."):
+    """[re]created 'index.html' of report*"""
+    ff = glob.glob(os.path.join(dir_, "report-*.html"))
+    ff.sort()
+
+    with open(os.path.join(dir_, "index.html"), "w") as html:
+        html.write(_head("List of Reports"))
+        html.write("<body>")
+        for f in ff:
+            f = os.path.basename(f)
+            html.write('<p><a href="{0}">{0}</a>'.format(f))
+        html.write("</body></html>")
+
+
 # # HTML fragment generation routines
 # Block routines (e.g., head, h1) result should always end with a "\n".
 # Inline tags, NOT.
+
 
 def _head(title):
     """Returns the "head" section of HTML"""
@@ -23,34 +40,35 @@ def _head(title):
 </head>
 """ % title
 
+
 def _h(title, n=1):
     """Creates "h<n>" tag"""
     return "<h%d>%s</h%d>\n" % (n, title, n)
+
 
 # FITS files: <simid>+"_"+_fitss[i]+".fits"
 FILE_KEYWORDS = ["cube_hr", "cube_seeing", "ifu_noseeing", "mask_fiber_in_aperture",
           "reduced", "reduced_snr", "sky", "skysub", "spintg", "spintg_noseeing",
           "therm"]
 
+
 def _color(s, color):
     """Returns inline colored text"""
     return '<span style="color: %s">%s</span>' % (color, s)
 
-###############################################################################
 
 
-def create_websim_report(simid, dir_=".", fn_output=None):
+def create_simulation_report(simid, dir_="."):
     """Creates HTML output and several PNG files with coherent naming
 
-    Returns:
-        fn_output
+    Returns: name of output file created, which will be '<dir_>/report-<simid>.html'
 
     Arguments:
       simid -- simulation ID. This should be a string starting with a "C", e.g.,
         "C000793"
       dir_ -- directory containing the simulation ouput files
-      fn_out -- (optional) path to HTML output file. If not passed, name will be
-        made automatically as "./report-"+(simulation ID)+".html"
+
+
     """
 
     if simid[0] != "C":
@@ -59,11 +77,8 @@ def create_websim_report(simid, dir_=".", fn_output=None):
     # # Setup
 
     # file_prefix: common start to all filenames generated
-    if fn_output == None:
-        file_prefix = "./report-"+simid
-        fn_output = file_prefix + ".html"
-    else:
-        file_prefix, _ = os.path.splitext(fn_output)
+    file_prefix = os.path.join(dir_, "report-"+simid)
+    fn_output = file_prefix + ".html"
     #f_fn_fits = lambda middle: os.path.join(dir_, "%s_%s.fits" % (simid, middle))
     fn_log = os.path.join(dir_, "%s.out" % simid)
     fn_par = os.path.join(dir_, "%s.par" % simid)
@@ -87,6 +102,7 @@ def create_websim_report(simid, dir_=".", fn_output=None):
 
     with open(fn_output, "w") as html:
         html.write(_head("Simulation %s" % simid))
+        html.write("<body>")
         html.write(_h("Simulation # %s" % simid))
 
         html.write(_h("1. File list", 2))
@@ -123,7 +139,7 @@ def create_websim_report(simid, dir_=".", fn_output=None):
 
             if flag_par_ok:
                 html.write('<table cellspacing=0 cellpadding=3 style="border: 6px solid #003000;">\n')
-                for kw, va in filepar.params.items():
+                for kw, va in list(filepar.params.items()):
                     html.write('<tr><td style="border-bottom: 1px solid #003000; font-weight: bold">%s</td>\n' % kw)
                     html.write('<td style="border-bottom: 1px solid #003000;">%s</td></tr>\n' % va)
                 html.write("</table>\n")
@@ -156,7 +172,7 @@ def create_websim_report(simid, dir_=".", fn_output=None):
             html.write("</td>\n")
 
 
-            print("Generating visualization for file '%s' ..." % item.filename)
+            print(("Generating visualization for file '%s' ..." % item.filename))
             html.write('<td style="vertical-align: top; border-bottom: 6px solid #003000; text-align: center">\n')
             try:
                 fig = None
@@ -186,6 +202,7 @@ def create_websim_report(simid, dir_=".", fn_output=None):
                     fn_fig = next(next_fn_fig)
                     # print "GONNA SAVE FIGURE AS "+str(fn_fig)
                     fig.savefig(fn_fig)
+                    plt.close()
                     html.write('<img src="%s"></img>' % fn_fig)
                 elif item.fileobj:
                     html.write("(visualization not available for this file (class: %s)" % item.fileobj.__class__.description)
@@ -198,7 +215,7 @@ def create_websim_report(simid, dir_=".", fn_output=None):
             except Exception as E:
                 get_python_logger().exception("Failed to load file '%s'" % item.filename)
                 html.write(_color("Visualization failed: "+str(E), "red"))
-                html.write('<pre style="text-align: left">\n'+("\n".join(traceback.format_stack()))+"</pre>\n")
+                html.write('<pre style="text-align: left">\n'+traceback.format_exc()+"</pre>\n")
             html.write("</td>\n")
             html.write("</tr>\n")
         html.write("</table>\n")

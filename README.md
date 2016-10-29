@@ -1,8 +1,4 @@
-# oasis
-
-OrgAnizer for Scientific Instrument Simulations
-
-# ao3s
+# aosss
 
 Adaptive Optics Systems Simulation Support 
 
@@ -21,7 +17,7 @@ Welcome!
 :one: Pull updates from from GitHub:
 
 ```shell
-cd <ao3s folder>
+cd <aosss folder>
 git pull
 ```
 
