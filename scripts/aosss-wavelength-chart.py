@@ -12,7 +12,7 @@ Two modes are available:
 
 import argparse
 from aosss import *
-from pyfant import *
+import pyfant as pf
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 import matplotlib as mpl
@@ -21,7 +21,6 @@ import numbers
 import os.path
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from pyfant import *
 from pyfant.gui.guiaux import *
 import sys
 
@@ -34,10 +33,11 @@ mpl.rcParams['axes.linewidth'] = 2
 ###############################################################################
 # # local class & function library
 class MyLine(object):
-    def __init__(self, name, wl, width=0, position=0):
+    def __init__(self, name, wl, width=0, position=0, reference=None):
         self.name = name
         self.wl = wl if isinstance(wl, (list, tuple)) else [wl]
         self.width = width
+        self.reference = reference  # paper etc
         if width > 0 and not isinstance(wl, numbers.Number):
             raise RuntimeError("Either specify list of lines or width")
         self.position = position
@@ -79,6 +79,8 @@ ll = [MyLine("CaHK", 3900),
       MyLine("CaII triplet", [8498, 8542, 8662]),
       MyLine("He II", [1640]),
       MyLine("Lyman limit", 912.),
+      MyLine("C G-band", 4300.),
+      MyLine("O II", 3727, reference="MPuech 2008")
 
       ]
 
@@ -91,7 +93,7 @@ cc = [MyCoverage("HMM", [(4000, 18000)]),
 
 ###############################################################################
 def draw(fig, telluric_spectra, redshift=0):
-    l0, lf = 3000, Bands.range(LAST_BAND)[1]
+    l0, lf = 3000, pf.get_ubv_bandpass("K").lf
     x =  np.logspace(np.log10(l0), np.log10(lf), 1000, base=10.)
 
     ax = fig.gca()
@@ -123,8 +125,8 @@ def draw(fig, telluric_spectra, redshift=0):
 
     # # bands
     #   =====
-    for band_name in Bands.names():
-        y = Bands.ufunc_band(band_name)(x)*.75
+    for band_name, bandpass in pf.get_ubv_bandpasses_dict().items():
+        y = bandpass.ufunc()(x)*.75
         plt.plot(x, y, label=band_name, c=COLOR_BAND)
         idx_max = np.argmax(y)
         ax.annotate(band_name, xy=(x[idx_max], y[idx_max]+.1),
@@ -248,7 +250,7 @@ class RedshiftWindow(QMainWindow):
             draw(fig, self.telluric_spectra, self.get_redshift())
             self.canvas.draw()
         except Exception as E:
-            get_python_logger().exception("Could not draw figure")
+            pf.get_python_logger().exception("Could not draw figure")
 
 
 
@@ -256,7 +258,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(
      description=__doc__,
-     formatter_class=SmartFormatter
+     formatter_class=pf.SmartFormatter
     )
     parser.add_argument('--plot', action='store_const',
                         const=True, default=False,
@@ -272,18 +274,18 @@ if __name__ == "__main__":
     for fn in telluric_filenames:
         path_ = get_aosss_data_path(fn)
         try:
-            fileobj = FileSpectrumFits()
+            fileobj = pf.FileSpectrumFits()
             fileobj.load(path_)
             telluric_spectra.append(fileobj.spectrum)
         except:
-            get_python_logger().exception("Failed to load '%s'" % path_)
+            pf.get_python_logger().exception("Failed to load '%s'" % path_)
 
     if args.plot:
         fig = plt.figure()
         draw(fig, telluric_spectra)
         plt.show()
     else:
-        app = get_QApplication([])
+        app = pf.get_QApplication([])
         form = RedshiftWindow(telluric_spectra)
         form.show()
         sys.exit(app.exec_())
