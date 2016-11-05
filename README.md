@@ -35,7 +35,7 @@ that use this API.
 ### 1.1.1 Programs available
 
 :bulb: To print a list of `aosss` programs, run `aosss-programs.py` from the console.
-As of today (5th/Nov/2016, it will give you the following output)
+As of today (5th/Nov/2016), it will give you the following:
 
 Graphical applications:
   - `aosss-wavelength-chart.py` -- Draws a [wavelength] x [various stacked information] chart
@@ -88,3 +88,12 @@ sudo python setup.py develop
 
 #<a name=S3></a>3. Usage Examples
 
+## 3.1 Inspecting where spectral lines of interest will fall due to redshift
+
+```shell
+aosss-wavelength-chart.py
+```
+
+![](doc/chart-z-0.png)
+
+![](doc/chart-z-35.png)
