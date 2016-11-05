@@ -212,8 +212,8 @@ def create_spectrum_lists(dir_, pipeline_stage="spintg"):
         else:
             flag_match = False
             for group in groups:
-                wl0 = group[0][1].spectrum.wavelength
-                wl1 = pair[1].spectrum.wavelength
+                wl0 = group[0][1].wavelength
+                wl1 = pair[1].wavelength
                 if len(wl0) == len(wl1) and np.all(wl0 == wl1):
                     flag_match = True
                     group.append(pair)

@@ -106,7 +106,7 @@ if __name__ == "__main__":
         lggr.info(task)
 
     lggr.info('Tasks Summary:')
-    lggr.info(('  - Move {} file{}'.format(len(to_move), "s" if len(to_move) != 1 else "")))
+    lggr.info(('  - Move {} object{}'.format(len(to_move), "s" if len(to_move) != 1 else "")))
     if flag_reports:
         lggr.info("  - Create '{}'".format(index_html))
     else:
