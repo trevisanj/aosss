@@ -21,18 +21,18 @@ These simulations are carried out using WebSim-Compass (http://websim-compass.ob
   - batch-download simulations resulting files
   - organize resulting files
   - generate visual reports
-  - compile results into **spectrum list files**
-  - process/convert/visualize these **spectrum list files** 
+  - compile results into *spectrum list files*
+  - process/convert/visualize these *spectrum list files* 
   
 If you have issues, suggestions, requests or would like to collaborate in this project,
 please send a message to juliotrevisan@gmail.com
 
-#<a name=S2></a>1.1 Structure
+## 1.1 Structure
 
 `aosss` contains an API (application programming interface) and a set of scripts (standalone programs)
 that use this API.
 
-## Programs available
+### 1.1.1 Programs available
 
 :bulb: To print a list of `aosss` programs, run `aosss-programs.py` from the console.
 As of today (5th/Nov/2016, it will give you the following output)
@@ -50,7 +50,7 @@ All the programs above can be called with the `--help` or `-h` option for more d
 
 #<a name=S1></a>2 Installation
 
-# 2.0 Requirements
+## 2.0 Requirements
 
   - Python 3
   - `pyfant` (another Python package) (see below)
@@ -58,32 +58,33 @@ All the programs above can be called with the `--help` or `-h` option for more d
 **Note** Although it can run on any OS platform, the following instructions 
 target Debian-based Linux users (such as Ubuntu).
 
-# 2.1 Install `pyfant` package
+## 2.1 First-time install
+
+### 2.1.1 Install `pyfant` package
  
  Follow the link to http://github.com/trevisanj/pyfant and follow installation instructions
    
-# 2.2 Clone this repository
+### 2.1.2 Clone this repository
 
 ```shell
 git clone https://github.com/trevisanj/aosss
 ```
 
-# 2.3 Run Python installation script
+### 2.1.3 Run Python installation script
 
 ```shell
 sudo python setup.py develop
 ```
 
-## 1.1 Installing updates
+## 2.2 Installing updates
 
-:one: Pull updates from from GitHub:
+Pull updates and run Python installation script again:
 
 ```shell
 cd <aosss folder>
 git pull
+sudo python setup.py develop
 ```
-
-:two: Run `setup.py` again: `sudo python setup.py develop`
 
 #<a name=S3></a>3. Usage Examples
 
