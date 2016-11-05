@@ -70,7 +70,7 @@ HA_WIDTH = lambda_shift(HA_LAMBDA, 400) - lambda_shift(HA_LAMBDA, -400)
 
 ll = [MyLine("CaHK", 3900),
       MyLine("Sr", 4050),
-      MyLine("G", 4300),
+      MyLine("C", 4300),
       MyLine("Mgb", [5167.32, 5172.68, 5183.6]),
       MyLine("NaD", [5889.95, 5895.92]),
       MyLine("CaI", 6162),
@@ -79,9 +79,7 @@ ll = [MyLine("CaHK", 3900),
       MyLine("CaII triplet", [8498, 8542, 8662]),
       MyLine("He II", [1640]),
       MyLine("Lyman limit", 912.),
-      MyLine("C G-band", 4300.),
       MyLine("O II", 3727, reference="MPuech 2008")
-
       ]
 
 cc = [MyCoverage("HMM", [(4000, 18000)]),
