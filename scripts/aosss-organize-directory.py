@@ -6,6 +6,7 @@ Performs a list of pre-defined tasks to organize a directory containing simulati
   - moves 'root/C*'             to 'root/raw'
   - moves 'root/raw/simgroup*'  to 'root/'
   - moves 'root/raw/report-*'   to 'root/reports'
+  - moves 'root/raw/group*.splist'   to 'root'
   - [re]creates 'root/reports/index.html'
 
 This script can be run from one of these directories:
@@ -84,6 +85,7 @@ if __name__ == "__main__":
     ('./C*', './raw'),
     ('./raw/simgroup-*', './'),
     ('./raw/report-*', './reports'),
+    ('./raw/group*.splist', './'),
     )
 
     # Assembles a list of files to be moved
@@ -136,8 +138,12 @@ if __name__ == "__main__":
     for task in to_move:
         task.run()
 
-    lggr.info("Creating '{0}'...".format(index_html))
-    ao.create_index(os.path.join(root, "reports"))
+    if flag_reports:
+        lggr.info("Creating '{0}'...".format(index_html))
+        ao.create_index(os.path.join(root, "reports"))
+
+
+
 
 
 

@@ -168,10 +168,10 @@ def create_spectrum_lists(dir_, pipeline_stage="spintg"):
                 NO               in the center
     """
 
-    if pipeline_stage == "spintg":
+    if pipeline_stage in ("spintg", "sky", "skysub"):
 
         def simid_to_spectrum(simid):
-            fn = os.path.join(dir_, simid + "_spintg.fits")
+            fn = os.path.join(dir_, simid + "_{}.fits".format(pipeline_stage))
             fsp = FileSpectrumFits()
             fsp.load(fn)
             return fsp.spectrum
@@ -184,7 +184,11 @@ def create_spectrum_lists(dir_, pipeline_stage="spintg"):
             fsp.load(fn)
             return fsp.spectrum
 
+    else:
+        raise ValueError("Invalid or unsupported pipeline stage: '{}'".format(pipeline_stage))
+
     fnfn = glob.glob(os.path.join(dir_, "C*.par"))
+    fnfn.sort()
     # # Loads everything that's needed from disk
     spectra = []  # [(FilePar0, Spectrum0), ...]
     for fn in fnfn:
@@ -258,7 +262,7 @@ def create_spectrum_lists(dir_, pipeline_stage="spintg"):
                 origin = origin if origin else os.path.basename(sp.filename)
 
                 # gets rid of all FITS headers (TODO not sure if this is a good idea yet)
-                sp.more_headers.clear()
+                sp.clear_more_headers()
                 sp.more_headers["ORIGIN"] = origin
 
                 # copies to spectrum header all key-value pairs that differ among .par files
@@ -294,8 +298,7 @@ def create_spectrum_lists(dir_, pipeline_stage="spintg"):
                 get_python_logger().exception(
                     "Failed to add spectrum corresponding to file '%s'" % fp.filename)
 
-        fn = os.path.join(dir_, "%sC%06d-C%06d.splist" % (
-            ("group%d-" % h) if len(groups) > 0 else "", nmin, nmax))
+        fn = os.path.join(dir_, "group-%s-%02d-C%06d-C%06d.splist" % (pipeline_stage, h, nmin, nmax))
         fspl.save_as(fn)
         get_python_logger().info("Created file '%s'" % fn)
 
