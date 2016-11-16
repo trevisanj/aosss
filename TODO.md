@@ -1,4 +1,5 @@
 # TODO list
 
   - documentation: illustrate another case
-  - read and plot ESO sky tables
+  - OK read and plot ESO sky tables
+  - OK incorporate in the wavelength chart

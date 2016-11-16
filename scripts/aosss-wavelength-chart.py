@@ -89,8 +89,105 @@ cc = [MyCoverage("HMM", [(4000, 18000)]),
       MyCoverage("IGM (desirable)", [(3700, 10000)])
       ]
 
+
+# ###############################################################################
+# def draw(fig, telluric_spectra, redshift=0):
+#     l0, lf = 3000, pf.get_ubv_bandpass("K").lf
+#     x =  np.logspace(np.log10(l0), np.log10(lf), 1000, base=10.)
+#
+#     ax = fig.gca()
+#     ax.set_axisbelow(True)
+#
+#     # # grid
+#     #   ====
+#     # http://matplotlib.org/examples/pylab_examples/major_minor_demo1.html
+#     majorLocator_x = MultipleLocator(1000)
+#     majorFormatter_x = FormatStrFormatter('%d')
+#     minorLocator_x = MultipleLocator(250)
+#     ax.xaxis.set_major_locator(majorLocator_x)
+#     ax.xaxis.set_major_formatter(majorFormatter_x)
+#     # for the minor ticks, use no labels; default NullFormatter
+#     ax.xaxis.set_minor_locator(minorLocator_x)
+#
+#     majorLocator_y = MultipleLocator(1.)
+#     majorFormatter_y = FormatStrFormatter('')
+#     # minorLocator_x = MultipleLocator(250)
+#     ax.yaxis.set_major_locator(majorLocator_y)
+#     ax.yaxis.set_major_formatter(majorFormatter_y)
+#     # for the minor ticks, use no labels; default NullFormatter
+#     # ax.xaxis.set_minor_locator(minorLocator_x)
+#
+#     g0 = plt.grid(True, which='major', axis='x', linewidth=2, linestyle=':', color=COLOR_GRID)
+#     plt.grid(True, which='major', axis='y', linewidth=1, linestyle='-', color=COLOR_GRID*1.5)
+#     plt.grid(True, which='minor', axis='x', linestyle=':', color=COLOR_GRID)
+#
+#
+#     # # bands
+#     #   =====
+#     for band_name, bandpass in pf.get_ubv_bandpasses_dict().items():
+#         y = bandpass.ufunc()(x)*.75
+#         plt.plot(x, y, label=band_name, c=COLOR_BAND)
+#         idx_max = np.argmax(y)
+#         ax.annotate(band_name, xy=(x[idx_max], y[idx_max]+.1),
+#                     horizontalalignment="center", verticalalignment="center",
+#                     color=COLOR_TEXT)
+#
+#         if band_name == LAST_BAND:
+#             break
+#
+#     # # Telluric features
+#     Y_TOP = 2
+#     Y_BOTTOM = Y_TOP-1+0.01
+#     SPECTRUM_HEIGHT = 0.9  # Height for the spectrum to span in the chart
+#     ax.annotate("Telluric features", xy=[l0, Y_TOP-.02], color=COLOR_TEXT, verticalalignment="top")
+#     for sp in telluric_spectra:
+#         # let ymin=0 (maybe there is no zero transmission in the spectrum,
+#         # it will be good to see that frequencies are not completely attenuated)
+#         ymax, ymin = max(sp.y), 0
+#         x0, x1, y0, y1 = sp.x[0], sp.x[-1], Y_BOTTOM, Y_BOTTOM+SPECTRUM_HEIGHT
+#         ax.fill_between([x0, x1], [y1, y1], [y0, y0], color=COLOR_TELLURIC_BOX)
+#         ax.plot(sp.x, (sp.y-ymin)*SPECTRUM_HEIGHT+Y_BOTTOM, c=COLOR_SPECTRUM)
+#
+#
+#     # # Chemical lines of interest (redshifted or not)
+#     Y_TOP = NUM_SLOTS
+#     COLOR_LINES = np.array([.3, 0., .3])
+#     for line in ll:
+#         wl = [x*(1+redshift) for x in line.wl]
+#         if line.width > 0:
+#             width = line.width*(1+redshift)
+#             plt.fill_between([wl[0]-width/2, wl[0]+width/2],
+#                              [Y_TOP, Y_TOP], [0, 0], color=COLOR_LINES, alpha=1)
+#             x_ann = wl[0]+width/2
+#         else:
+#             for x in wl:
+#                 plt.plot([x, x], [0, Y_TOP], c=COLOR_LINES, alpha=1)
+#             x_ann = max(wl)
+#         plt.annotate(line.name, xy=(x_ann, Y_TOP-.2), rotation=-90, color=COLOR_TEXT)
+#
+#
+#     # # coverages
+#     #   =========
+#     HEIGHT = .7
+#     y = NUM_SLOTS-(1-HEIGHT)/2-1
+#     for coverage in cc:
+#         for interval in coverage.l0lf:
+#             x0, x1 = interval
+#             plt.plot([x0, x1, x1, x0, x0], [y, y, y-HEIGHT, y-HEIGHT, y], color=COLOR_COVERAGE*.5, alpha=.8)
+#             plt.fill_between(interval, [y, y], [y-HEIGHT, y-HEIGHT], color=COLOR_COVERAGE, alpha=.6, hatch='//')
+#             x_ann = interval[1]
+#         plt.annotate(coverage.name, xy=(x_ann+40, y-HEIGHT/2), color=COLOR_TEXT, verticalalignment="center")
+#         y -= 1
+#
+#     plt.xlim([l0, lf])
+#     plt.ylim([0, NUM_SLOTS+.01])
+#     plt.xlabel("Wavelength ($\AA$)")
+#     plt.tight_layout()
+#
+
+
 ###############################################################################
-def draw(fig, telluric_spectra, redshift=0):
+def draw(fig, sp_sky, redshift=0):
     l0, lf = 3000, pf.get_ubv_bandpass("K").lf
     x =  np.logspace(np.log10(l0), np.log10(lf), 1000, base=10.)
 
@@ -134,18 +231,21 @@ def draw(fig, telluric_spectra, redshift=0):
         if band_name == LAST_BAND:
             break
 
-    # # Telluric features
-    Y_TOP = 2
-    Y_BOTTOM = Y_TOP-1+0.01
+    # # ESO sky model
+    tt = ["Atmospheric emission", "Atmospheric transmission"]
+    y_top = 3
     SPECTRUM_HEIGHT = 0.9  # Height for the spectrum to span in the chart
-    ax.annotate("Telluric features", xy=[l0, Y_TOP-.02], color=COLOR_TEXT, verticalalignment="top")
-    for sp in telluric_spectra:
+    for i, sp in enumerate(sp_sky):
+        y_bottom = y_top-1+0.01
         # let ymin=0 (maybe there is no zero transmission in the spectrum,
-        # it will be good to see that frequencies are not completely attenuated)
         ymax, ymin = max(sp.y), 0
-        x0, x1, y0, y1 = sp.x[0], sp.x[-1], Y_BOTTOM, Y_BOTTOM+SPECTRUM_HEIGHT
+        y = sp.y/ymax
+        x0, x1, y0, y1 = sp.x[0], sp.x[-1], y_bottom, y_bottom+SPECTRUM_HEIGHT
+        ax.annotate(tt[i], xy=[l0, y_top-.42], color=COLOR_TEXT, verticalalignment="top")
         ax.fill_between([x0, x1], [y1, y1], [y0, y0], color=COLOR_TELLURIC_BOX)
-        ax.plot(sp.x, (sp.y-ymin)*SPECTRUM_HEIGHT+Y_BOTTOM, c=COLOR_SPECTRUM)
+        ax.plot(sp.x, (y-ymin)*SPECTRUM_HEIGHT+y_bottom, c=COLOR_SPECTRUM)
+
+        y_top -= 1
 
 
     # # Chemical lines of interest (redshifted or not)
@@ -186,7 +286,7 @@ def draw(fig, telluric_spectra, redshift=0):
 
 
 class RedshiftWindow(QMainWindow):
-    def __init__(self, telluric_spectra):
+    def __init__(self, sp_sky):
         QMainWindow.__init__(self)
 
         self._refs = []
@@ -194,7 +294,7 @@ class RedshiftWindow(QMainWindow):
             self._refs.append(obj)
             return obj
 
-        self.telluric_spectra = telluric_spectra
+        self.sp_sky = sp_sky
 
         lw1 = keep_ref(QVBoxLayout())
 
@@ -245,7 +345,7 @@ class RedshiftWindow(QMainWindow):
         try:
             fig = self.figure
             fig.clear()
-            draw(fig, self.telluric_spectra, self.get_redshift())
+            draw(fig, self.sp_sky, self.get_redshift())
             self.canvas.draw()
         except Exception as E:
             pf.get_python_logger().exception("Could not draw figure")
@@ -264,26 +364,37 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
 
-    # Loads telluric features
-    telluric_filenames = ["telluric-5000-10000.fits", "atmos_S_H.fits",
-     "atmos_S_J.fits", "atmos_S_K.fits", "atmos_S_SZ.fits"]
+    # # Loads telluric features
+    # telluric_filenames = ["telluric-5000-10000.fits", "atmos_S_H.fits",
+    #  "atmos_S_J.fits", "atmos_S_K.fits", "atmos_S_SZ.fits"]
+    #
+    # telluric_spectra = []
+    # for fn in telluric_filenames:
+    #     path_ = get_aosss_data_path(fn)
+    #     try:
+    #         fileobj = pf.FileSpectrumFits()
+    #         fileobj.load(path_)
+    #         telluric_spectra.append(fileobj.spectrum)
+    #     except:
+    #         pf.get_python_logger().exception("Failed to load '%s'" % path_)
+    #
+    # # Loads telluric features
+    # telluric_filenames = ["telluric-5000-10000.fits", "atmos_S_H.fits",
+    #  "atmos_S_J.fits", "atmos_S_K.fits", "atmos_S_SZ.fits"]
 
-    telluric_spectra = []
-    for fn in telluric_filenames:
-        path_ = get_aosss_data_path(fn)
-        try:
-            fileobj = pf.FileSpectrumFits()
-            fileobj.load(path_)
-            telluric_spectra.append(fileobj.spectrum)
-        except:
-            pf.get_python_logger().exception("Failed to load '%s'" % path_)
+    sp_sky = None
+    try:
+        sp_sky = load_eso_sky()
+    except:
+        pf.get_python_logger().exception("Failed to load ESO sky model")
 
     if args.plot:
         fig = plt.figure()
-        draw(fig, telluric_spectra)
+        # draw(fig, telluric_spectra)
+        draw(fig, sp_sky)
         plt.show()
     else:
         app = pf.get_QApplication([])
-        form = RedshiftWindow(telluric_spectra)
+        form = RedshiftWindow(sp_sky)  # telluric_spectra)
         form.show()
         sys.exit(app.exec_())

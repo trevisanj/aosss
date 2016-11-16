@@ -1,6 +1,6 @@
 __all__ = ["get_aosss_path", "get_aosss_data_path", "get_aosss_scripts_path",
 "load_spectrum_from_fits_cube_or_not", "FILE_MAP", "BulkItem", "load_bulk", "create_spectrum_lists",
-"compile_simids"]
+"compile_simids", "load_eso_sky"]
 
 
 from astropy.io import fits
@@ -11,7 +11,7 @@ import os
 import re
 import numpy as np
 from pyfant import *
-
+import astropy.units as u
 
 def compile_simids(specs):
     """
@@ -303,3 +303,31 @@ def create_spectrum_lists(dir_, pipeline_stage="spintg"):
         get_python_logger().info("Created file '%s'" % fn)
 
 
+def load_eso_sky():
+    """Loads ESO sky model and returns two spectra: emission, transmission"""
+
+    # From comments in file:
+    # lam:     vacuum wavelength in micron
+    # flux:    sky emission radiance flux in ph/s/m2/micron/arcsec2
+    # dflux1:  sky emission -1sigma flux uncertainty
+    # dflux2:  sky emission +1sigma flux uncertainty
+    # dtrans:  sky transmission
+    # dtrans1: sky transmission -1sigma uncertainty
+    # dtrans2: sky transmission +1sigma uncertainty
+
+
+    path_ = get_aosss_data_path()
+
+    hl = fits.open(os.path.join(path_, "eso-sky.fits"))
+    d = hl[1].data
+
+    x, y0, y1 = d["lam"]*10000, d["flux"], d["trans"]
+
+    sp0 = Spectrum()
+    sp0.x, sp0.y = x, y0
+    sp0.yunit = u.Unit("ph/s/m2/angstrom/arcsec2")
+
+    sp1 = Spectrum()
+    sp1.x, sp1.y = x, y1
+
+    return sp0, sp1
