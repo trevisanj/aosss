@@ -12,6 +12,8 @@ import re
 import numpy as np
 from pyfant import *
 import astropy.units as u
+import astroapi as aa
+
 
 def compile_simids(specs):
     """
@@ -37,7 +39,7 @@ def compile_simids(specs):
             else:
                 numbers.append(int(candidate))
         except Exception as E:
-            print2("SKIPPED Argument '%s': %s" % (candidate, str(E)))
+            aa.get_python_logger().info("SKIPPED Argument '%s': %s" % (candidate, str(E)))
     numbers = set(numbers)
     simids = ["C%06d" % n for n in numbers]
 
