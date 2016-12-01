@@ -18,14 +18,16 @@ The script will use some rules to try to figure out where it is running from
 """
 
 import argparse
-import pyfant as pf
-import logging
 import os
 import glob
 import sys
 import aosss as ao
+import logging
+import astroapi as aa
 
-pf.logging_level = logging.INFO
+
+aa.logging_level = logging.INFO
+aa.flag_log_file = True
 
 
 class MoveTask(object):
@@ -42,19 +44,19 @@ class MoveTask(object):
         cwd = os.getcwd()
         dest_dir, _ = os.path.split(self.dest)
         if not os.path.exists(dest_dir):
-            pf.get_python_logger().info("Creating directory '%s'..." % dest_dir)
+            aa.get_python_logger().info("Creating directory '%s'..." % dest_dir)
             os.makedirs(dest_dir)
-        pf.get_python_logger().info("Moving '{}' to '{}'".format(os.path.relpath(self.source, cwd),
+        aa.get_python_logger().info("Moving '{}' to '{}'".format(os.path.relpath(self.source, cwd),
                                                                os.path.relpath(self.dest, cwd)))
         os.rename(self.source, self.dest)
 
 
 if __name__ == "__main__":
-    lggr = pf.get_python_logger()
+    lggr = aa.get_python_logger()
 
     parser = argparse.ArgumentParser(
      description=__doc__,
-     formatter_class=pf.SmartFormatter
+     formatter_class=aa.SmartFormatter
     )
 
     args = parser.parse_args()

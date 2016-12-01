@@ -53,7 +53,7 @@ All the programs above can be called with the `--help` or `-h` option for more d
 ## 2.0 Requirements
 
   - Python 3
-  - `pyfant` (another Python package) (see below)
+  - `astroapi` (another Python package) (see below)
 
 **Note** Although it can run on any OS platform, the following instructions 
 target Debian-based Linux users (such as Ubuntu).

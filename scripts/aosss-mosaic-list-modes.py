@@ -4,21 +4,23 @@
 """Lists MOSAIC Spectrograph modes"""
 
 
-import aosss
 import argparse
 import pyfant
-import logging
 import rows
 import io
+import logging
+import aosss
+import astroapi as aa
 
 
-pyfant.misc.logging_level = logging.INFO
+aa.logging_level = logging.INFO
+aa.flag_log_file = True
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
      description=__doc__,
-     formatter_class=pyfant.SmartFormatter
+     formatter_class=aa.SmartFormatter
     )
     parser.add_argument('search', nargs='?', default=None, type=str,
      help='Search string (optional) (e.g., "HMM")')

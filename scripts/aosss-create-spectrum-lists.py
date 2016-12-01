@@ -7,27 +7,20 @@ All spectra in each .splist file must have the same wavelength vector
 """
 
 
-import glob
-import os
-from pyfant import *
-from aosss import *
-import re
-import numpy as np
-import logging
 import argparse
-from pyfant import *
-from aosss import *
 import logging
-import glob
+import aosss
+import astroapi as aa
 
 
-misc.logging_level = logging.INFO
+aa.logging_level = logging.INFO
+aa.flag_log_file = True
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
      description=__doc__,
-     formatter_class=SmartFormatter
+     formatter_class=aa.SmartFormatter
     )
 
     parser.add_argument('--stage', type=str, nargs='?', default="spintg",
@@ -35,7 +28,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    create_spectrum_lists(".", args.stage)
+    aosss.create_spectrum_lists(".", args.stage)
 
 
 
