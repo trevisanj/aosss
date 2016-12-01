@@ -20,14 +20,19 @@ Based on shell script by Mathieu Puech
 import os
 import argparse
 import sys
-import pyfant as pf
-import re
 import glob
+import logging
 import aosss
+import astroapi as aa
+
+
+aa.logging_level = logging.INFO
+aa.flag_log_file = True
+
 
 
 def print2(*args):
-  pf.get_python_logger().info(*args)
+  aa.get_python_logger().info(*args)
 
 
 if __name__ == "__main__":
@@ -35,7 +40,7 @@ if __name__ == "__main__":
         print2("OS is '"+os.name+"', this script is only for 'posix' OS's, sorry.")
         sys.exit()
 
-    parser = argparse.ArgumentParser(description=__doc__, formatter_class=pf.SmartFormatter)
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=aa.SmartFormatter)
     parser.add_argument('--max', metavar='N', type=int, default=100,
                         help='Maximum number of simulations to get')
     parser.add_argument('--stage', type=str, nargs='?', default="all",

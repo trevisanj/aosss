@@ -10,9 +10,9 @@ Two modes are available:
 """
 
 
+import sys
 import argparse
 from aosss import *
-import pyfant as pf
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 import matplotlib as mpl
@@ -21,8 +21,14 @@ import numbers
 import os.path
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from pyfant.gui.guiaux import *
-import sys
+import logging
+import aosss
+import astroapi as aa
+
+
+aa.logging_level = logging.INFO
+aa.flag_log_file = True
+
 
 
 ###############################################################################
@@ -92,7 +98,7 @@ cc = [MyCoverage("HMM", [(4000, 18000)]),
 
 # ###############################################################################
 # def draw(fig, telluric_spectra, redshift=0):
-#     l0, lf = 3000, pf.get_ubv_bandpass("K").lf
+#     l0, lf = 3000, aa.get_ubv_bandpass("K").lf
 #     x =  np.logspace(np.log10(l0), np.log10(lf), 1000, base=10.)
 #
 #     ax = fig.gca()
@@ -124,7 +130,7 @@ cc = [MyCoverage("HMM", [(4000, 18000)]),
 #
 #     # # bands
 #     #   =====
-#     for band_name, bandpass in pf.get_ubv_bandpasses_dict().items():
+#     for band_name, bandpass in aa.get_ubv_bandpasses_dict().items():
 #         y = bandpass.ufunc()(x)*.75
 #         plt.plot(x, y, label=band_name, c=COLOR_BAND)
 #         idx_max = np.argmax(y)
@@ -188,7 +194,7 @@ cc = [MyCoverage("HMM", [(4000, 18000)]),
 
 ###############################################################################
 def draw(fig, sp_sky, redshift=0):
-    l0, lf = 3000, pf.get_ubv_bandpass("K").lf
+    l0, lf = 3000, aa.get_ubv_bandpass("K").lf
     x =  np.logspace(np.log10(l0), np.log10(lf), 1000, base=10.)
 
     ax = fig.gca()
@@ -220,7 +226,7 @@ def draw(fig, sp_sky, redshift=0):
 
     # # bands
     #   =====
-    for band_name, bandpass in pf.get_ubv_bandpasses_dict().items():
+    for band_name, bandpass in aa.get_ubv_bandpasses_dict().items():
         y = bandpass.ufunc()(x)*.75
         plt.plot(x, y, label=band_name, c=COLOR_BAND)
         idx_max = np.argmax(y)
@@ -324,7 +330,7 @@ class RedshiftWindow(QMainWindow):
         wm = keep_ref(QWidget())
         # wm.setMargin(0)
         lw1.addWidget(wm)
-        self.figure, self.canvas, self.lfig = get_matplotlib_layout(wm)
+        self.figure, self.canvas, self.lfig = aa.get_matplotlib_layout(wm)
 
         cw = self.centralWidget = QWidget()
         cw.setLayout(lw1)
@@ -348,7 +354,7 @@ class RedshiftWindow(QMainWindow):
             draw(fig, self.sp_sky, self.get_redshift())
             self.canvas.draw()
         except Exception as E:
-            pf.get_python_logger().exception("Could not draw figure")
+            aa.get_python_logger().exception("Could not draw figure")
 
 
 
@@ -356,7 +362,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(
      description=__doc__,
-     formatter_class=pf.SmartFormatter
+     formatter_class=aa.SmartFormatter
     )
     parser.add_argument('--plot', action='store_const',
                         const=True, default=False,
@@ -372,11 +378,11 @@ if __name__ == "__main__":
     # for fn in telluric_filenames:
     #     path_ = get_aosss_data_path(fn)
     #     try:
-    #         fileobj = pf.FileSpectrumFits()
+    #         fileobj = aa.FileSpectrumFits()
     #         fileobj.load(path_)
     #         telluric_spectra.append(fileobj.spectrum)
     #     except:
-    #         pf.get_python_logger().exception("Failed to load '%s'" % path_)
+    #         aa.get_python_logger().exception("Failed to load '%s'" % path_)
     #
     # # Loads telluric features
     # telluric_filenames = ["telluric-5000-10000.fits", "atmos_S_H.fits",
@@ -386,7 +392,7 @@ if __name__ == "__main__":
     try:
         sp_sky = load_eso_sky()
     except:
-        pf.get_python_logger().exception("Failed to load ESO sky model")
+        aa.get_python_logger().exception("Failed to load ESO sky model")
 
     if args.plot:
         fig = plt.figure()
@@ -394,7 +400,7 @@ if __name__ == "__main__":
         draw(fig, sp_sky)
         plt.show()
     else:
-        app = pf.get_QApplication([])
+        app = aa.get_QApplication([])
         form = RedshiftWindow(sp_sky)  # telluric_spectra)
         form.show()
         sys.exit(app.exec_())

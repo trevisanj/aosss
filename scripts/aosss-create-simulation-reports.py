@@ -5,24 +5,26 @@ Creates report for a given set of WEBSIM-COMPASS output files
 """
 
 
+import sys
 import argparse
 import logging
 import glob
 import os
-import pyfant
+import logging
 import aosss
-import sys
+import astroapi as aa
 
 
-pyfant.logging_level = logging.INFO
+aa.logging_level = logging.INFO
+aa.flag_log_file = True
 
 
 if __name__ == "__main__":
-    lggr = pyfant.get_python_logger()
+    lggr = aa.get_python_logger()
 
     parser = argparse.ArgumentParser(
      description=__doc__,
-     formatter_class=pyfant.SmartFormatter
+     formatter_class=aa.SmartFormatter
     )
 
     parser.add_argument('--dir', nargs='?', default='.', type=str,

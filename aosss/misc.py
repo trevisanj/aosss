@@ -10,8 +10,9 @@ import glob
 import os
 import re
 import numpy as np
-from pyfant import *
+import astroapi as aa
 import astropy.units as u
+import aosss as ao
 
 def compile_simids(specs):
     """
@@ -37,7 +38,7 @@ def compile_simids(specs):
             else:
                 numbers.append(int(candidate))
         except Exception as E:
-            print2("SKIPPED Argument '%s': %s" % (candidate, str(E)))
+            aa.print2("SKIPPED Argument '%s': %s" % (candidate, str(E)))
     numbers = set(numbers)
     simids = ["C%06d" % n for n in numbers]
 
@@ -81,15 +82,15 @@ def load_spectrum_from_fits_cube_or_not(filename, x=0, y=0):
 
 
 FILE_MAP = OrderedDict((
- ("cube_hr", FileFullCube),
- ("cube_seeing", FileFits),
- ("ifu_noseeing", FileFullCube),
- ("mask_fiber_in_aperture", FileFits),  # TODO, handle this file because it is nice
- ("reduced", FileFullCube),
- ("reduced_snr", FileFullCube),
- ("sky", FileSpectrumFits),
- ("skysub", FileSpectrumFits),
- ("spintg", FileSpectrumFits),
+ ("cube_hr", ao.FileFullCube),
+ ("cube_seeing", aa.FileFits),
+ ("ifu_noseeing", ao.FileFullCube),
+ ("mask_fiber_in_aperture", aa.FileFits),  # TODO, handle this file because it is nice
+ ("reduced", ao.FileFullCube),
+ ("reduced_snr", ao.FileFullCube),
+ ("sky", aa.FileSpectrumFits),
+ ("skysub", aa.FileSpectrumFits),
+ ("spintg", aa.FileSpectrumFits),
  ("spintg_noseeing", "messed"),  # particular case
  ("therm", "messed"),            # particular case
 ))
@@ -139,7 +140,7 @@ def load_bulk(simid, dir_='.'):
                 try:
                     fileobj.load(fn)
                 except Exception as E:
-                    get_python_logger().exception("Error loading file '%s'" % fn)
+                    aa.get_python_logger().exception("Error loading file '%s'" % fn)
                     error = str(E)
 
                 if keyword == "spintg":
@@ -205,7 +206,7 @@ def create_spectrum_lists(dir_, pipeline_stage="spintg"):
 
             spectra.append((fp, sp))
         except:
-            get_python_logger().exception(
+            aa.get_python_logger().exception(
                 "Failed to add spectrum corresponding to file '%s'" % fn)
 
     # Groups files by their wavelength axis
@@ -241,8 +242,8 @@ def create_spectrum_lists(dir_, pipeline_stage="spintg"):
         keys = list(dict(s_union - s_overlap).keys())
         key_dict = make_fits_keys_dict(keys)
 
-        # get_python_logger().info("FITS headers to feature in all spectra:")
-        # get_python_logger().info(str(key_dict))
+        # aa.get_python_logger().info("FITS headers to feature in all spectra:")
+        # aa.get_python_logger().info(str(key_dict))
 
 
         fspl = FileSpectrumList()
@@ -291,16 +292,15 @@ def create_spectrum_lists(dir_, pipeline_stage="spintg"):
                         #       # .get(k)
 
                     sp.more_headers[key_dict[k]] = value
-                    # print "OLHOLHOLHO"
 
                 fspl.splist.add_spectrum(sp)
             except:
-                get_python_logger().exception(
+                aa.get_python_logger().exception(
                     "Failed to add spectrum corresponding to file '%s'" % fp.filename)
 
         fn = os.path.join(dir_, "group-%s-%02d-C%06d-C%06d.splist" % (pipeline_stage, h, nmin, nmax))
         fspl.save_as(fn)
-        get_python_logger().info("Created file '%s'" % fn)
+        aa.get_python_logger().info("Created file '%s'" % fn)
 
 
 def load_eso_sky():
