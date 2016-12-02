@@ -60,9 +60,9 @@ target Debian-based Linux users (such as Ubuntu).
 
 ## 2.1 First-time install
 
-### 2.1.1 Install `pyfant` package
+### 2.1.1 Install `astroapi` package
  
- Follow the link to http://github.com/trevisanj/pyfant and follow installation instructions
+ Follow the link to http://github.com/trevisanj/astroapi and follow installation instructions
    
 ### 2.1.2 Clone this repository
 

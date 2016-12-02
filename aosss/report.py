@@ -3,12 +3,13 @@ __all__ = ["create_simulation_report", "create_index"]
 
 import os
 from astropy.io import fits
-from pyfant import *
 from matplotlib import pyplot as plt
 from .misc import *
 import numpy as np
 import traceback
 import glob
+import astroapi as aa
+import aosss as ao
 
 
 def create_index(dir_="."):
@@ -130,11 +131,11 @@ def create_simulation_report(simid, dir_="."):
         if  flag_par:
             flag_par_ok = True
             try:
-                filepar = FilePar()
+                filepar = ao.FilePar()
                 filepar.load(fn_par)
             except Exception as E:
                 flag_par_ok = False
-                get_python_logger().exception("Failed to load file '%s'" % fn_par)
+                aa.get_python_logger().exception("Failed to load file '%s'" % fn_par)
                 html.write("(" + str(E) + ")")
 
             if flag_par_ok:
@@ -167,7 +168,7 @@ def create_simulation_report(simid, dir_="."):
                         s_h = repr(hdul[0].header)
                 html.write("<pre>%s</pre>\n" % s_h)
             except:
-                get_python_logger().exception("Failed to dump header from file '%s'" % item.filename)
+                aa.get_python_logger().exception("Failed to dump header from file '%s'" % item.filename)
                 html.write(_color("Header dump failed", "red"))
             html.write("</td>\n")
 
@@ -177,22 +178,22 @@ def create_simulation_report(simid, dir_="."):
             try:
                 fig = None
                 FIGURE_WIDTH = 570
-                if isinstance(item.fileobj, FileFullCube) and (not "cube_seeing" in item.filename):
+                if isinstance(item.fileobj, ao.FileFullCube) and (not "cube_seeing" in item.filename):
                     # note: skips "ifu_seeing" because it takes too long to renderize
                     fig = plt.figure()
                     ax = fig.gca(projection='3d')
-                    sparsecube = SparseCube()
+                    sparsecube = ao.SparseCube()
                     sparsecube.from_full_cube(item.fileobj.wcube)
-                    draw_cube_3d(ax, sparsecube)
-                    set_figure_size(fig, FIGURE_WIDTH, 480. / 640 * FIGURE_WIDTH)
+                    ao.draw_cube_3d(ax, sparsecube)
+                    aa.set_figure_size(fig, FIGURE_WIDTH, 480. / 640 * FIGURE_WIDTH)
                     fig.tight_layout()
-                elif isinstance(item.fileobj, FileSpectrum):
+                elif isinstance(item.fileobj, aa.FileSpectrum):
                     if item.keyword == "spintg":
                         sp_ref = item.fileobj.spectrum
-                    fig = draw_spectra([item.fileobj.spectrum])
-                    set_figure_size(fig, FIGURE_WIDTH, 270. / 640 * FIGURE_WIDTH)
+                    fig = aa.draw_spectra([item.fileobj.spectrum])
+                    aa.set_figure_size(fig, FIGURE_WIDTH, 270. / 640 * FIGURE_WIDTH)
                     fig.tight_layout()
-                elif isinstance(item.fileobj, FileFits):
+                elif isinstance(item.fileobj, aa.FileFits):
                     if item.keyword == "mask_fiber_in_aperture":
                         fig = _draw_mask(item.fileobj)
                     elif item.keyword == "cube_seeing":
@@ -213,7 +214,7 @@ def create_simulation_report(simid, dir_="."):
                 # html.write("hello")
 
             except Exception as E:
-                get_python_logger().exception("Failed to load file '%s'" % item.filename)
+                aa.get_python_logger().exception("Failed to load file '%s'" % item.filename)
                 html.write(_color("Visualization failed: "+str(E), "red"))
                 html.write('<pre style="text-align: left">\n'+traceback.format_exc()+"</pre>\n")
             html.write("</td>\n")
@@ -228,7 +229,7 @@ def create_simulation_report(simid, dir_="."):
                 with open(fn_log, "r") as file_log:
                     html.write(file_log.read())
             except Exception as E:
-                get_python_logger().exception("Failed to dump log file '%s'" % fn_log)
+                aa.get_python_logger().exception("Failed to dump log file '%s'" % fn_log)
                 html.write("("+str(E)+")")
             html.write("</pre>\n")
         else:
@@ -248,7 +249,7 @@ def _draw_mask(filefits):
     HEIGHT = 300.
     nr, nc = hdu.data.shape
     width = HEIGHT/nr*nc
-    set_figure_size(fig, width, HEIGHT)
+    aa.set_figure_size(fig, width, HEIGHT)
     plt.tight_layout()
     return fig
 
@@ -265,7 +266,7 @@ def _draw_field(filefits):
     HEIGHT = 300.
     nr, nc = grayscale.shape
     width = HEIGHT/nr*nc
-    set_figure_size(fig, width, HEIGHT)
+    aa.set_figure_size(fig, width, HEIGHT)
     plt.tight_layout()
     return fig
 

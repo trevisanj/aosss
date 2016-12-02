@@ -11,15 +11,11 @@ import os.path
 from itertools import product, combinations, cycle
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from astrotypes import *
-from pyfant.datatypes.filesplist import *
-from pyfant.gui import *
-from .basewindows import *
-from .a_WChooseSpectrum import *
-from .a_XScaleSpectrum import *
 from .a_WSpectrumCollection import *
+import astroapi as aa
+import aosss as ao
 
-class WFileSpectrumList(WBase):
+class WFileSpectrumList(aa.WBase):
     """
     FileSpectrumList editor widget.
 
@@ -32,7 +28,7 @@ class WFileSpectrumList(WBase):
         return self.wsptable.menu_actions
 
     def __init__(self, parent):
-        WBase.__init__(self, parent)
+        aa.WBase.__init__(self, parent)
 
         def keep_ref(obj):
             self._refs.append(obj)
@@ -74,7 +70,7 @@ class WFileSpectrumList(WBase):
         # ### Tabbed widget occupying left of horizontal splitter (OPTIONS TAB)
         tt0 = self.tabWidgetOptions = QTabWidget(self)
         lwfilett0.addWidget(tt0)
-        tt0.setFont(MONO_FONT)
+        tt0.setFont(aa.MONO_FONT)
         tt0.currentChanged.connect(self.current_tab_changed_options)
 
         # #### Tab: Vertical Splitter between "Place Spectrum" and "Existing Spectra"
@@ -118,7 +114,7 @@ class WFileSpectrumList(WBase):
         # for i, (label, edit, name, short_descr, long_descr) in enumerate(pp):
         #     # label.setStyleSheet("QLabel {text-align: right}")
         #     assert isinstance(label, QLabel)
-        #     label.setText(enc_name_descr(name, short_descr))
+        #     label.setText(aa.enc_name_descr(name, short_descr))
         #     label.setAlignment(Qt.AlignRight)
         #     lg.addWidget(label, i, 0)
         #     lg.addWidget(edit, i, 1)
@@ -194,7 +190,7 @@ class WFileSpectrumList(WBase):
         for i, (label, edit, name, short_descr, long_descr, f_from_f, f_from_edit) in enumerate(pp):
             # label.setStyleSheet("QLabel {text-align: right}")
             assert isinstance(label, QLabel)
-            label.setText(enc_name_descr(name, short_descr))
+            label.setText(aa.enc_name_descr(name, short_descr))
             label.setAlignment(Qt.AlignRight)
             lg.addWidget(label, i, 0)
             lg.addWidget(edit, i, 1)
@@ -243,7 +239,7 @@ class WFileSpectrumList(WBase):
 
         # # ### Tabbed widget occupying right of horizontal splitter
         # tt1 = self.tabWidgetVis = QTabWidget(self)
-        # tt1.setFont(MONO_FONT)
+        # tt1.setFont(aa.MONO_FONT)
         # tt1.currentChanged.connect(self.current_tab_changed_vis)
         #
         # # #### Tab containing 3D plot representation
@@ -259,7 +255,7 @@ class WFileSpectrumList(WBase):
 
 
         self.setEnabled(False)  # disabled until load() is called
-        style_checkboxes(self)
+        aa.style_checkboxes(self)
         self.flag_process_changes = True
         self.add_log("Welcome from %s.__init__()" % (self.__class__.__name__))
 
@@ -267,7 +263,7 @@ class WFileSpectrumList(WBase):
     # # Interface
 
     def load(self, x):
-        assert isinstance(x, FileSpectrumList)
+        assert isinstance(x, ao.FileSpectrumList)
         self.f = x
         self.wsptable.set_collection(x.splist)
         self.__update_gui(True)
@@ -281,16 +277,16 @@ class WFileSpectrumList(WBase):
         flag_emit = False
         try:
             ss = "fieldnames"
-            ff = eval_fieldnames(str(self.edit_fieldnames.toPlainText()))
+            ff = aa.eval_fieldnames(str(self.edit_fieldnames.toPlainText()))
             splist.fieldnames = ff
             self.__update_gui(True)
             flag_emit = True
         except Exception as E:
             flag_error = True
             if ss:
-                emsg = "Field '%s': %s" % (ss, str_exc(E))
+                emsg = "Field '%s': %s" % (ss, aa.str_exc(E))
             else:
-                emsg = str_exc(E)
+                emsg = aa.str_exc(E)
             self.add_log_error(emsg)
         if flag_emit:
             self.__emit_if()
@@ -321,7 +317,7 @@ class WFileSpectrumList(WBase):
                 changed = f_from_f() != f_from_edit()
                 sth = sth or changed
                 if edit == sndr:
-                    style_widget(self.sender(), changed)
+                    aa.style_widget(self.sender(), changed)
             self.set_flag_header_changed(sth)
 
     def add_spectrum_clicked(self):
@@ -335,7 +331,7 @@ class WFileSpectrumList(WBase):
             self.__update_gui()
             flag_emit = True
         except Exception as E:
-            self.add_log_error(str_exc(E), True)
+            self.add_log_error(aa.str_exc(E), True)
             raise
         if flag_emit:
             self.edited.emit()
@@ -359,7 +355,7 @@ class WFileSpectrumList(WBase):
         try:
             splist = self.f.splist
             specs = (("wavelength_range", {"value": "[%g, %g]" % (splist.wavelength[0], splist.wavelength[-1])}),)
-            form = XParametersEditor(specs=specs, title="Add Gaussian noise")
+            form = aa.XParametersEditor(specs=specs, title="Add Gaussian noise")
             while True:
                 r = form.exec_()
                 if not r:
@@ -370,7 +366,7 @@ class WFileSpectrumList(WBase):
                     s = "wavelength_range"
                     lambda0, lambda1 = eval(kk["wavelength_range"])
                 except Exception as E:
-                    self.add_log_error("Failed evaluating %s: %s" % (s, str_exc(E)), True)
+                    self.add_log_error("Failed evaluating %s: %s" % (s, aa.str_exc(E)), True)
                     continue
 
                 # Works with clone, then replaces original, to ensure atomic operation
@@ -379,28 +375,28 @@ class WFileSpectrumList(WBase):
                 try:
                     clone.splist.crop(lambda0, lambda1)
                 except Exception as E:
-                    self.add_log_error("Crop operation failed: %s" % str_exc(E), True)
+                    self.add_log_error("Crop operation failed: %s" % aa.str_exc(E), True)
                     continue
 
                 self.__new_window(clone)
                 break
 
         except Exception as E:
-            self.add_log_error("Crop failed: %s" % str_exc(E), True)
+            self.add_log_error("Crop failed: %s" % aa.str_exc(E), True)
             raise
 
     def rubberband_clicked(self):
-        self.__use_sblock(SB_Rubberband(flag_upper=True))
+        self.__use_sblock(ao.SB_Rubberband(flag_upper=True))
 
     def add_noise_clicked(self):
         specs = (("std", {"caption": "Noise standard deviation", "value": 1.}),)
-        form = XParametersEditor(specs=specs, title="Select sub-range")
+        form = aa.XParametersEditor(specs=specs, title="Select sub-range")
         if form.exec_():
-            block = SB_AddNoise(**form.get_kwargs())
+            block = ao.SB_AddNoise(**form.get_kwargs())
             self.__use_sblock(block)
 
     def extract_continua_clicked(self):
-        self.__use_slblock(ExtractContinua())
+        self.__use_slblock(ao.SLB_ExtractContinua())
 
     # def std_clicked(self):
     #     self.__use_slblock(MergeDown(np.std))
@@ -464,7 +460,7 @@ class WFileSpectrumList(WBase):
         if not flag:
             # If not changed, removes all eventual yellows
             for _, edit, _, _, _, _, _ in self._map1:
-                style_widget(edit, False)
+                aa.style_widget(edit, False)
 
     def __update_f(self):
         self.flag_valid = self.update_splist_headers(self.f.splist)
@@ -481,7 +477,7 @@ class WFileSpectrumList(WBase):
         # Does not touch the original self.f
         clone = copy.deepcopy(self.f)
         clone.filename = None
-        slblock = UseSBlock()
+        slblock = ao.SLB_UseSpectrumBlock()
         for i, sp in enumerate(clone.splist.spectra):
             clone.splist.spectra[i] = block.use(sp)
         self.__new_window(clone)
@@ -497,6 +493,6 @@ class WFileSpectrumList(WBase):
 
     def __new_from_existing(self):
         """Creates new FileSpectrumList from existing one"""
-        f = FileSpectrumList()
+        f = ao.FileSpectrumList()
         return f
 

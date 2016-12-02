@@ -4,11 +4,10 @@ __all__ = ["SB_Rubberband", "SB_AddNoise", "SB_FnuToFlambda", "SB_FLambdaToFNu",
 
 
 import numpy as np
-import astrotypes as at
-import pyfant
-# from pyfant.datatypes.filesplist import SpectrumList
+import astroapi as aa
+import aosss as ao
 import copy
-from .base import SpectrumBlock
+from . import SpectrumBlock
 import astropy.units as u
 
 
@@ -40,7 +39,7 @@ class SB_Rubberband(SpectrumBlock):
         y = inp.y
         if self.flag_upper:
             y = -y
-        output.y = at.rubberband(y)
+        output.y = ao.rubberband(y)
         if self.flag_upper:
             output.y = -output.y
         return output
@@ -188,7 +187,7 @@ class SB_Extend(SpectrumBlock):
         x_left, x_right, y_left, y_right = np.array([]), np.array([]), np.array([]), np.array([])
 
         if self.fill_mode == 'poly_baseline':
-            baseline = -at.poly_baseline(-output.y, 2, maxit=15)
+            baseline = -ao.poly_baseline(-output.y, 2, maxit=15)
             fill_l = baseline[0]
             fill_r = baseline[-1]
         elif self.fill_mode == 'zero':

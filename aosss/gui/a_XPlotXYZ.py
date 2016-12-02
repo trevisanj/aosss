@@ -3,15 +3,14 @@ __all__ = ["XPlotXYZ"]
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from .basewindows import *
-from astrotypes import *
-from ..guiaux import *
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+import astroapi as aa
+import aosss as ao
 
 
-class XPlotXYZ(XLogMainWindow):
+class XPlotXYZ(aa.XLogMainWindow):
     """
     Plots two fields of a SpectrumCollection object in a simple x-y plot
 
@@ -19,14 +18,14 @@ class XPlotXYZ(XLogMainWindow):
       collection -- SpectrumCollection object
     """
     def __init__(self, collection, *args):
-        XLogMainWindow.__init__(self, *args)
+        aa.XLogMainWindow.__init__(self, *args)
 
         self._refs = []
         def keep_ref(obj):
             self._refs.append(obj)
             return obj
 
-        assert isinstance(collection, SpectrumCollection)
+        assert isinstance(collection, ao.SpectrumCollection)
         self.collection = collection
 
         lw1 = keep_ref(QVBoxLayout())
@@ -69,7 +68,7 @@ class XPlotXYZ(XLogMainWindow):
         wm = keep_ref(QWidget())
         # wm.setMargin(0)
         lw1.addWidget(wm)
-        self.figure, self.canvas, self.lfig = get_matplotlib_layout(wm)
+        self.figure, self.canvas, self.lfig = aa.get_matplotlib_layout(wm)
 
         cw = self.centralWidget = QWidget()
         cw.setLayout(lw1)
@@ -130,8 +129,8 @@ class XPlotXYZ(XLogMainWindow):
             plt.xlabel(fieldname_x)
             plt.ylabel(fieldname_y)
             plt.ylabel(fieldname_z)
-            format_BLB()
+            aa.format_BLB()
             self.canvas.draw()
 
         except Exception as e:
-            self.add_log_error("Could draw figure: "+str_exc(e), True)
+            self.add_log_error("Could draw figure: "+aa.str_exc(e), True)

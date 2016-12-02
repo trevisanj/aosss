@@ -2,7 +2,8 @@ _all_ = ["SpectrumBlock", "ToScalar", "SpectrumListBlock", "GroupBlock"]
 
 
 import numpy as np
-import astrotypes as at
+import astroapi as aa
+import aosss as ao
 import copy
 
 
@@ -28,7 +29,7 @@ class _SpectrumBlock(_BaseBlock):
     """Input is Spectrum (abbreviated "SB")"""
 
     def use(self, inp):
-        assert isinstance(inp, at.Spectrum)
+        assert isinstance(inp, aa.Spectrum)
         self._input = inp
         try:
             # If the output wavelength vector is the same, flag_copy_wavelength determines whether this vector
@@ -37,10 +38,10 @@ class _SpectrumBlock(_BaseBlock):
             # **Attention** blocks that handle the wavelength vectors must comply
             output = self._do_use(inp)
             assert output is not None  # it is common to forger to return in _do_use()
-            if isinstance(output, at.Spectrum):
+            if isinstance(output, aa.Spectrum):
                 assert output._flag_created_by_block
             # Automatically assigns output wavelength vector if applicable
-            if isinstance(output, at.Spectrum) and output.wavelength is None and len(output.y) == len(inp.y):
+            if isinstance(output, aa.Spectrum) and output.wavelength is None and len(output.y) == len(inp.y):
                 output.wavelength = np.copy(inp.wavelength)  # TODO this may slow down things... or not ... if self.flag_copy_wavelength else input.wavelength
             return output
         finally:
@@ -51,7 +52,7 @@ class SpectrumBlock(_SpectrumBlock):
     """Spectrum-To-Spectrum"""
 
     def use(self, inp):
-        assert isinstance(inp, at.Spectrum)
+        assert isinstance(inp, aa.Spectrum)
         self._input = inp
         try:
             # If the output wavelength vector is the same, flag_copy_wavelength determines whether this vector
@@ -60,10 +61,10 @@ class SpectrumBlock(_SpectrumBlock):
             # **Attention** blocks that handle the wavelength vectors must comply
             output = self._do_use(inp)
             assert output is not None  # it is common to forger to return in _do_use()
-            assert isinstance(output, at.Spectrum)
+            assert isinstance(output, aa.Spectrum)
             assert output._flag_created_by_block
             # Automatically assigns output wavelength vector if applicable
-            if isinstance(output, at.Spectrum) and output.wavelength is None and len(output.y) == len(inp.y):
+            if isinstance(output, aa.Spectrum) and output.wavelength is None and len(output.y) == len(inp.y):
                 output.wavelength = np.copy(inp.wavelength)  # TODO this may slow down things... or not ... if self.flag_copy_wavelength else input.wavelength
             return output
         finally:
@@ -73,7 +74,7 @@ class SpectrumBlock(_SpectrumBlock):
         """Call from _do_use() to create new spectrum based on input spectrum.
 
         Never create spectrum directly because we want to keep certain attributes, such as more_headers"""
-        output = at.Spectrum()
+        output = aa.Spectrum()
         output._flag_created_by_block = True  # assertion
         output.more_headers = copy.deepcopy(self._input.more_headers)
         return output
@@ -103,12 +104,12 @@ class _SpectrumListBlock(_BaseBlock):
     """SpectrumBlock -- class with a "use" method accepting a SpectrumList as input"""
 
     def use(self, inp):
-        assert isinstance(inp, at.SpectrumList)
+        assert isinstance(inp, ao.SpectrumList)
         self._input = inp
         try:
             output = self._do_use(inp)
             assert output is not None
-            if isinstance(output, at.SpectrumList):
+            if isinstance(output, ao.SpectrumList):
                 assert output._flag_created_by_block
             return output
         finally:
@@ -116,7 +117,7 @@ class _SpectrumListBlock(_BaseBlock):
 
     def _new_output(self):
         """Call from _do_use() to create new SpectrumList based on input"""
-        output = at.SpectrumList()
+        output = ao.SpectrumList()
         output._flag_created_by_block = True  # assertion
         return output
 

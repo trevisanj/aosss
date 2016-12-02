@@ -2,23 +2,25 @@
 
 """Spectrum List Editor"""
 
-from astrotypes import *
-from pyfant.gui.aosss import XFileSpectrumList
 import sys
 import argparse
+import astroapi as aa
 import logging
 
-misc.logging_level = logging.INFO
+
+aa.logging_level = logging.INFO
+aa.flag_log_file = True
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
     description=__doc__,
-    formatter_class=SmartFormatter
+    formatter_class=aa.SmartFormatter
     )
     parser.add_argument('fn', type=str, help="file name, supports '%s' only at the moment" % (FileSpectrumList.description,), nargs='?')
     args = parser.parse_args()
 
-    app = get_QApplication([])
+    app = aa.get_QApplication([])
     form = XFileSpectrumList()
 
     if args.fn is not None:

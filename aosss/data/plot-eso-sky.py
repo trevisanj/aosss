@@ -1,6 +1,5 @@
 """Plots ESO sky model"""
 from astropy.io import fits
-import pyfant as pf  # will switch Qt4 Agg for matplotlib
 import matplotlib.pyplot as plt
 
 

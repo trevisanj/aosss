@@ -11,19 +11,16 @@ import os.path
 from itertools import product, combinations, cycle
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from astrotypes import *
-from pyfant.datatypes.filesplist import *
-from pyfant.gui import *
-from .basewindows import *
-from .a_WChooseSpectrum import *
 from .a_XScaleSpectrum import *
 from .a_WSpectrumCollection import *
+import astroapi as aa
+import aosss as ao
 
 _COLORS_SQ = [(.1, .6, .5), (.5, .1, .7)]
 _ITER_COLORS_SQ = cycle(_COLORS_SQ)
 
 
-class WFileSparseCube(WBase):
+class WFileSparseCube(aa.WBase):
     """
     FileSparseCube editor widget.
 
@@ -32,7 +29,7 @@ class WFileSparseCube(WBase):
     """
 
     def __init__(self, parent):
-        WBase.__init__(self, parent)
+        aa.WBase.__init__(self, parent)
 
         # Whether all the values in the fields are valid or not
         self.flag_valid = False
@@ -75,7 +72,7 @@ class WFileSparseCube(WBase):
         # ### Tabbed widget occupying left of horizontal splitter (OPTIONS TAB)
         tt0 = self.tabWidgetOptions = QTabWidget(self)
         lwfilett0.addWidget(tt0)
-        tt0.setFont(MONO_FONT)
+        tt0.setFont(aa.MONO_FONT)
         tt0.currentChanged.connect(self.current_tab_changed_options)
 
         # #### Tab: Vertical Splitter between "Place Spectrum" and "Existing Spectra"
@@ -109,7 +106,7 @@ class WFileSparseCube(WBase):
         pp = self._map0 = []
         ###
         x = self.label_sp = QLabel()
-        y = self.choosesp = WChooseSpectrum()
+        y = self.choosesp = aa.WChooseSpectrum()
         y.installEventFilter(self)
         y.edited.connect(self.on_colors_setup_edited)
         # y.setValidator(QIntValidator())
@@ -145,7 +142,7 @@ class WFileSparseCube(WBase):
         for i, (label, edit, name, short_descr, long_descr) in enumerate(pp):
             # label.setStyleSheet("QLabel {text-align: right}")
             assert isinstance(label, QLabel)
-            label.setText(enc_name_descr(name, short_descr))
+            label.setText(aa.enc_name_descr(name, short_descr))
             label.setAlignment(Qt.AlignRight)
             lg.addWidget(label, i, 0)
             lg.addWidget(edit, i, 1)
@@ -264,7 +261,7 @@ class WFileSparseCube(WBase):
         for i, (label, edit, name, short_descr, long_descr, f_from_f, f_from_edit) in enumerate(pp):
             # label.setStyleSheet("QLabel {text-align: right}")
             assert isinstance(label, QLabel)
-            label.setText(enc_name_descr(name, short_descr))
+            label.setText(aa.enc_name_descr(name, short_descr))
             label.setAlignment(Qt.AlignRight)
             lg.addWidget(label, i, 0)
             lg.addWidget(edit, i, 1)
@@ -294,7 +291,7 @@ class WFileSparseCube(WBase):
         lwset.addWidget(b)
         b.clicked.connect(self.crop_clicked)
         ###
-        b = self.keep_ref(QPushButton("E&xport %s ..." % FileFullCube.description))
+        b = self.keep_ref(QPushButton("E&xport %s ..." % ao.FileFullCube.description))
         lwset.addWidget(b)
         b.clicked.connect(self.export_ccube_clicked)
         ###
@@ -302,14 +299,14 @@ class WFileSparseCube(WBase):
 
         # ### Tabbed widget occupying right of horizontal splitter
         tt1 = self.tabWidgetVis = QTabWidget(self)
-        tt1.setFont(MONO_FONT)
+        tt1.setFont(aa.MONO_FONT)
         tt1.currentChanged.connect(self.current_tab_changed_vis)
 
         # #### Tab containing 3D plot representation
         w0 = self.keep_ref(QWidget())
         tt1.addTab(w0, "&Plot 3D")
         # http://stackoverflow.com/questions/12459811
-        self.figure0, self.canvas0, self.lfig0 = get_matplotlib_layout(w0)
+        self.figure0, self.canvas0, self.lfig0 = aa.get_matplotlib_layout(w0)
 
         # lscrw.addLayout(lfig)
 
@@ -354,7 +351,7 @@ class WFileSparseCube(WBase):
         wm = self.keep_ref(QWidget())
         # wm.setMargin(0)
         lw1.addWidget(wm)
-        self.figure1, self.canvas1, self.lfig1 = get_matplotlib_layout(wm)
+        self.figure1, self.canvas1, self.lfig1 = aa.get_matplotlib_layout(wm)
         self.canvas1.mpl_connect('button_press_event', self.on_colors_click)
 
         # ### Finally ...
@@ -369,7 +366,7 @@ class WFileSparseCube(WBase):
         t.start()
 
         self.setEnabled(False)  # disabled until load() is called
-        style_checkboxes(self)
+        aa.style_checkboxes(self)
         self.flag_process_changes = True
         self.add_log("Welcome from %s.__init__()" % (self.__class__.__name__))
 
@@ -377,7 +374,7 @@ class WFileSparseCube(WBase):
     # # Interface
 
     def load(self, x):
-        assert isinstance(x, FileSparseCube)
+        assert isinstance(x, ao.FileSparseCube)
         self.f = x
         self.wsptable.set_collection(x.sparsecube)
         self.__update_gui(True)
@@ -409,7 +406,7 @@ class WFileSparseCube(WBase):
                 changed = f_from_f() != f_from_edit()
                 sth = sth or changed
                 if edit == sndr:
-                    style_widget(self.sender(), changed)
+                    aa.style_widget(self.sender(), changed)
             self.set_flag_header_changed(sth)
 
     def on_spectra_edited(self):
@@ -433,7 +430,7 @@ class WFileSparseCube(WBase):
             self.__update_gui()
             flag_emit = True
         except Exception as E:
-            self.add_log_error(str_exc(E), True)
+            self.add_log_error(aa.str_exc(E), True)
             raise
         if flag_emit:
             self.edited.emit()
@@ -467,7 +464,7 @@ class WFileSparseCube(WBase):
                      ("wavelength_range", {"value": "[%g, %g]" % (sky.wavelength[0], sky.wavelength[-1])})
                      )
             # fields = ["x_range", "y_range", "wavelength_range"]
-            form = XParametersEditor(specs=specs, title="Select sub-cube")
+            form = aa.XParametersEditor(specs=specs, title="Select sub-cube")
             while True:
                 r = form.exec_()
                 if not r:
@@ -482,7 +479,7 @@ class WFileSparseCube(WBase):
                     s = "wavelength_range"
                     lambda0, lambda1 = eval(kk["wavelength_range"])
                 except Exception as E:
-                    self.add_log_error("Failed evaluating %s: %s" % (s, str_exc(E)), True)
+                    self.add_log_error("Failed evaluating %s: %s" % (s, aa.str_exc(E)), True)
                     continue
 
                 # Works with clone, then replaces original, to ensure atomic operation
@@ -491,7 +488,7 @@ class WFileSparseCube(WBase):
                 try:
                     clone.sparsecube.crop(x0, x1, y0, y1, lambda0, lambda1)
                 except Exception as E:
-                    self.add_log_error("Crop operation failed: %s" % str_exc(E), True)
+                    self.add_log_error("Crop operation failed: %s" % aa.str_exc(E), True)
                     continue
 
                 form1 = self.keep_ref(self.parent_form.__class__())
@@ -504,21 +501,21 @@ class WFileSparseCube(WBase):
                 break
 
         except Exception as E:
-            self.add_log_error("Crop failed: %s" % str_exc(E), True)
+            self.add_log_error("Crop failed: %s" % aa.str_exc(E), True)
             raise
 
     def export_ccube_clicked(self):
-        fn = QFileDialog.getSaveFileName(self, "Save file in %s format" % FileFullCube.description,
-                                         FileFullCube.default_filename, "*.fits")
+        fn = QFileDialog.getSaveFileName(self, "Save file in %s format" % ao.FileFullCube.description,
+                                         ao.FileFullCube.default_filename, "*.fits")
         if fn:
             try:
                 fn = str(fn)
                 wcube = self.f.sparsecube.to_full_cube()
-                fccube = FileFullCube()
+                fccube = ao.FileFullCube()
                 fccube.wcube = wcube
                 fccube.save_as(fn)
             except Exception as E:
-                self.add_log_error("Failed export: %s" % str_exc(E), True)
+                self.add_log_error("Failed export: %s" % aa.str_exc(E), True)
                 raise
 
     def replot_colors(self):
@@ -600,7 +597,7 @@ class WFileSparseCube(WBase):
         if not flag:
             # If not changed, removes all eventual yellows
             for _, edit, _, _, _, _, _ in self._map1:
-                style_widget(edit, False)
+                aa.style_widget(edit, False)
 
     def __update_f(self):
         o = self.f
@@ -613,7 +610,7 @@ class WFileSparseCube(WBase):
         ss = ""
         try:
             ss = "fieldnames"
-            ff = eval_fieldnames(str(self.edit_fieldnames.toPlainText()))
+            ff = aa.eval_fieldnames(str(self.edit_fieldnames.toPlainText()))
             sky.fieldnames = ff
             ss = "width"
             sky.width = int(self.spinbox_width.value())
@@ -630,9 +627,9 @@ class WFileSparseCube(WBase):
         except Exception as E:
             flag_error = True
             if ss:
-                emsg = "Field '%s': %s" % (ss, str_exc(E))
+                emsg = "Field '%s': %s" % (ss, aa.str_exc(E))
             else:
-                emsg = str_exc(E)
+                emsg = aa.str_exc(E)
             self.add_log_error(emsg)
         if flag_emit:
             self.__emit_if()
@@ -653,13 +650,13 @@ class WFileSparseCube(WBase):
             fig = self.figure0
             fig.clear()
             ax = fig.gca(projection='3d')
-            draw_cube_3d(ax, self.f.sparsecube)
+            ao.draw_cube_3d(ax, self.f.sparsecube)
             fig.tight_layout()
             self.canvas0.draw()
 
         except Exception as E:
-            self.add_log_error(str_exc(E))
-            get_python_logger().exception("Could not plot spectra")
+            self.add_log_error(aa.str_exc(E))
+            aa.get_python_logger().exception("Could not plot spectra")
 
     def plot_colors(self):
         # self.clear_markers()
@@ -681,13 +678,13 @@ class WFileSparseCube(WBase):
                 sqx, sqy = self.get_place_spectrum_xy()
             except:
                 pass  # Nevermind (does not draw square)
-            self.obj_square = draw_cube_colors(ax, self.f.sparsecube, vrange, sqx, sqy, flag_scale, method)
+            self.obj_square = ao.draw_cube_colors(ax, self.f.sparsecube, vrange, sqx, sqy, flag_scale, method)
 
             fig.tight_layout()
             self.canvas1.draw()
 
             self.flag_plot_colors_pending = False
         except Exception as E:
-            self.add_log_error(str_exc(E))
-            get_python_logger().exception("Could not plot colors")
+            self.add_log_error(aa.str_exc(E))
+            aa.get_python_logger().exception("Could not plot colors")
 

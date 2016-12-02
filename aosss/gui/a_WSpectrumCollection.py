@@ -1,29 +1,24 @@
 __all__ = ["WSpectrumCollection"]
 
 import copy
-import matplotlib.pyplot as plt
-from pylab import MaxNLocator
 import os
 import os.path
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from pyfant.datatypes.filesplist import *
-from pyfant.gui import *
-from .basewindows import *
 from .a_XScaleSpectrum import *
-from ..a_WCollapsiblePanel import *
-from astrotypes import *
 from astropy import units as u
-import numpy as np
+import astroapi as aa
+import aosss as ao
 
-class WSpectrumCollection(WBase):
+
+class WSpectrumCollection(aa.WBase):
     """Editor for SpectrumCollection objects"""
 
     # argument0 -- flag_changed_header
     edited = pyqtSignal(bool)
 
     def __init__(self, parent):
-        WBase.__init__(self, parent)
+        aa.WBase.__init__(self, parent)
 
         def keep_ref(obj):
             self._refs.append(obj)
@@ -38,47 +33,47 @@ class WSpectrumCollection(WBase):
 
         # # Creates actions
 
-        action = self.action_add_spectra = QAction(get_pyfant_icon("list-add"), "&Add spectra...", self)
+        action = self.action_add_spectra = QAction(aa.get_icon("list-add"), "&Add spectra...", self)
         action.setToolTip("Opens a 'Open File' window where multiple files can be selected.\n"
                           "Accepts any supported spectral type, and also other Spectrum Collection files.\n"
                           "Files are added in alphabetical order.")
         action.triggered.connect(self.on_add_spectra)
 
-        action = self.action_all_group = QAction(get_pyfant_icon("group-by"), "&Group...", self)
+        action = self.action_all_group = QAction(aa.get_icon("group-by"), "&Group...", self)
         action.triggered.connect(self.on_all_group)
 
-        # action = self.action_all_use_spectrum_block = QAction(get_pyfant_icon("go-next"), "&Transform...", self)
+        # action = self.action_all_use_spectrum_block = QAction(aa.get_icon("go-next"), "&Transform...", self)
         # action.triggered.connect(self.on_all_use_spectrum_block)
 
-        action = self.action_all_to_scalar = QAction(get_pyfant_icon("go-next"), "To &Scalar...", self)
+        action = self.action_all_to_scalar = QAction(aa.get_icon("go-next"), "To &Scalar...", self)
         action.triggered.connect(self.on_all_to_scalar)
 
-        action = self.action_all_plot_xy = QAction(get_pyfant_icon("visualization"), "X-&Y Plot", self)
+        action = self.action_all_plot_xy = QAction(aa.get_icon("visualization"), "X-&Y Plot", self)
         action.triggered.connect(self.on_plot_xy)
 
-        action = self.action_all_plot_xyz = QAction(get_pyfant_icon("visualization"), "X-Y-&Z Plot", self)
+        action = self.action_all_plot_xyz = QAction(aa.get_icon("visualization"), "X-Y-&Z Plot", self)
         action.triggered.connect(self.on_plot_xyz)
 
-        action = self.action_all_export_csv = QAction(get_pyfant_icon("document-export"), "&Export CSV...", self)
+        action = self.action_all_export_csv = QAction(aa.get_icon("document-export"), "&Export CSV...", self)
         action.triggered.connect(self.on_all_export_csv)
 
-        action = self.action_sel_use_spectrum_block = QAction(get_pyfant_icon("go-next"), "&Transform...", self)
+        action = self.action_sel_use_spectrum_block = QAction(aa.get_icon("go-next"), "&Transform...", self)
         action.setToolTip("Selected spectra will be deleted and transformed spectra will be added at the end")
         action.triggered.connect(self.on_sel_use_spectrum_block)
 
-        action = self.action_sel_plot_stacked = QAction(get_pyfant_icon("visualization"), "Plot &Stacked", self)
+        action = self.action_sel_plot_stacked = QAction(aa.get_icon("visualization"), "Plot &Stacked", self)
         action.triggered.connect(self.on_sel_plot_stacked)
 
-        action = self.action_sel_plot_overlapped = QAction(get_pyfant_icon("visualization"), "Plot &Overlapped", self)
+        action = self.action_sel_plot_overlapped = QAction(aa.get_icon("visualization"), "Plot &Overlapped", self)
         action.triggered.connect(self.on_sel_plot_overlapped)
 
-        action = self.action_sel_open_in_new = QAction(get_pyfant_icon("window-new"), "Open in new window", self)
+        action = self.action_sel_open_in_new = QAction(aa.get_icon("window-new"), "Open in new window", self)
         action.triggered.connect(self.on_sel_open_in_new)
 
-        action = self.action_sel_delete = QAction(get_pyfant_icon("list-remove"), "Delete", self)
+        action = self.action_sel_delete = QAction(aa.get_icon("list-remove"), "Delete", self)
         action.triggered.connect(self.on_sel_delete)
 
-        action = self.action_curr_scale = QAction(get_pyfant_icon("zoom-fit"), "Scale to Magnitude...", self)
+        action = self.action_curr_scale = QAction(aa.get_icon("zoom-fit"), "Scale to Magnitude...", self)
         action.triggered.connect(self.on_curr_scale)
 
 
@@ -117,7 +112,7 @@ class WSpectrumCollection(WBase):
         #   - The second column contains panels of buttons layed horizontally
 
 
-        wtoolboxes = keep_ref(WCollapsiblePanel())
+        wtoolboxes = keep_ref(aa.WCollapsiblePanel())
         lwmain.addWidget(wtoolboxes)
         wtoolboxes.label.setText("<b>Tools</b>")
         wtoolboxes.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -205,7 +200,7 @@ class WSpectrumCollection(WBase):
         a.setSelectionBehavior(QAbstractItemView.SelectRows)
         a.setAlternatingRowColors(True)
         a.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.EditKeyPressed)
-        a.setFont(MONO_FONT)
+        a.setFont(aa.MONO_FONT)
         a.installEventFilter(self)
         a.setContextMenuPolicy(Qt.CustomContextMenu)
         a.customContextMenuRequested.connect(self.on_twSpectra_customContextMenuRequested)
@@ -222,7 +217,7 @@ class WSpectrumCollection(WBase):
 
         # # Final adjustments
         self.setEnabled(False)  # disabled until load() is called
-        style_checkboxes(self)
+        aa.style_checkboxes(self)
         self.flag_process_changes = True
         self.add_log("Welcome from %s.__init__()" % (self.__class__.__name__))
 
@@ -231,7 +226,7 @@ class WSpectrumCollection(WBase):
     # # Interface
 
     def set_collection(self, x):
-        assert isinstance(x, SpectrumCollection)
+        assert isinstance(x, ao.SpectrumCollection)
         self.collection = x
         self.__update_gui()
         self.setEnabled(True)
@@ -414,7 +409,7 @@ class WSpectrumCollection(WBase):
         # It sth fails, will restore original
         save = copy.deepcopy(self.collection)
         try:
-            grouper = blocks.slb.SLB_UseGroupBlock(form.block, form.group_by)
+            grouper = ao.blocks.slb.SLB_UseGroupBlock(form.block, form.group_by)
             self.collection = grouper.use(self.collection)
             self.__update_gui()
             flag_emit = True
@@ -514,7 +509,7 @@ class WSpectrumCollection(WBase):
                 with open(str(new_filename), "w") as file:
                     file.writelines(lines)
             except Exception as E:
-                msg = str("Error exporting text file: %s" % str_exc(E))
+                msg = str("Error exporting text file: %s" % aa.str_exc(E))
                 self.add_log_error(msg, True)
                 raise
 
@@ -552,13 +547,13 @@ class WSpectrumCollection(WBase):
     def on_sel_plot_stacked(self):
         sspp = self.get_selected_spectra()
         if len(sspp) > 0:
-            plot_spectra(sspp)
+            aa.plot_spectra(sspp)
 
 
     def on_sel_plot_overlapped(self):
         sspp = self.get_selected_spectra()
         if len(sspp) > 0:
-            plot_spectra_overlapped(sspp)
+            aa.plot_spectra_overlapped(sspp)
 
 
     def on_sel_open_in_new(self):
@@ -568,7 +563,7 @@ class WSpectrumCollection(WBase):
             other = copy.deepcopy(self.collection)
             other.spectra = [other.spectra[i] for i in ii]
             # TODO who said it is a spectrum list? Could well be a FileSparseCube!!!! How to sort this?????????????????????????????????????????????????????????????????????
-            f = FileSpectrumList()
+            f = ao.FileSpectrumList()
             f.splist = other
             f.filename = "noname.dontknowextension"  # TODO figure out a way to determine this filename because I dont know the original filename
 
@@ -635,7 +630,7 @@ class WSpectrumCollection(WBase):
             except Exception as E:
                 # restores original value
                 item.setText(str(self.collection.spectra[row].more_headers.get(name)))
-                self.add_log_error(str_exc(E), True)
+                self.add_log_error(aa.str_exc(E), True)
                 raise
 
             finally:
@@ -657,26 +652,27 @@ class WSpectrumCollection(WBase):
         if not filenames:
             return
 
-        classes = classes_sp+[FileSpectrumList, FileSparseCube]
+        # classes = aa.classes_sp()+[ao.FileSpectrumList, ao.FileSparseCube]
+        classes = ao.classes_collection()
         report, successful, failed = ["<b>Results</b>"], [], []
         for filename in filenames:
             filename = str(filename)
             basename = os.path.basename(filename)
-            file = load_with_classes(filename, classes)
+            file = aa.load_with_classes(filename, classes)
             try:
                 if file is None:
                     raise RuntimeError("Could not load file")
-                if isinstance(file, FileSpectrum):
+                if isinstance(file, aa.FileSpectrum):
                     self.collection.add_spectrum(file.spectrum)
-                elif isinstance(file, FileSpectrumList):
+                elif isinstance(file, ao.FileSpectrumList):
                     self.collection.merge_with(file.splist)
-                elif isinstance(file, FileSparseCube):
+                elif isinstance(file, ao.FileSparseCube):
                     self.collection.merge_with(file.sparsecube)
                 successful.append("  - %s" % basename)
             except Exception as e:
                 failed.append('&nbsp;&nbsp;- %s: %s' % (basename, str(e)))
-                s = "Error adding file '%s': %s" % (basename, str_exc(e))
-                get_python_logger().exception(s)
+                s = "Error adding file '%s': %s" % (basename, aa.str_exc(e))
+                aa.get_python_logger().exception(s)
                 self.add_log_error(s)
 
         if len(successful) > 0:
@@ -693,7 +689,7 @@ class WSpectrumCollection(WBase):
         if flag_emit:
             self.edited.emit(False)
 
-        show_message("<br>".join(report))
+        aa.show_message("<br>".join(report))
 
 
     # def on_merge_with(self):
@@ -703,13 +699,13 @@ class WSpectrumCollection(WBase):
     #         new_filename = QFileDialog.getOpenFileName(self, "Merge with another Spectrum List file", "", "*.splist")
     #         if new_filename:
     #             new_filename = str(new_filename)
-    #             f = FileSpectrumList()
+    #             f = ao.FileSpectrumList()
     #             f.load(new_filename)
     #             self.collection.merge_with(f.splist)
     #             self.__update_gui()
     #             flag_emit = True
     #     except Exception as E:
-    #         msg = "Error merging: %s" % str_exc(E)
+    #         msg = "Error merging: %s" % aa.str_exc(E)
     #         self.add_log_error(msg, True)
     #         raise
     #
@@ -739,7 +735,7 @@ class WSpectrumCollection(WBase):
             fieldnames_visible = self.collection.fieldnames_visible
             all_headers = fieldnames_visible+FIXED
             nc = len(all_headers)
-            ResetTableWidget(t, n, nc)
+            aa.ResetTableWidget(t, n, nc)
             t.setHorizontalHeaderLabels(all_headers)
             i = 0
             for sp in spectra:
@@ -772,7 +768,7 @@ class WSpectrumCollection(WBase):
 
 
     def __update_enabled_actions(self):
-        can_group = isinstance(self.collection, SpectrumList)
+        can_group = isinstance(self.collection, ao.SpectrumList)
         has_any = self.twSpectra.rowCount() > 0
         any_selected = len(self.twSpectra.selectedItems()) > 0
         has_current = self.twSpectra.currentRow() > -1

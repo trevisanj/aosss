@@ -1,12 +1,12 @@
 __all__ = ["draw_cube_3d", "draw_cube_colors"]
 
-from pyfant.datatypes import *
 
 import matplotlib.pyplot as plt
 from pylab import MaxNLocator
 import copy
 import numpy as np
 from itertools import product, combinations, cycle
+
 
 _ZERO_OFFSET = 0.
 def draw_cube_3d(ax, sparsecube, height_threshold=15):

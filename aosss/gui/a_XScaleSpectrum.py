@@ -1,39 +1,20 @@
 """Window to edit a scaling factor"""
 
+
 __all__ = ["XScaleSpectrum"]
 
+
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-import traceback as tb
-import datetime
-import pyfant as pf
-from pyfant.gui import *
-import os
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from pyfant.gui import *
-from astrotypes import *
-import random
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT # as NavigationToolbar2QT
-import matplotlib.pyplot as plt
 import numpy as np
-from itertools import product, combinations, cycle
-import os
-import math
-import numbers
-import copy
-import datetime
-import traceback as tb
-import collections
-from .basewindows import *
+import astroapi as aa
+import aosss as ao
 
 
-
-class XScaleSpectrum(XLogDialog):
+class XScaleSpectrum(aa.XLogDialog):
 
     def __init__(self, parent=None, file_main=None, file_abonds=None):
-        XLogDialog.__init__(self, parent)
+        aa.XLogDialog.__init__(self, parent)
 
         def keep_ref(obj):
             self._refs.append(obj)
@@ -41,7 +22,7 @@ class XScaleSpectrum(XLogDialog):
 
         self.setWindowTitle("Scale spectrum")
 
-        self.bandpasses = pf.get_ubv_bandpasses()
+        self.bandpasses = aa.get_ubv_bandpasses()
 
         # Internal flag to prevent taking action when some field is updated programatically
         self.flag_process_changes = False
@@ -123,7 +104,7 @@ class XScaleSpectrum(XLogDialog):
         for i, (label, edit, name, short_descr, long_descr) in enumerate(pp):
             # label.setStyleSheet("QLabel {text-align: right}")
             assert isinstance(label, QLabel)
-            label.setText(enc_name_descr(name, short_descr))
+            label.setText(aa.enc_name_descr(name, short_descr))
             label.setAlignment(Qt.AlignRight)
             lgrid.addWidget(label, i, 0)
             lgrid.addWidget(edit, i, 1)
@@ -136,7 +117,7 @@ class XScaleSpectrum(XLogDialog):
         y = self.textEdit = QTextEdit()
         x.setBuddy(y)
         y.setReadOnly(True)
-        y.setStyleSheet("QTextEdit {color: %s}" % COLOR_DESCR)
+        y.setStyleSheet("QTextEdit {color: %s}" % aa.COLOR_DESCR)
         lwleft.addWidget(x)
         lwleft.addWidget(y)
 
@@ -150,17 +131,17 @@ class XScaleSpectrum(XLogDialog):
 
         # #### Plot area
         wright = keep_ref(QWidget())
-        self.figure0, self.canvas0, self.lfig0 = get_matplotlib_layout(wright)
+        self.figure0, self.canvas0, self.lfig0 = aa.get_matplotlib_layout(wright)
 
         sp2.addWidget(wleft)
         sp2.addWidget(wright)
 
         # # Signal proxy
         # Limits the number of times that on_sth_changed() is called
-        self.signal_proxy = SignalProxy(signals, delay=0.3, rateLimit=0, slot=self.on_sth_changed)
+        self.signal_proxy = aa.SignalProxy(signals, delay=0.3, rateLimit=0, slot=self.on_sth_changed)
 
         self.setEnabled(False)  # disabled until load() is called
-        style_checkboxes(self)
+        aa.style_checkboxes(self)
         self.flag_process_changes = True
 
         # self.__update()
@@ -176,7 +157,7 @@ class XScaleSpectrum(XLogDialog):
         return str(self.cb_band.currentText())
 
     def set_spectrum(self, x):
-        assert isinstance(x, Spectrum)
+        assert isinstance(x, aa.Spectrum)
         self.spectrum = x
         self.setEnabled(True)
         self.__update()
@@ -238,7 +219,7 @@ class XScaleSpectrum(XLogDialog):
             fig.clear()
             # name = self.band_name()
             bandpass = self.bandpasses[self.band_index()]
-            mag_data = pf.calculate_magnitude(self.spectrum, bandpass, self.system(), self.zero_point(),
+            mag_data = aa.calculate_magnitude(self.spectrum, bandpass, self.system(), self.zero_point(),
                                               self.flag_force_band_range())
             _draw_figure(fig, mag_data, self.spectrum, self.flag_force_band_range())
             self.canvas0.draw()
@@ -246,7 +227,7 @@ class XScaleSpectrum(XLogDialog):
             mag = self.desired_magnitude()
             cmag = mag_data["cmag"]
 
-            self.factor_ = k = MAGNITUDE_BASE ** (cmag - mag) if cmag is not None else float("nan")
+            self.factor_ = k = aa.MAGNITUDE_BASE ** (cmag - mag) if cmag is not None else float("nan")
 
             # Updates calculated state
 
@@ -262,7 +243,7 @@ class XScaleSpectrum(XLogDialog):
 
         except Exception as E:
             self.add_log_error(str(E))
-            get_python_logger().exception("Could not plot band_curve")
+            aa.get_python_logger().exception("Could not plot band_curve")
         finally:
             self.flag_process_changes = True
 
@@ -296,7 +277,7 @@ def _draw_figure(fig, mag_data, spectrum, flag_force_band_range):
     band_max_y = max(band_y)
     plot_l0, plot_lf = bp.l0 - band_span_x * MARGIN_H, bp.lf + band_span_x * MARGIN_H
     plot_h_middle = (plot_l0 + plot_lf) / 2
-    spp = pf.SB_Cut(plot_l0, plot_lf).use(spectrum)  # spectrum for plotting
+    spp = ao.SB_Cut(plot_l0, plot_lf).use(spectrum)  # spectrum for plotting
     flux_ylim = [0, np.max(spp.y) * (1 + MARGIN_V)] if len(spp) > 0 else [-.1, .1]
 
     # # First subplot
@@ -319,7 +300,7 @@ def _draw_figure(fig, mag_data, spectrum, flag_force_band_range):
     overall_max_y = 0
     ax = fig.add_subplot(312, sharex=ax0)
     # other bands
-    for band in pf.get_ubv_bandpasses():
+    for band in aa.get_ubv_bandpasses():
         if band.lf >= plot_l0 and band.l0 <= plot_lf:
             x = np.linspace(band.l0, band.lf, 200)
             y = band.ufunc()(x)

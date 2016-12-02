@@ -11,33 +11,29 @@ import os.path
 from itertools import product, combinations, cycle
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from astrotypes import *
-from pyfant.datatypes.filesplist import *
-from pyfant.gui import *
-from .basewindows import *
-from .a_WChooseSpectrum import *
-from .a_XScaleSpectrum import *
 from .a_WFileSparseCube import *
+import astroapi as aa
+import aosss as ao
 
-class XFileSparseCube(XFileMainWindow):
+class XFileSparseCube(aa.XFileMainWindow):
     def __init__(self, parent=None, fileobj=None):
-        XFileMainWindow.__init__(self, parent)
+        aa.XFileMainWindow.__init__(self, parent)
 
         def keep_ref(obj):
             self._refs.append(obj)
             return obj
 
-        self.setWindowTitle(get_window_title("Data Cube Editor"))
+        self.setWindowTitle(aa.get_window_title("Data Cube Editor"))
 
 
         # # Synchronized sequences
-        _VVV = FileSparseCube.description
+        _VVV = ao.FileSparseCube.description
         self.tab_texts[0] =  "FileSparseCube editor (Alt+&1)"
         self.tabWidget.setTabText(0, self.tab_texts[0])
         self.save_as_texts[0] = "Save %s as..." % _VVV
         self.open_texts[0] = "Load %s" % _VVV
-        self.clss[0] = FileSparseCube
-        self.clsss[0] = (FileSparseCube, FileFullCube)  # file types that can be opened
+        self.clss[0] = ao.FileSparseCube
+        self.clsss[0] = (ao.FileSparseCube, ao.FileFullCube)  # file types that can be opened
         self.wilds[0] = "*.fits"
 
         lv = keep_ref(QVBoxLayout(self.gotting))
@@ -48,21 +44,13 @@ class XFileSparseCube(XFileMainWindow):
 
         # # # Loads default file by default ... SQN
         # if os.path.isfile(FileSparseCube.default_filename):
-        #     f = FileSparseCube()
+        #     f = ao.FileSparseCube()
         #     f.load()
         #     self.ce.load(f)
 
         if fileobj is not None:
             self.load(fileobj)
 
-
-    # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * #
-    # Interface
-
-    def set_manager_form(self, x):
-        assert isinstance(x, XRunnableManager)
-        self._manager_form = x
-        self._rm = x.rm
 
     # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * #
     # Qt override
@@ -75,7 +63,7 @@ class XFileSparseCube(XFileMainWindow):
 
         if len(ff) > 0:
             s = "Unsaved changes\n  -"+("\n  -".join(ff))+"\n\nAre you sure you want to exit?"
-            flag_exit = are_you_sure(True, event, self, "Unsaved changes", s)
+            flag_exit = aa.are_you_sure(True, event, self, "Unsaved changes", s)
         if flag_exit:
             plt.close("all")
 
@@ -119,11 +107,11 @@ class XFileSparseCube(XFileMainWindow):
     def _filter_on_load(self, f):
         """Converts from FileFullCube to FileSparseCube format, if necessary"""
         f1 = None
-        if isinstance(f, FileFullCube):
-            f1 = FileSparseCube()
+        if isinstance(f, ao.FileFullCube):
+            f1 = ao.FileSparseCube()
             f1.sparsecube.from_full_cube(f.wcube)
         if f1:
-            f1.filename = add_bits_to_path(f.filename, "imported-from-",
-                                           os.path.splitext(FileSparseCube.default_filename)[1])
+            f1.filename = aa.add_bits_to_path(f.filename, "imported-from-",
+                                           os.path.splitext(ao.FileSparseCube.default_filename)[1])
             f = f1
         return f

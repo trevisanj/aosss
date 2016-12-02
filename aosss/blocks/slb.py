@@ -1,11 +1,11 @@
 __all__ = ["SLB_UseSpectrumBlock", "SLB_ExtractContinua"]
 
 import numpy as np
-from astrotypes import *
+import astroapi as aa
+import aosss as ao
 import copy
 from .base import *
 from . import sb
-import pyfant
 
 
 class SLB_UseSpectrumBlock(SpectrumListBlock):
@@ -29,7 +29,7 @@ class SLB_ExtractContinua(SpectrumListBlock):
 
     def _do_use(self, inp):
         output = SLB_UseSpectrumBlock(sb.SB_Rubberband(flag_upper=True)).use(inp)
-        spectrum_std = pyfant.blocks.gb.GB_UseNumPyFunc(func=np.std).use(inp)
+        spectrum_std = ao.GB_UseNumPyFunc(func=np.std).use(inp)
         mean_std = np.mean(spectrum_std.spectra[0].y)
         for spectrum in output.spectra:
             spectrum.y -= mean_std * 3
@@ -76,7 +76,7 @@ class SLB_UseGroupBlock(SpectrumListBlock):
             unique_keys.sort()
             sk = list(zip(inp.spectra, grouping_keys))
             for unique_key in unique_keys:
-                group = SpectrumList()
+                group = ao.SpectrumList()
                 for spectrum, grouping_key in sk:
                     if grouping_key == unique_key:
                         group.add_spectrum(spectrum)

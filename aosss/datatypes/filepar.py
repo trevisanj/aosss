@@ -1,8 +1,11 @@
 __all__ = ["FilePar"]
 
-from .datafile import DataFile
+
+from astroapi import DataFile, froze_it
 from collections import OrderedDict
 
+
+@froze_it
 class FilePar(DataFile):
     """".par" (parameters)file"""
 

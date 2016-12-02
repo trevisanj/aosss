@@ -5,7 +5,6 @@
 
 
 import argparse
-import pyfant
 import rows
 import io
 import logging

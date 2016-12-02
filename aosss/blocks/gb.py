@@ -1,9 +1,10 @@
+__all__ = ["GB_UseNumPyFunc", "GB_SNR"]
+
+
 from .base import *
 from . import sb
-import pyfant  #from .slb import SLB_UseSpectrumBlock
-
-
-__all__ = ["GB_UseNumPyFunc", "GB_SNR"]
+import astroapi as aa
+import aosss as ao
 
 
 class GB_UseNumPyFunc(GroupBlock):
@@ -18,7 +19,7 @@ class GB_UseNumPyFunc(GroupBlock):
 
     def _do_use(self, inp):
         output = self._new_output()
-        sp = Spectrum()
+        sp = aa.Spectrum()
         sp.wavelength = np.copy(inp.wavelength)
         sp.flux = self.func(inp.matrix(), 0)
         if len(sp.flux) != len(sp.wavelength):
@@ -46,14 +47,14 @@ class GB_SNR(GroupBlock):
 
     def _do_use(self, inp):
         if self.continua is None:
-            continua = pyfant.blocks.slb.SLB_UseSpectrumBlock(sb.SB_Rubberband(True)).use(inp)
+            continua = ao.SLB_UseSpectrumBlock(sb.SB_Rubberband(True)).use(inp)
         else:
             continua = self.continua
-        cont_2 = slb.UseSpectrumBlock(sb.SB_ElementWise(np.square)).use(continua)  # continua squared
+        cont_2 = ao.UseSpectrumBlock(sb.SB_ElementWise(np.square)).use(continua)  # continua squared
         mean_cont_2 = GB_UseNumPyFunc(np.mean).use(cont_2)
         var_spectra = GB_UseNumPyFunc(np.var).use(inp)
         output = self._new_output()
-        sp = Spectrum()
+        sp = aa.Spectrum()
         sp.wavelength = np.copy(inp.wavelength)
         sp.flux = mean_cont_2.spectra[0].flux/var_spectra.spectra[0].flux
         output.add_spectrum(sp)

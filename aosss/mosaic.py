@@ -2,7 +2,7 @@
 Spectrograph modes specifications
 """
 
-from pyfant import AttrsPart
+from astroapi import AttrsPart
 
 class SpectrographMode(AttrsPart):
     """

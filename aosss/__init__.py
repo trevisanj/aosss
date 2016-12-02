@@ -1,14 +1,34 @@
-# from .fileccube import *
-# from .filespectrumlist import *
-#
-# from .a_WChooseSpectrum import *
-# from .a_XScaleSpectrum import *
-# from .basewindows import *
-# from .blocks import *
-# from .misc import *
+# # Imports
+from .lib import *
+from .datatypes import *
+from .blocks import *
+from .vis import *
 from .misc import *
 from .report import *
+from .mosaic import *
+from .gui import *
+
+from . import lib
+from . import datatypes
+from . import blocks
+from . import vis
 from . import misc
-from . import mosaic
 from . import report
-# from .spectrograph import *
+from . import mosaic
+from . import gui
+
+
+# # Function to access package-specific config file
+def get_config():
+    """Returns AAConfigObj object that corresponds to file ~/.MY-PACKAGE-NAME.conf"""
+    import astroapi as aa
+    return aa.get_config_obj(".aosss.conf")
+
+
+def classes_collection():
+    """
+    Returns list of File* classes that can be converted to a SpectrumCollection
+    """
+    import astroapi as aa
+    return aa.classes_sp() + [FileSpectrumList, FileSparseCube, FileFullCube]
+

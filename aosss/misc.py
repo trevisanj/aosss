@@ -1,84 +1,35 @@
-__all__ = ["get_aosss_path", "get_aosss_data_path", "get_aosss_scripts_path",
-"load_spectrum_from_fits_cube_or_not", "FILE_MAP", "BulkItem", "load_bulk", "create_spectrum_lists",
-"compile_simids", "load_eso_sky"]
+__all__ = [
+"create_spectrum_lists", "load_bulk", "BulkItem", ]
 
 
-from astropy.io import fits
 import os.path
 from collections import OrderedDict
 import glob
 import os
 import re
 import numpy as np
-import astropy.units as u
 import astroapi as aa
 import aosss as ao
 
-def compile_simids(specs):
-    """
-    Compiles a list of simulation IDs (e.g., 'C000793') from a sequence of specifications
 
-    Arguments:
-        specs -- [spec0, spec1, ...], where each element may be:
-            a number (convertible to int), or
-            a range such as '1000-1010' (string)
-
-    Returns: list of strings starting with "C"
-    """
-    numbers = []
-    for candidate in specs:
-        try:
-            if '-' in candidate:
-                groups = re.match('(\d+)\s*-\s*(\d+)$', candidate)
-                if groups is None:
-                    raise RuntimeError("Could not parse range")
-                n0 = int(groups.groups()[0])
-                n1 = int(groups.groups()[1])
-                numbers.extend(list(range(n0, n1 + 1)))
-            else:
-                numbers.append(int(candidate))
-        except Exception as E:
-            aa.get_python_logger().info("SKIPPED Argument '%s': %s" % (candidate, str(E)))
-    numbers = set(numbers)
-    simids = ["C%06d" % n for n in numbers]
-
-    return simids
-
-
-def get_aosss_path(*args):
-  """Returns full path aosss package. Arguments are added at the end of os.path.join()"""
-  p = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), *args))
-  return p
-
-
-def get_aosss_data_path(*args):
-    """Returns path to aosss scripts. Arguments are added to the end os os.path.join()"""
-    return get_aosss_path("data", *args)
-
-
-def get_aosss_scripts_path(*args):
-    """Returns path to aosss scripts. Arguments are added to the end os os.path.join()"""
-    return get_aosss_path("..", "scripts", *args)
-
-
-def load_spectrum_from_fits_cube_or_not(filename, x=0, y=0):
-    """Loads FITS file and gets given spectrum in data cube.
-
-    This routine intends to deal with files such as "C000793_reduced.fits" """
-
-    hdul = fits.open(filename)
-
-    hdu = hdul[0]
-
-    hdu_out = fits.PrimaryHDU()
-    hdu_out.header["CDELT1"] = hdu.header["CDELT3"]
-    hdu_out.header["CRVAL1"] = hdu.header["CRVAL3"]
-    hdu_out.data = hdu.data[:, y, x]
-
-    ret = aa.Spectrum()
-    ret.from_hdu(hdu_out)
-
-    return ret
+# def load_spectrum_from_fits_cube_or_not(filename, x=0, y=0):
+#     """Loads FITS file and gets given spectrum in data cube.
+#
+#     This routine intends to deal with files such as "C000793_reduced.fits" """
+#
+#     hdul = fits.open(filename)
+#
+#     hdu = hdul[0]
+#
+#     hdu_out = fits.PrimaryHDU()
+#     hdu_out.header["CDELT1"] = hdu.header["CDELT3"]
+#     hdu_out.header["CRVAL1"] = hdu.header["CRVAL3"]
+#     hdu_out.data = hdu.data[:, y, x]
+#
+#     ret = aa.Spectrum()
+#     ret.from_hdu(hdu_out)
+#
+#     return ret
 
 
 FILE_MAP = OrderedDict((
@@ -302,32 +253,3 @@ def create_spectrum_lists(dir_, pipeline_stage="spintg"):
         fspl.save_as(fn)
         aa.get_python_logger().info("Created file '%s'" % fn)
 
-
-def load_eso_sky():
-    """Loads ESO sky model and returns two spectra: emission, transmission"""
-
-    # From comments in file:
-    # lam:     vacuum wavelength in micron
-    # flux:    sky emission radiance flux in ph/s/m2/micron/arcsec2
-    # dflux1:  sky emission -1sigma flux uncertainty
-    # dflux2:  sky emission +1sigma flux uncertainty
-    # dtrans:  sky transmission
-    # dtrans1: sky transmission -1sigma uncertainty
-    # dtrans2: sky transmission +1sigma uncertainty
-
-
-    path_ = get_aosss_data_path()
-
-    hl = fits.open(os.path.join(path_, "eso-sky.fits"))
-    d = hl[1].data
-
-    x, y0, y1 = d["lam"]*10000, d["flux"], d["trans"]
-
-    sp0 = aa.Spectrum()
-    sp0.x, sp0.y = x, y0
-    sp0.yunit = u.Unit("ph/s/m2/angstrom/arcsec2")
-
-    sp1 = aa.Spectrum()
-    sp1.x, sp1.y = x, y1
-
-    return sp0, sp1
