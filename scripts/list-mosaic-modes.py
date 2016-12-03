@@ -42,4 +42,4 @@ if __name__ == "__main__":
     rows.export_to_txt(table, fobj)
     fobj.seek(0)
     for line in fobj:
-        print(line)
+        print(line.strip('\n'),)

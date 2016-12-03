@@ -13,7 +13,6 @@ import numbers
 import copy
 
 
-@froze_it
 class SpectrumCollection(AttrsPart):
     """Base class, maintains spectra with "more headers"; to/from HDU without much interpretation"""
 

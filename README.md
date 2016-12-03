@@ -38,12 +38,12 @@ that use this API.
 As of today (5th/Nov/2016), it will give you the following:
 
 Graphical applications:
-  - `aosss-wavelength-chart.py` -- Draws a [wavelength] x [various stacked information] chart
+  - `wavelength-chart.py` -- Draws a [wavelength] x [various stacked information] chart
 
 Command-line tools:
-  - `aosss-create-spectrum-lists.py` -- Create several .splist files, grouping spectra by their wavelength vector
+  - `create-spectrum-lists.py` -- Create several .splist files, grouping spectra by their wavelength vector
   - `aosss-create-websim-report.py` -- Creates report for a given set of WEBSIM-COMPASS output files
-  - `aosss-get-compass.py` -- Downloads a number of Websim-Compass simulations
+  - `get-compass.py` -- Downloads a number of Websim-Compass simulations
   - `aosss-programs.py` -- Lists all programs available with `aosss` package
 
 All the programs above can be called with the `--help` or `-h` option for more documentation

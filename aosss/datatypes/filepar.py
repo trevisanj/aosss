@@ -7,7 +7,7 @@ from collections import OrderedDict
 
 @froze_it
 class FilePar(DataFile):
-    """".par" (parameters)file"""
+    """WebSim-COMPASS ".par" (parameters) file"""
 
     description = "Session parameters"
     default_filename = None
@@ -23,8 +23,14 @@ class FilePar(DataFile):
     def _do_load(self, filename):
         data = []  # keyword, value pairs create dict at the end
         with open(filename, "r") as f:
-            for line in f:
+            for i, line in enumerate(f):
                 s = line.strip()
+
+                if i == 0:
+                    # Magic check: is it really a FilePar?
+                    if not s.startswith("# parameter profile"):
+                        raise RuntimeError("Not a '.par' file")
+
                 if s.startswith("#"):
                     continue
                 if len(s) == 0:

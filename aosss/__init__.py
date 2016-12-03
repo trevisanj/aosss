@@ -1,5 +1,6 @@
 # # Imports
 from .lib import *
+from .paths import *
 from .datatypes import *
 from .blocks import *
 from .vis import *

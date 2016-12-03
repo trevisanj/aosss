@@ -238,20 +238,21 @@ def draw(fig, sp_sky, redshift=0):
             break
 
     # # ESO sky model
-    tt = ["Atmospheric emission", "Atmospheric transmission"]
-    y_top = 3
-    SPECTRUM_HEIGHT = 0.9  # Height for the spectrum to span in the chart
-    for i, sp in enumerate(sp_sky):
-        y_bottom = y_top-1+0.01
-        # let ymin=0 (maybe there is no zero transmission in the spectrum,
-        ymax, ymin = max(sp.y), 0
-        y = sp.y/ymax
-        x0, x1, y0, y1 = sp.x[0], sp.x[-1], y_bottom, y_bottom+SPECTRUM_HEIGHT
-        ax.annotate(tt[i], xy=[l0, y_top-.42], color=COLOR_TEXT, verticalalignment="top")
-        ax.fill_between([x0, x1], [y1, y1], [y0, y0], color=COLOR_TELLURIC_BOX)
-        ax.plot(sp.x, (y-ymin)*SPECTRUM_HEIGHT+y_bottom, c=COLOR_SPECTRUM)
+    if sp_sky:
+        tt = ["Atmospheric emission", "Atmospheric transmission"]
+        y_top = 3
+        SPECTRUM_HEIGHT = 0.9  # Height for the spectrum to span in the chart
+        for i, sp in enumerate(sp_sky):
+            y_bottom = y_top-1+0.01
+            # let ymin=0 (maybe there is no zero transmission in the spectrum,
+            ymax, ymin = max(sp.y), 0
+            y = sp.y/ymax
+            x0, x1, y0, y1 = sp.x[0], sp.x[-1], y_bottom, y_bottom+SPECTRUM_HEIGHT
+            ax.annotate(tt[i], xy=[l0, y_top-.42], color=COLOR_TEXT, verticalalignment="top")
+            ax.fill_between([x0, x1], [y1, y1], [y0, y0], color=COLOR_TELLURIC_BOX)
+            ax.plot(sp.x, (y-ymin)*SPECTRUM_HEIGHT+y_bottom, c=COLOR_SPECTRUM)
 
-        y_top -= 1
+            y_top -= 1
 
 
     # # Chemical lines of interest (redshifted or not)
@@ -390,7 +391,7 @@ if __name__ == "__main__":
 
     sp_sky = None
     try:
-        sp_sky = load_eso_sky()
+        sp_sky = ao.load_eso_sky()
     except:
         aa.get_python_logger().exception("Failed to load ESO sky model")
 

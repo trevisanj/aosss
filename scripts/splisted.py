@@ -5,6 +5,7 @@
 import sys
 import argparse
 import astroapi as aa
+import aosss as ao
 import logging
 
 
@@ -17,11 +18,12 @@ if __name__ == "__main__":
     description=__doc__,
     formatter_class=aa.SmartFormatter
     )
-    parser.add_argument('fn', type=str, help="file name, supports '%s' only at the moment" % (FileSpectrumList.description,), nargs='?')
+    parser.add_argument('fn', type=str, help="file name, supports '%s' only at the moment" %
+                                             (ao.FileSpectrumList.description,), nargs='?')
     args = parser.parse_args()
 
     app = aa.get_QApplication([])
-    form = XFileSpectrumList()
+    form = ao.XFileSpectrumList()
 
     if args.fn is not None:
         form.load_filename(args.fn)

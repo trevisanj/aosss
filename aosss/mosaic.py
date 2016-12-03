@@ -4,6 +4,7 @@ Spectrograph modes specifications
 
 from astroapi import AttrsPart
 
+
 class SpectrographMode(AttrsPart):
     """
     Spectrograph mode specification
@@ -39,6 +40,8 @@ class SpectrographMode(AttrsPart):
         self.flag_glao = flag_glao
         self.flag_moao = flag_moao
         self.pixel_size = pixel_size
+
+
 
 modes = [
     SpectrographMode(name="High Multiplex Mode - Visible",
@@ -84,7 +87,7 @@ modes = [
                      pixel_size=40.,
                      ),
     SpectrographMode(name="Inter-Galactic Mode (essential)",
-                     abbreviation="IGM",
+                     abbreviation="IGM (essential)",
                      aperture=3.,
                      multiplex=30,
                      wavelength_range=(4000., 8000.),
@@ -95,7 +98,7 @@ modes = [
                      pixel_size=250.,
                      ),
     SpectrographMode(name="Inter-Galactic Mode (desirable)",
-                     abbreviation="IGM",
+                     abbreviation="IGM (desirable)",
                      aperture=3.,
                      multiplex=30,
                      wavelength_range=(3700., 10000.),

@@ -12,6 +12,7 @@ from astropy.io import fits
 _HEADERS_COMPASS_CUBE = ["CDELT1", "HRFACTOR", "R"]
 
 
+@aa.froze_it
 class SparseCube(SpectrumCollection):
     """
     Spectral cube allocated in a way that will take less space.
