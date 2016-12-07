@@ -1,5 +1,5 @@
 # # Imports
-from .lib import *
+from .liblib import *
 from .paths import *
 from .datatypes import *
 from .blocks import *
@@ -9,7 +9,7 @@ from .report import *
 from .mosaic import *
 from .gui import *
 
-from . import lib
+from . import liblib
 from . import datatypes
 from . import blocks
 from . import vis
