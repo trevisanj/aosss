@@ -406,7 +406,7 @@ class WFileSparseCube(aa.WBase):
                 changed = f_from_f() != f_from_edit()
                 sth = sth or changed
                 if edit == sndr:
-                    aa.style_widget(self.sender(), changed)
+                    aa.style_widget_changed(self.sender(), changed)
             self.set_flag_header_changed(sth)
 
     def on_spectra_edited(self):
@@ -597,7 +597,7 @@ class WFileSparseCube(aa.WBase):
         if not flag:
             # If not changed, removes all eventual yellows
             for _, edit, _, _, _, _, _ in self._map1:
-                aa.style_widget(edit, False)
+                aa.style_widget_changed(edit, False)
 
     def __update_f(self):
         o = self.f
