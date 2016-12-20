@@ -85,7 +85,11 @@ ll = [MyLine("CaHK", 3900),
       MyLine("CaII triplet", [8498, 8542, 8662]),
       MyLine("He II", [1640]),
       MyLine("Lyman limit", 912.),
-      MyLine("O II", 3727, reference="MPuech 2008")
+      MyLine("O II", 3727, reference="MPuech 2008"),
+      MyLine("OH", 3064, reference="Castilho (Thesis) 1999"),
+      MyLine("Be", 3131, reference="Castilho (Thesis) 1999"),
+      MyLine("NH", 3360, reference="Castilho (Thesis) 1999"),
+
       ]
 
 cc = [MyCoverage("HMM", [(4000, 18000)]),

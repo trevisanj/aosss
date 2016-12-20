@@ -99,11 +99,6 @@ class XFileSparseCube(aa.XFileMainWindow):
     # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * #
     # Protected methods to be overriden or used by descendant classes
 
-    def _on_edited(self):
-        index = self._get_tab_index()
-        self.flags_changed[index] = True
-        self._update_tab_texts()
-
     def _filter_on_load(self, f):
         """Converts from FileFullCube to FileSparseCube format, if necessary"""
         f1 = None
