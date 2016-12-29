@@ -5,6 +5,7 @@ setup(
     name = 'aosss',
     packages = find_packages(),
     version = '0.16.10.13',
+    include_package_data=True,
     license = 'GNU GPLv3',
     platforms = 'any',
     description = 'Adaptive Optics Systems Simulation Support',
