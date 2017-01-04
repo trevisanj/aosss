@@ -735,7 +735,11 @@ class WSpectrumCollection(ag.WBase):
             fieldnames_visible = self.collection.fieldnames_visible
             all_headers = fieldnames_visible+FIXED
             nc = len(all_headers)
+<<<<<<< HEAD
             ag.reset_table_widget(t, n, nc)
+=======
+            aa.reset_table_widget(t, n, nc)
+>>>>>>> 5a16bcd049f07cb61b0fe3399cd0ecbdd95d80f0
             t.setHorizontalHeaderLabels(all_headers)
             i = 0
             for sp in spectra:
