@@ -5,11 +5,11 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import numpy as np
 import matplotlib.pyplot as plt
-import astroapi as aa
+import astrogear as ag
 import aosss as ao
 
 
-class XPlotXY(aa.XLogMainWindow):
+class XPlotXY(ag.XLogMainWindow):
     """
     Plots two fields of a SpectrumCollection object in a simple x-y plot
 
@@ -17,7 +17,7 @@ class XPlotXY(aa.XLogMainWindow):
       collection -- SpectrumCollection object
     """
     def __init__(self, collection, *args):
-        aa.XLogMainWindow.__init__(self, *args)
+        ag.XLogMainWindow.__init__(self, *args)
 
         self._refs = []
         def keep_ref(obj):
@@ -59,7 +59,7 @@ class XPlotXY(aa.XLogMainWindow):
         wm = keep_ref(QWidget())
         # wm.setMargin(0)
         lw1.addWidget(wm)
-        self.figure, self.canvas, self.lfig = aa.get_matplotlib_layout(wm)
+        self.figure, self.canvas, self.lfig = ag.get_matplotlib_layout(wm)
 
         cw = self.centralWidget = QWidget()
         cw.setLayout(lw1)
@@ -110,8 +110,8 @@ class XPlotXY(aa.XLogMainWindow):
             plt.plot(xx, yy, lw=2, color='k')
             plt.xlabel(fieldname_x)
             plt.ylabel(fieldname_y)
-            aa.format_BLB()
+            ag.format_BLB()
             self.canvas.draw()
 
         except Exception as e:
-            self.add_log_error("Could draw figure: "+aa.str_exc(e), True)
+            self.add_log_error("Could draw figure: "+ag.str_exc(e), True)

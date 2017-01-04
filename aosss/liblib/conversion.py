@@ -1,5 +1,5 @@
 import re
-import astroapi as aa
+import astrogear as ag
 
 __all__ = ["compile_simids"]
 
@@ -27,7 +27,7 @@ def compile_simids(specs):
             else:
                 numbers.append(int(candidate))
         except Exception as E:
-            aa.get_python_logger().info("SKIPPED Argument '%s': %s" % (candidate, str(E)))
+            ag.get_python_logger().info("SKIPPED Argument '%s': %s" % (candidate, str(E)))
     numbers = set(numbers)
     simids = ["C%06d" % n for n in numbers]
 

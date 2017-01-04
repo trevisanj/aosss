@@ -1,7 +1,7 @@
 __all__ = ["FileSparseCube"]
 
 
-from astroapi import DataFile, froze_it, overwrite_fits
+from astrogear import DataFile, froze_it, overwrite_fits
 from . import SparseCube
 from astropy.io import fits
 

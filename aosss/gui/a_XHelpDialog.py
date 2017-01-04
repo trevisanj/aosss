@@ -3,10 +3,10 @@ __all__ = ["XHelpDialog"]
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-import astroapi as aa
+import astrogear as ag
 
 
-class XHelpDialog(aa.XLogDialog):
+class XHelpDialog(ag.XLogDialog):
     """
     Dialog with two areas: Fields Area and Help Area
 
@@ -23,7 +23,7 @@ class XHelpDialog(aa.XLogDialog):
     """
 
     def __init__(self, *args):
-        aa.XLogDialog.__init__(self, *args)
+        ag.XLogDialog.__init__(self, *args)
 
         def keep_ref(obj):
             self._refs.append(obj)
@@ -86,7 +86,7 @@ class XHelpDialog(aa.XLogDialog):
         # ### Text Edit below combobox
         x = self.textEdit = QTextEdit()
         x.setReadOnly(True)
-        x.setStyleSheet("QTextEdit {color: %s}" % aa.COLOR_DESCR)
+        x.setStyleSheet("QTextEdit {color: %s}" % ag.COLOR_DESCR)
         lymain.addWidget(x)
 
     def combobox_changed(self):

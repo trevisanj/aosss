@@ -10,17 +10,17 @@ All spectra in each .splist file must have the same wavelength vector
 import argparse
 import logging
 import aosss
-import astroapi as aa
+import astrogear as ag
 
 
-aa.logging_level = logging.INFO
-aa.flag_log_file = True
+ag.logging_level = logging.INFO
+ag.flag_log_file = True
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
      description=__doc__,
-     formatter_class=aa.SmartFormatter
+     formatter_class=ag.SmartFormatter
     )
 
     parser.add_argument('--stage', type=str, nargs='?', default="spintg",

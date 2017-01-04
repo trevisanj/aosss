@@ -1,7 +1,7 @@
 __all__ = ["SparseCube"]
 
 
-import astroapi as aa
+import astrogear as ag
 from . import SpectrumCollection, FullCube
 import numpy as np
 from scipy.interpolate import interp1d
@@ -12,7 +12,7 @@ from astropy.io import fits
 _HEADERS_COMPASS_CUBE = ["CDELT1", "HRFACTOR", "R"]
 
 
-@aa.froze_it
+@ag.froze_it
 class SparseCube(SpectrumCollection):
     """
     Spectral cube allocated in a way that will take less space.
@@ -171,7 +171,7 @@ class SparseCube(SpectrumCollection):
                     #                        try:
                     #                            self.__setattr__(na0, hdu.header[na1])
                     #                        except:
-                    #                            aa.get_python_logger().exception("Failed setting '%s' = '%s'" % (na0, na1))
+                    #                            ag.get_python_logger().exception("Failed setting '%s' = '%s'" % (na0, na1))
                     #
                     #                else:
                     #                    sp = Spectrum()
@@ -228,7 +228,7 @@ class SparseCube(SpectrumCollection):
         dims = len(wl_new), self.height, self.width
         wcube.create1(self.R, dims, self.hr_pix_size, self.hrfactor)
         for sp in self.spectra:
-            ii0 = aa.BSearchCeil(wl_new, sp.x[0])
+            ii0 = ag.BSearchCeil(wl_new, sp.x[0])
             wcube.hdu.data[ii0:ii0 + len(sp), sp.pixel_y, sp.pixel_x] = sp.y
         wcube.set_wavelength(self.wavelength)
         return wcube
@@ -270,7 +270,7 @@ class SparseCube(SpectrumCollection):
 
         **Note** coordinate (x=0, y=0) corresponds to lower left pixel of cube cross-section
         """
-        assert isinstance(sp, aa.Spectrum)
+        assert isinstance(sp, ag.Spectrum)
         # assert self.flag_created, "Cube has not been created yet"
 
         if len(sp.x) < 2:
@@ -304,7 +304,7 @@ class SparseCube(SpectrumCollection):
             flag_copy -- disable vector copies to speed up but don't the spectrum
         """
 
-        ret = aa.Spectrum()
+        ret = ag.Spectrum()
         if len(self.spectra) > 0:
             any_ = False
             for sp in self.spectra:
@@ -313,7 +313,7 @@ class SparseCube(SpectrumCollection):
                         ret.x = self.wavelength if not flag_copy else np.copy(self.wavelength)
                         ret.y = np.zeros(len(ret.x))
                         any_ = True
-                    ii0 = aa.BSearchCeil(ret.x, sp.x[0])
+                    ii0 = ag.BSearchCeil(ret.x, sp.x[0])
                     ret.y[ii0:ii0 + len(sp)] = sp.y
         return ret
 
@@ -343,9 +343,9 @@ class SparseCube(SpectrumCollection):
         wl = self.wavelength = np.arange(wlmin, wlmax + dl, dl)
 
         for sp in self.spectra:
-            i0 = aa.BSearchCeil(wl, sp.x[0])
+            i0 = ag.BSearchCeil(wl, sp.x[0])
             assert i0 != -1, "BSearchCeil(wl, sp.x[0]) FAILED"
-            i1 = aa.BSearchFloor(wl, sp.x[-1])
+            i1 = ag.BSearchFloor(wl, sp.x[-1])
             assert i1 != -1, "BSearchFloor(wl, sp.x[-1]) FAILED"
 
             # TODO account for different delta lambda

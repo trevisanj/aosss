@@ -4,18 +4,18 @@
 
 import sys
 import argparse
-import astroapi as aa
+import astrogear as ag
 import logging
 
 
-aa.logging_level = logging.INFO
-aa.flag_log_file = True
+ag.logging_level = logging.INFO
+ag.flag_log_file = True
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
     description=__doc__,
-    formatter_class=aa.SmartFormatter
+    formatter_class=ag.SmartFormatter
     )
     parser.add_argument('fn', type=str, nargs='?',
                         #default=FileSparseCube.default_filename,
@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    app = aa.get_QApplication([])
+    app = ag.get_QApplication([])
     form = XFileSparseCube()
 
     if args.fn is not None:

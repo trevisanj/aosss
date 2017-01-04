@@ -23,16 +23,16 @@ import sys
 import glob
 import logging
 import aosss
-import astroapi as aa
+import astrogear as ag
 
 
-aa.logging_level = logging.INFO
-aa.flag_log_file = True
+ag.logging_level = logging.INFO
+ag.flag_log_file = True
 
 
 
 def print2(*args):
-  aa.get_python_logger().info(*args)
+  ag.get_python_logger().info(*args)
 
 
 if __name__ == "__main__":
@@ -40,7 +40,7 @@ if __name__ == "__main__":
         print2("OS is '"+os.name+"', this script is only for 'posix' OS's, sorry.")
         sys.exit()
 
-    parser = argparse.ArgumentParser(description=__doc__, formatter_class=aa.SmartFormatter)
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=ag.SmartFormatter)
     parser.add_argument('--max', metavar='N', type=int, default=100,
                         help='Maximum number of simulations to get')
     parser.add_argument('--stage', type=str, nargs='?', default="all",

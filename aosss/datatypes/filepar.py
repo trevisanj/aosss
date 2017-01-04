@@ -1,7 +1,7 @@
 __all__ = ["FilePar"]
 
 
-from astroapi import DataFile, froze_it
+from astrogear import DataFile, froze_it
 from collections import OrderedDict
 
 

@@ -7,7 +7,7 @@ __all__ = ["SpectrumList"]
 
 
 from . import SpectrumCollection, FullCube
-from astroapi import froze_it, Spectrum, cut_spectrum
+from astrogear import froze_it, Spectrum, cut_spectrum
 from astropy.io import fits
 import numpy as np
 

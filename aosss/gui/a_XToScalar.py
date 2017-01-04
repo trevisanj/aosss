@@ -4,7 +4,7 @@ __all__ = ["XToScalar"]
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from .a_XHelpDialog import *
-import astroapi as aa
+import astrogear as ag
 import aosss as ao
 
 
@@ -36,10 +36,10 @@ class XToScalar(XHelpDialog):
         self.labelHelpTopics.setText("&Available operations")
 
         # self.help_data = collect_doc(blocks.sp2scalar, base_class=blocks.baseblocks.ToScalar)
-        self.help_data = aa.collect_doc(ao.blocks.toscalar, base_class=ao.blocks.base.ToScalar)
+        self.help_data = ag.collect_doc(ao.blocks.toscalar, base_class=ao.blocks.base.ToScalar)
         self.comboBox.addItems([x[0] for x in self.help_data])
         ###
-        label = QLabel(aa.enc_name_descr("O&peration", "See help below"))
+        label = QLabel(ag.enc_name_descr("O&peration", "See help below"))
         label.setAlignment(Qt.AlignRight)
         cb = self.cb_operation = QComboBox()
         label.setBuddy(cb)
@@ -53,20 +53,20 @@ class XToScalar(XHelpDialog):
         # label.setBuddy(edit)
         # self.grid.addWidget(label, 0, 0)
         # self.grid.addWidget(edit, 0, 1)
-        label = keep_ref(QLabel(aa.enc_name_descr("&Target Field Name", "Leave blank to use Function Name")))
+        label = keep_ref(QLabel(ag.enc_name_descr("&Target Field Name", "Leave blank to use Function Name")))
         label.setAlignment(Qt.AlignRight)
         edit = self.editFieldName = QLineEdit("")
         label.setBuddy(edit)
         self.grid.addWidget(label, 1, 0)
         self.grid.addWidget(edit, 1, 1)
 
-        aa.place_center(self, 800, 600)
+        ag.place_center(self, 800, 600)
 
 
     def accept(self):
         try:
             expr = str(self.cb_operation.currentText())
-            symbols_available = aa.module_to_dict(ao.blocks.toscalar)
+            symbols_available = ag.module_to_dict(ao.blocks.toscalar)
             import numpy as np
             symbols_available["np"] = np
             block = eval(expr.strip(), symbols_available)
@@ -76,8 +76,8 @@ class XToScalar(XHelpDialog):
 
             self.block = block
             fieldname = str(self.editFieldName.text()).strip()
-            fieldname = aa.expr_to_fieldname(expr) if len(fieldname) == 0 else fieldname
-            self.fieldname = aa.valid_fits_key(fieldname)
+            fieldname = ag.expr_to_fieldname(expr) if len(fieldname) == 0 else fieldname
+            self.fieldname = ag.valid_fits_key(fieldname)
 
             # Saves new operation on close (if evaluated successfully)
             if not expr in self.previous_operations:
@@ -87,5 +87,5 @@ class XToScalar(XHelpDialog):
 
             return QDialog.accept(self)
         except Exception as e:
-            self.add_log_error(aa.str_exc(e), True)
+            self.add_log_error(ag.str_exc(e), True)
             return False

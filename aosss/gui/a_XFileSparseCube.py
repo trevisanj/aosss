@@ -12,18 +12,18 @@ from itertools import product, combinations, cycle
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from .a_WFileSparseCube import *
-import astroapi as aa
+import astrogear as ag
 import aosss as ao
 
-class XFileSparseCube(aa.XFileMainWindow):
+class XFileSparseCube(ag.XFileMainWindow):
     def __init__(self, parent=None, fileobj=None):
-        aa.XFileMainWindow.__init__(self, parent)
+        ag.XFileMainWindow.__init__(self, parent)
 
         def keep_ref(obj):
             self._refs.append(obj)
             return obj
 
-        self.setWindowTitle(aa.get_window_title("Data Cube Editor"))
+        self.setWindowTitle(ag.get_window_title("Data Cube Editor"))
 
 
         # # Synchronized sequences
@@ -63,7 +63,7 @@ class XFileSparseCube(aa.XFileMainWindow):
 
         if len(ff) > 0:
             s = "Unsaved changes\n  -"+("\n  -".join(ff))+"\n\nAre you sure you want to exit?"
-            flag_exit = aa.are_you_sure(True, event, self, "Unsaved changes", s)
+            flag_exit = ag.are_you_sure(True, event, self, "Unsaved changes", s)
         if flag_exit:
             plt.close("all")
 
@@ -106,7 +106,7 @@ class XFileSparseCube(aa.XFileMainWindow):
             f1 = ao.FileSparseCube()
             f1.sparsecube.from_full_cube(f.wcube)
         if f1:
-            f1.filename = aa.add_bits_to_path(f.filename, "imported-from-",
+            f1.filename = ag.add_bits_to_path(f.filename, "imported-from-",
                                            os.path.splitext(ao.FileSparseCube.default_filename)[1])
             f = f1
         return f

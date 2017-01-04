@@ -23,11 +23,11 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import logging
 import aosss
-import astroapi as aa
+import astrogear as ag
 
 
-aa.logging_level = logging.INFO
-aa.flag_log_file = True
+ag.logging_level = logging.INFO
+ag.flag_log_file = True
 
 
 
@@ -102,7 +102,7 @@ cc = [MyCoverage("HMM", [(4000, 18000)]),
 
 # ###############################################################################
 # def draw(fig, telluric_spectra, redshift=0):
-#     l0, lf = 3000, aa.get_ubv_bandpass("K").lf
+#     l0, lf = 3000, ag.get_ubv_bandpass("K").lf
 #     x =  np.logspace(np.log10(l0), np.log10(lf), 1000, base=10.)
 #
 #     ax = fig.gca()
@@ -134,7 +134,7 @@ cc = [MyCoverage("HMM", [(4000, 18000)]),
 #
 #     # # bands
 #     #   =====
-#     for band_name, bandpass in aa.get_ubv_bandpasses_dict().items():
+#     for band_name, bandpass in ag.get_ubv_bandpasses_dict().items():
 #         y = bandpass.ufunc()(x)*.75
 #         plt.plot(x, y, label=band_name, c=COLOR_BAND)
 #         idx_max = np.argmax(y)
@@ -198,7 +198,7 @@ cc = [MyCoverage("HMM", [(4000, 18000)]),
 
 ###############################################################################
 def draw(fig, sp_sky, redshift=0):
-    l0, lf = 3000, aa.get_ubv_bandpass("K").lf
+    l0, lf = 3000, ag.get_ubv_bandpass("K").lf
     x =  np.logspace(np.log10(l0), np.log10(lf), 1000, base=10.)
 
     ax = fig.gca()
@@ -230,7 +230,7 @@ def draw(fig, sp_sky, redshift=0):
 
     # # bands
     #   =====
-    for band_name, bandpass in aa.get_ubv_bandpasses_dict().items():
+    for band_name, bandpass in ag.get_ubv_bandpasses_dict().items():
         y = bandpass.ufunc()(x)*.75
         plt.plot(x, y, label=band_name, c=COLOR_BAND)
         idx_max = np.argmax(y)
@@ -335,7 +335,7 @@ class RedshiftWindow(QMainWindow):
         wm = keep_ref(QWidget())
         # wm.setMargin(0)
         lw1.addWidget(wm)
-        self.figure, self.canvas, self.lfig = aa.get_matplotlib_layout(wm)
+        self.figure, self.canvas, self.lfig = ag.get_matplotlib_layout(wm)
 
         cw = self.centralWidget = QWidget()
         cw.setLayout(lw1)
@@ -359,7 +359,7 @@ class RedshiftWindow(QMainWindow):
             draw(fig, self.sp_sky, self.get_redshift())
             self.canvas.draw()
         except Exception as E:
-            aa.get_python_logger().exception("Could not draw figure")
+            ag.get_python_logger().exception("Could not draw figure")
 
 
 
@@ -367,7 +367,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(
      description=__doc__,
-     formatter_class=aa.SmartFormatter
+     formatter_class=ag.SmartFormatter
     )
     parser.add_argument('--plot', action='store_const',
                         const=True, default=False,
@@ -383,11 +383,11 @@ if __name__ == "__main__":
     # for fn in telluric_filenames:
     #     path_ = get_aosss_data_path(fn)
     #     try:
-    #         fileobj = aa.FileSpectrumFits()
+    #         fileobj = ag.FileSpectrumFits()
     #         fileobj.load(path_)
     #         telluric_spectra.append(fileobj.spectrum)
     #     except:
-    #         aa.get_python_logger().exception("Failed to load '%s'" % path_)
+    #         ag.get_python_logger().exception("Failed to load '%s'" % path_)
     #
     # # Loads telluric features
     # telluric_filenames = ["telluric-5000-10000.fits", "atmos_S_H.fits",
@@ -397,7 +397,7 @@ if __name__ == "__main__":
     try:
         sp_sky = ao.load_eso_sky()
     except:
-        aa.get_python_logger().exception("Failed to load ESO sky model")
+        ag.get_python_logger().exception("Failed to load ESO sky model")
 
     if args.plot:
         fig = plt.figure()
@@ -405,7 +405,7 @@ if __name__ == "__main__":
         draw(fig, sp_sky)
         plt.show()
     else:
-        app = aa.get_QApplication([])
+        app = ag.get_QApplication([])
         form = RedshiftWindow(sp_sky)  # telluric_spectra)
         form.show()
         sys.exit(app.exec_())

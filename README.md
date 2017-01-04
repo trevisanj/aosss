@@ -53,16 +53,16 @@ All the programs above can be called with the `--help` or `-h` option for more d
 ## 2.0 Requirements
 
   - Python 3
-  - `astroapi` (another Python package) (see below)
+  - `astrogear` (another Python package) (see below)
 
 **Note** Although it can run on any OS platform, the following instructions 
 target Debian-based Linux users (such as Ubuntu).
 
 ## 2.1 First-time install
 
-### 2.1.1 Install `astroapi` package
+### 2.1.1 Install `astrogear` package
  
- Follow the link to http://github.com/trevisanj/astroapi and follow installation instructions
+ Follow the link to http://github.com/trevisanj/astrogear and follow installation instructions
    
 ### 2.1.2 Clone this repository
 

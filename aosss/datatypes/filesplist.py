@@ -6,7 +6,7 @@ __all__ = ["FileSpectrumList"]
 
 
 from . import SpectrumList
-from astroapi import DataFile, froze_it, overwrite_fits
+from astrogear import DataFile, froze_it, overwrite_fits
 from astropy.io import fits
 
 

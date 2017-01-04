@@ -8,7 +8,7 @@ from .misc import *
 import numpy as np
 import traceback
 import glob
-import astroapi as aa
+import astrogear as ag
 import aosss as ao
 
 
@@ -135,7 +135,7 @@ def create_simulation_report(simid, dir_="."):
                 filepar.load(fn_par)
             except Exception as E:
                 flag_par_ok = False
-                aa.get_python_logger().exception("Failed to load file '%s'" % fn_par)
+                ag.get_python_logger().exception("Failed to load file '%s'" % fn_par)
                 html.write("(" + str(E) + ")")
 
             if flag_par_ok:
@@ -168,7 +168,7 @@ def create_simulation_report(simid, dir_="."):
                         s_h = repr(hdul[0].header)
                 html.write("<pre>%s</pre>\n" % s_h)
             except:
-                aa.get_python_logger().exception("Failed to dump header from file '%s'" % item.filename)
+                ag.get_python_logger().exception("Failed to dump header from file '%s'" % item.filename)
                 html.write(_color("Header dump failed", "red"))
             html.write("</td>\n")
 
@@ -185,15 +185,15 @@ def create_simulation_report(simid, dir_="."):
                     sparsecube = ao.SparseCube()
                     sparsecube.from_full_cube(item.fileobj.wcube)
                     ao.draw_cube_3d(ax, sparsecube)
-                    aa.set_figure_size(fig, FIGURE_WIDTH, 480. / 640 * FIGURE_WIDTH)
+                    ag.set_figure_size(fig, FIGURE_WIDTH, 480. / 640 * FIGURE_WIDTH)
                     fig.tight_layout()
-                elif isinstance(item.fileobj, aa.FileSpectrum):
+                elif isinstance(item.fileobj, ag.FileSpectrum):
                     if item.keyword == "spintg":
                         sp_ref = item.fileobj.spectrum
-                    fig = aa.draw_spectra([item.fileobj.spectrum])
-                    aa.set_figure_size(fig, FIGURE_WIDTH, 270. / 640 * FIGURE_WIDTH)
+                    fig = ag.draw_spectra([item.fileobj.spectrum])
+                    ag.set_figure_size(fig, FIGURE_WIDTH, 270. / 640 * FIGURE_WIDTH)
                     fig.tight_layout()
-                elif isinstance(item.fileobj, aa.FileFits):
+                elif isinstance(item.fileobj, ag.FileFits):
                     if item.keyword == "mask_fiber_in_aperture":
                         fig = _draw_mask(item.fileobj)
                     elif item.keyword == "cube_seeing":
@@ -214,7 +214,7 @@ def create_simulation_report(simid, dir_="."):
                 # html.write("hello")
 
             except Exception as E:
-                aa.get_python_logger().exception("Failed to load file '%s'" % item.filename)
+                ag.get_python_logger().exception("Failed to load file '%s'" % item.filename)
                 html.write(_color("Visualization failed: "+str(E), "red"))
                 html.write('<pre style="text-align: left">\n'+traceback.format_exc()+"</pre>\n")
             html.write("</td>\n")
@@ -229,7 +229,7 @@ def create_simulation_report(simid, dir_="."):
                 with open(fn_log, "r") as file_log:
                     html.write(file_log.read())
             except Exception as E:
-                aa.get_python_logger().exception("Failed to dump log file '%s'" % fn_log)
+                ag.get_python_logger().exception("Failed to dump log file '%s'" % fn_log)
                 html.write("("+str(E)+")")
             html.write("</pre>\n")
         else:
@@ -249,7 +249,7 @@ def _draw_mask(filefits):
     HEIGHT = 300.
     nr, nc = hdu.data.shape
     width = HEIGHT/nr*nc
-    aa.set_figure_size(fig, width, HEIGHT)
+    ag.set_figure_size(fig, width, HEIGHT)
     plt.tight_layout()
     return fig
 
@@ -266,7 +266,7 @@ def _draw_field(filefits):
     HEIGHT = 300.
     nr, nc = grayscale.shape
     width = HEIGHT/nr*nc
-    aa.set_figure_size(fig, width, HEIGHT)
+    ag.set_figure_size(fig, width, HEIGHT)
     plt.tight_layout()
     return fig
 

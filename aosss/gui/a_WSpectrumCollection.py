@@ -7,18 +7,18 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from .a_XScaleSpectrum import *
 from astropy import units as u
-import astroapi as aa
+import astrogear as ag
 import aosss as ao
 
 
-class WSpectrumCollection(aa.WBase):
+class WSpectrumCollection(ag.WBase):
     """Editor for SpectrumCollection objects"""
 
     # argument0 -- flag_changed_header
     edited = pyqtSignal(bool)
 
     def __init__(self, parent):
-        aa.WBase.__init__(self, parent)
+        ag.WBase.__init__(self, parent)
 
         def keep_ref(obj):
             self._refs.append(obj)
@@ -33,47 +33,47 @@ class WSpectrumCollection(aa.WBase):
 
         # # Creates actions
 
-        action = self.action_add_spectra = QAction(aa.get_icon("list-add"), "&Add spectra...", self)
+        action = self.action_add_spectra = QAction(ag.get_icon("list-add"), "&Add spectra...", self)
         action.setToolTip("Opens a 'Open File' window where multiple files can be selected.\n"
                           "Accepts any supported spectral type, and also other Spectrum Collection files.\n"
                           "Files are added in alphabetical order.")
         action.triggered.connect(self.on_add_spectra)
 
-        action = self.action_all_group = QAction(aa.get_icon("group-by"), "&Group...", self)
+        action = self.action_all_group = QAction(ag.get_icon("group-by"), "&Group...", self)
         action.triggered.connect(self.on_all_group)
 
-        # action = self.action_all_use_spectrum_block = QAction(aa.get_icon("go-next"), "&Transform...", self)
+        # action = self.action_all_use_spectrum_block = QAction(ag.get_icon("go-next"), "&Transform...", self)
         # action.triggered.connect(self.on_all_use_spectrum_block)
 
-        action = self.action_all_to_scalar = QAction(aa.get_icon("go-next"), "To &Scalar...", self)
+        action = self.action_all_to_scalar = QAction(ag.get_icon("go-next"), "To &Scalar...", self)
         action.triggered.connect(self.on_all_to_scalar)
 
-        action = self.action_all_plot_xy = QAction(aa.get_icon("visualization"), "X-&Y Plot", self)
+        action = self.action_all_plot_xy = QAction(ag.get_icon("visualization"), "X-&Y Plot", self)
         action.triggered.connect(self.on_plot_xy)
 
-        action = self.action_all_plot_xyz = QAction(aa.get_icon("visualization"), "X-Y-&Z Plot", self)
+        action = self.action_all_plot_xyz = QAction(ag.get_icon("visualization"), "X-Y-&Z Plot", self)
         action.triggered.connect(self.on_plot_xyz)
 
-        action = self.action_all_export_csv = QAction(aa.get_icon("document-export"), "&Export CSV...", self)
+        action = self.action_all_export_csv = QAction(ag.get_icon("document-export"), "&Export CSV...", self)
         action.triggered.connect(self.on_all_export_csv)
 
-        action = self.action_sel_use_spectrum_block = QAction(aa.get_icon("go-next"), "&Transform...", self)
+        action = self.action_sel_use_spectrum_block = QAction(ag.get_icon("go-next"), "&Transform...", self)
         action.setToolTip("Selected spectra will be deleted and transformed spectra will be added at the end")
         action.triggered.connect(self.on_sel_use_spectrum_block)
 
-        action = self.action_sel_plot_stacked = QAction(aa.get_icon("visualization"), "Plot &Stacked", self)
+        action = self.action_sel_plot_stacked = QAction(ag.get_icon("visualization"), "Plot &Stacked", self)
         action.triggered.connect(self.on_sel_plot_stacked)
 
-        action = self.action_sel_plot_overlapped = QAction(aa.get_icon("visualization"), "Plot &Overlapped", self)
+        action = self.action_sel_plot_overlapped = QAction(ag.get_icon("visualization"), "Plot &Overlapped", self)
         action.triggered.connect(self.on_sel_plot_overlapped)
 
-        action = self.action_sel_open_in_new = QAction(aa.get_icon("window-new"), "Open in new window", self)
+        action = self.action_sel_open_in_new = QAction(ag.get_icon("window-new"), "Open in new window", self)
         action.triggered.connect(self.on_sel_open_in_new)
 
-        action = self.action_sel_delete = QAction(aa.get_icon("list-remove"), "Delete", self)
+        action = self.action_sel_delete = QAction(ag.get_icon("list-remove"), "Delete", self)
         action.triggered.connect(self.on_sel_delete)
 
-        action = self.action_curr_scale = QAction(aa.get_icon("zoom-fit"), "Scale to Magnitude...", self)
+        action = self.action_curr_scale = QAction(ag.get_icon("zoom-fit"), "Scale to Magnitude...", self)
         action.triggered.connect(self.on_curr_scale)
 
 
@@ -112,7 +112,7 @@ class WSpectrumCollection(aa.WBase):
         #   - The second column contains panels of buttons layed horizontally
 
 
-        wtoolboxes = keep_ref(aa.WCollapsiblePanel())
+        wtoolboxes = keep_ref(ag.WCollapsiblePanel())
         lwmain.addWidget(wtoolboxes)
         wtoolboxes.label.setText("<b>Tools</b>")
         wtoolboxes.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -200,7 +200,7 @@ class WSpectrumCollection(aa.WBase):
         a.setSelectionBehavior(QAbstractItemView.SelectRows)
         a.setAlternatingRowColors(True)
         a.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.EditKeyPressed)
-        a.setFont(aa.MONO_FONT)
+        a.setFont(ag.MONO_FONT)
         a.installEventFilter(self)
         a.setContextMenuPolicy(Qt.CustomContextMenu)
         a.customContextMenuRequested.connect(self.on_twSpectra_customContextMenuRequested)
@@ -217,7 +217,7 @@ class WSpectrumCollection(aa.WBase):
 
         # # Final adjustments
         self.setEnabled(False)  # disabled until load() is called
-        aa.style_checkboxes(self)
+        ag.style_checkboxes(self)
         self.flag_process_changes = True
         self.add_log("Welcome from %s.__init__()" % (self.__class__.__name__))
 
@@ -509,7 +509,7 @@ class WSpectrumCollection(aa.WBase):
                 with open(str(new_filename), "w") as file:
                     file.writelines(lines)
             except Exception as E:
-                msg = str("Error exporting text file: %s" % aa.str_exc(E))
+                msg = str("Error exporting text file: %s" % ag.str_exc(E))
                 self.add_log_error(msg, True)
                 raise
 
@@ -547,13 +547,13 @@ class WSpectrumCollection(aa.WBase):
     def on_sel_plot_stacked(self):
         sspp = self.get_selected_spectra()
         if len(sspp) > 0:
-            aa.plot_spectra(sspp)
+            ag.plot_spectra(sspp)
 
 
     def on_sel_plot_overlapped(self):
         sspp = self.get_selected_spectra()
         if len(sspp) > 0:
-            aa.plot_spectra_overlapped(sspp)
+            ag.plot_spectra_overlapped(sspp)
 
 
     def on_sel_open_in_new(self):
@@ -630,7 +630,7 @@ class WSpectrumCollection(aa.WBase):
             except Exception as E:
                 # restores original value
                 item.setText(str(self.collection.spectra[row].more_headers.get(name)))
-                self.add_log_error(aa.str_exc(E), True)
+                self.add_log_error(ag.str_exc(E), True)
                 raise
 
             finally:
@@ -652,17 +652,17 @@ class WSpectrumCollection(aa.WBase):
         if not filenames:
             return
 
-        # classes = aa.classes_sp()+[ao.FileSpectrumList, ao.FileSparseCube]
+        # classes = ag.classes_sp()+[ao.FileSpectrumList, ao.FileSparseCube]
         classes = ao.classes_collection()
         report, successful, failed = ["<b>Results</b>"], [], []
         for filename in filenames:
             filename = str(filename)
             basename = os.path.basename(filename)
-            file = aa.load_with_classes(filename, classes)
+            file = ag.load_with_classes(filename, classes)
             try:
                 if file is None:
                     raise RuntimeError("Could not load file")
-                if isinstance(file, aa.FileSpectrum):
+                if isinstance(file, ag.FileSpectrum):
                     self.collection.add_spectrum(file.spectrum)
                 elif isinstance(file, ao.FileSpectrumList):
                     self.collection.merge_with(file.splist)
@@ -671,8 +671,8 @@ class WSpectrumCollection(aa.WBase):
                 successful.append("  - %s" % basename)
             except Exception as e:
                 failed.append('&nbsp;&nbsp;- %s: %s' % (basename, str(e)))
-                s = "Error adding file '%s': %s" % (basename, aa.str_exc(e))
-                aa.get_python_logger().exception(s)
+                s = "Error adding file '%s': %s" % (basename, ag.str_exc(e))
+                ag.get_python_logger().exception(s)
                 self.add_log_error(s)
 
         if len(successful) > 0:
@@ -689,7 +689,7 @@ class WSpectrumCollection(aa.WBase):
         if flag_emit:
             self.edited.emit(False)
 
-        aa.show_message("<br>".join(report))
+        ag.show_message("<br>".join(report))
 
 
     # def on_merge_with(self):
@@ -705,7 +705,7 @@ class WSpectrumCollection(aa.WBase):
     #             self.__update_gui()
     #             flag_emit = True
     #     except Exception as E:
-    #         msg = "Error merging: %s" % aa.str_exc(E)
+    #         msg = "Error merging: %s" % ag.str_exc(E)
     #         self.add_log_error(msg, True)
     #         raise
     #
@@ -735,7 +735,7 @@ class WSpectrumCollection(aa.WBase):
             fieldnames_visible = self.collection.fieldnames_visible
             all_headers = fieldnames_visible+FIXED
             nc = len(all_headers)
-            aa.reset_table_widget(t, n, nc)
+            ag.reset_table_widget(t, n, nc)
             t.setHorizontalHeaderLabels(all_headers)
             i = 0
             for sp in spectra:

@@ -1,7 +1,7 @@
 __all__ = ["SLB_UseSpectrumBlock", "SLB_ExtractContinua"]
 
 import numpy as np
-import astroapi as aa
+import astrogear as ag
 import aosss as ao
 import copy
 from .base import *

@@ -2,7 +2,7 @@
 Spectrograph modes specifications
 """
 
-from astroapi import AttrsPart
+from astrogear import AttrsPart
 
 
 class SpectrographMode(AttrsPart):

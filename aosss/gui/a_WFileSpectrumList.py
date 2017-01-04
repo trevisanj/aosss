@@ -12,10 +12,10 @@ from itertools import product, combinations, cycle
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from .a_WSpectrumCollection import *
-import astroapi as aa
+import astrogear as ag
 import aosss as ao
 
-class WFileSpectrumList(aa.WBase):
+class WFileSpectrumList(ag.WBase):
     """
     FileSpectrumList editor widget.
 
@@ -28,7 +28,7 @@ class WFileSpectrumList(aa.WBase):
         return self.wsptable.menu_actions
 
     def __init__(self, parent):
-        aa.WBase.__init__(self, parent)
+        ag.WBase.__init__(self, parent)
 
         def keep_ref(obj):
             self._refs.append(obj)
@@ -70,7 +70,7 @@ class WFileSpectrumList(aa.WBase):
         # ### Tabbed widget occupying left of horizontal splitter (OPTIONS TAB)
         tt0 = self.tabWidgetOptions = QTabWidget(self)
         lwfilett0.addWidget(tt0)
-        tt0.setFont(aa.MONO_FONT)
+        tt0.setFont(ag.MONO_FONT)
         tt0.currentChanged.connect(self.current_tab_changed_options)
 
         # #### Tab: Vertical Splitter between "Place Spectrum" and "Existing Spectra"
@@ -114,7 +114,7 @@ class WFileSpectrumList(aa.WBase):
         # for i, (label, edit, name, short_descr, long_descr) in enumerate(pp):
         #     # label.setStyleSheet("QLabel {text-align: right}")
         #     assert isinstance(label, QLabel)
-        #     label.setText(aa.enc_name_descr(name, short_descr))
+        #     label.setText(ag.enc_name_descr(name, short_descr))
         #     label.setAlignment(Qt.AlignRight)
         #     lg.addWidget(label, i, 0)
         #     lg.addWidget(edit, i, 1)
@@ -190,7 +190,7 @@ class WFileSpectrumList(aa.WBase):
         for i, (label, edit, name, short_descr, long_descr, f_from_f, f_from_edit) in enumerate(pp):
             # label.setStyleSheet("QLabel {text-align: right}")
             assert isinstance(label, QLabel)
-            label.setText(aa.enc_name_descr(name, short_descr))
+            label.setText(ag.enc_name_descr(name, short_descr))
             label.setAlignment(Qt.AlignRight)
             lg.addWidget(label, i, 0)
             lg.addWidget(edit, i, 1)
@@ -239,7 +239,7 @@ class WFileSpectrumList(aa.WBase):
 
         # # ### Tabbed widget occupying right of horizontal splitter
         # tt1 = self.tabWidgetVis = QTabWidget(self)
-        # tt1.setFont(aa.MONO_FONT)
+        # tt1.setFont(ag.MONO_FONT)
         # tt1.currentChanged.connect(self.current_tab_changed_vis)
         #
         # # #### Tab containing 3D plot representation
@@ -255,7 +255,7 @@ class WFileSpectrumList(aa.WBase):
 
 
         self.setEnabled(False)  # disabled until load() is called
-        aa.style_checkboxes(self)
+        ag.style_checkboxes(self)
         self.flag_process_changes = True
         self.add_log("Welcome from %s.__init__()" % (self.__class__.__name__))
 
@@ -277,16 +277,16 @@ class WFileSpectrumList(aa.WBase):
         flag_emit = False
         try:
             ss = "fieldnames"
-            ff = aa.eval_fieldnames(str(self.edit_fieldnames.toPlainText()))
+            ff = ag.eval_fieldnames(str(self.edit_fieldnames.toPlainText()))
             splist.fieldnames = ff
             self.__update_gui(True)
             flag_emit = True
         except Exception as E:
             flag_error = True
             if ss:
-                emsg = "Field '%s': %s" % (ss, aa.str_exc(E))
+                emsg = "Field '%s': %s" % (ss, ag.str_exc(E))
             else:
-                emsg = aa.str_exc(E)
+                emsg = ag.str_exc(E)
             self.add_log_error(emsg)
         if flag_emit:
             self.__emit_if()
@@ -317,7 +317,7 @@ class WFileSpectrumList(aa.WBase):
                 changed = f_from_f() != f_from_edit()
                 sth = sth or changed
                 if edit == sndr:
-                    aa.style_widget_changed(self.sender(), changed)
+                    ag.style_widget_changed(self.sender(), changed)
             self.set_flag_header_changed(sth)
 
     def add_spectrum_clicked(self):
@@ -331,7 +331,7 @@ class WFileSpectrumList(aa.WBase):
             self.__update_gui()
             flag_emit = True
         except Exception as E:
-            self.add_log_error(aa.str_exc(E), True)
+            self.add_log_error(ag.str_exc(E), True)
             raise
         if flag_emit:
             self.edited.emit()
@@ -355,7 +355,7 @@ class WFileSpectrumList(aa.WBase):
         try:
             splist = self.f.splist
             specs = (("wavelength_range", {"value": "[%g, %g]" % (splist.wavelength[0], splist.wavelength[-1])}),)
-            form = aa.XParametersEditor(specs=specs, title="Add Gaussian noise")
+            form = ag.XParametersEditor(specs=specs, title="Add Gaussian noise")
             while True:
                 r = form.exec_()
                 if not r:
@@ -366,7 +366,7 @@ class WFileSpectrumList(aa.WBase):
                     s = "wavelength_range"
                     lambda0, lambda1 = eval(kk["wavelength_range"])
                 except Exception as E:
-                    self.add_log_error("Failed evaluating %s: %s" % (s, aa.str_exc(E)), True)
+                    self.add_log_error("Failed evaluating %s: %s" % (s, ag.str_exc(E)), True)
                     continue
 
                 # Works with clone, then replaces original, to ensure atomic operation
@@ -375,14 +375,14 @@ class WFileSpectrumList(aa.WBase):
                 try:
                     clone.splist.crop(lambda0, lambda1)
                 except Exception as E:
-                    self.add_log_error("Crop operation failed: %s" % aa.str_exc(E), True)
+                    self.add_log_error("Crop operation failed: %s" % ag.str_exc(E), True)
                     continue
 
                 self.__new_window(clone)
                 break
 
         except Exception as E:
-            self.add_log_error("Crop failed: %s" % aa.str_exc(E), True)
+            self.add_log_error("Crop failed: %s" % ag.str_exc(E), True)
             raise
 
     def rubberband_clicked(self):
@@ -390,7 +390,7 @@ class WFileSpectrumList(aa.WBase):
 
     def add_noise_clicked(self):
         specs = (("std", {"caption": "Noise standard deviation", "value": 1.}),)
-        form = aa.XParametersEditor(specs=specs, title="Select sub-range")
+        form = ag.XParametersEditor(specs=specs, title="Select sub-range")
         if form.exec_():
             block = ao.SB_AddNoise(**form.get_kwargs())
             self.__use_sblock(block)
@@ -460,7 +460,7 @@ class WFileSpectrumList(aa.WBase):
         if not flag:
             # If not changed, removes all eventual yellows
             for _, edit, _, _, _, _, _ in self._map1:
-                aa.style_widget_changed(edit, False)
+                ag.style_widget_changed(edit, False)
 
     def __update_f(self):
         self.flag_valid = self.update_splist_headers(self.f.splist)

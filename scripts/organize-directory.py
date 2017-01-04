@@ -23,11 +23,11 @@ import glob
 import sys
 import aosss as ao
 import logging
-import astroapi as aa
+import astrogear as ag
 
 
-aa.logging_level = logging.INFO
-aa.flag_log_file = True
+ag.logging_level = logging.INFO
+ag.flag_log_file = True
 
 
 class MoveTask(object):
@@ -44,19 +44,19 @@ class MoveTask(object):
         cwd = os.getcwd()
         dest_dir, _ = os.path.split(self.dest)
         if not os.path.exists(dest_dir):
-            aa.get_python_logger().info("Creating directory '%s'..." % dest_dir)
+            ag.get_python_logger().info("Creating directory '%s'..." % dest_dir)
             os.makedirs(dest_dir)
-        aa.get_python_logger().info("Moving '{}' to '{}'".format(os.path.relpath(self.source, cwd),
+        ag.get_python_logger().info("Moving '{}' to '{}'".format(os.path.relpath(self.source, cwd),
                                                                os.path.relpath(self.dest, cwd)))
         os.rename(self.source, self.dest)
 
 
 if __name__ == "__main__":
-    lggr = aa.get_python_logger()
+    lggr = ag.get_python_logger()
 
     parser = argparse.ArgumentParser(
      description=__doc__,
-     formatter_class=aa.SmartFormatter
+     formatter_class=ag.SmartFormatter
     )
 
     args = parser.parse_args()

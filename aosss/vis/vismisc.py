@@ -1,5 +1,5 @@
-import astroapi as aa
-from astroapi import Vis
+import astrogear as ag
+from astrogear import Vis
 import aosss as ao
 
 
@@ -12,15 +12,15 @@ class VisCube(Vis):
     action = "Edit using Data Cube Editor"
 
     def _do_use(self, r):
-        form = aa.keep_ref(ao.XFileSparseCube(self.parent_form, r))
+        form = ag.keep_ref(ao.XFileSparseCube(self.parent_form, r))
         form.show()
 
 
 class VisSpectrumList(Vis):
     """Opens the Spectrum List Editor window."""
-    input_classes = (ao.FileSpectrumList, aa.FileSpectrum)
+    input_classes = (ao.FileSpectrumList, ag.FileSpectrum)
     action = "Edit using Spectrum List Editor"
 
     def _do_use(self, r):
-        form = aa.keep_ref(ao.XFileSpectrumList(self.parent_form, r))
+        form = ag.keep_ref(ao.XFileSpectrumList(self.parent_form, r))
         form.show()

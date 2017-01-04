@@ -2,7 +2,7 @@ __all__ = ["FileFullCube"]
 
 
 from . import FullCube
-from astroapi import overwrite_fits, DataFile, froze_it
+from astrogear import overwrite_fits, DataFile, froze_it
 from astropy.io import fits
 
 

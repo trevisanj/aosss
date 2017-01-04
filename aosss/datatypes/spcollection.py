@@ -5,7 +5,7 @@ List of spectra sharing same wavenumber axis. Uses FITS format
 __all__ = ["SpectrumCollection"]
 
 
-from astroapi import Spectrum, AttrsPart, froze_it, eval_fieldnames
+from astrogear import Spectrum, AttrsPart, froze_it, eval_fieldnames
 from astropy.io import fits
 import os
 import numpy as np

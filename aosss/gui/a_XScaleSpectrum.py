@@ -7,14 +7,14 @@ __all__ = ["XScaleSpectrum"]
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import numpy as np
-import astroapi as aa
+import astrogear as ag
 import aosss as ao
 
 
-class XScaleSpectrum(aa.XLogDialog):
+class XScaleSpectrum(ag.XLogDialog):
 
     def __init__(self, parent=None, file_main=None, file_abonds=None):
-        aa.XLogDialog.__init__(self, parent)
+        ag.XLogDialog.__init__(self, parent)
 
         def keep_ref(obj):
             self._refs.append(obj)
@@ -22,7 +22,7 @@ class XScaleSpectrum(aa.XLogDialog):
 
         self.setWindowTitle("Scale spectrum")
 
-        self.bandpasses = aa.get_ubv_bandpasses()
+        self.bandpasses = ag.get_ubv_bandpasses()
 
         # Internal flag to prevent taking action when some field is updated programatically
         self.flag_process_changes = False
@@ -104,7 +104,7 @@ class XScaleSpectrum(aa.XLogDialog):
         for i, (label, edit, name, short_descr, long_descr) in enumerate(pp):
             # label.setStyleSheet("QLabel {text-align: right}")
             assert isinstance(label, QLabel)
-            label.setText(aa.enc_name_descr(name, short_descr))
+            label.setText(ag.enc_name_descr(name, short_descr))
             label.setAlignment(Qt.AlignRight)
             lgrid.addWidget(label, i, 0)
             lgrid.addWidget(edit, i, 1)
@@ -117,7 +117,7 @@ class XScaleSpectrum(aa.XLogDialog):
         y = self.textEdit = QTextEdit()
         x.setBuddy(y)
         y.setReadOnly(True)
-        y.setStyleSheet("QTextEdit {color: %s}" % aa.COLOR_DESCR)
+        y.setStyleSheet("QTextEdit {color: %s}" % ag.COLOR_DESCR)
         lwleft.addWidget(x)
         lwleft.addWidget(y)
 
@@ -131,17 +131,17 @@ class XScaleSpectrum(aa.XLogDialog):
 
         # #### Plot area
         wright = keep_ref(QWidget())
-        self.figure0, self.canvas0, self.lfig0 = aa.get_matplotlib_layout(wright)
+        self.figure0, self.canvas0, self.lfig0 = ag.get_matplotlib_layout(wright)
 
         sp2.addWidget(wleft)
         sp2.addWidget(wright)
 
         # # Signal proxy
         # Limits the number of times that on_sth_changed() is called
-        self.signal_proxy = aa.SignalProxy(signals, delay=0.3, rateLimit=0, slot=self.on_sth_changed)
+        self.signal_proxy = ag.SignalProxy(signals, delay=0.3, rateLimit=0, slot=self.on_sth_changed)
 
         self.setEnabled(False)  # disabled until load() is called
-        aa.style_checkboxes(self)
+        ag.style_checkboxes(self)
         self.flag_process_changes = True
 
         # self.__update()
@@ -157,7 +157,7 @@ class XScaleSpectrum(aa.XLogDialog):
         return str(self.cb_band.currentText())
 
     def set_spectrum(self, x):
-        assert isinstance(x, aa.Spectrum)
+        assert isinstance(x, ag.Spectrum)
         self.spectrum = x
         self.setEnabled(True)
         self.__update()
@@ -219,7 +219,7 @@ class XScaleSpectrum(aa.XLogDialog):
             fig.clear()
             # name = self.band_name()
             bandpass = self.bandpasses[self.band_index()]
-            mag_data = aa.calculate_magnitude(self.spectrum, bandpass, self.system(), self.zero_point(),
+            mag_data = ag.calculate_magnitude(self.spectrum, bandpass, self.system(), self.zero_point(),
                                               self.flag_force_band_range())
             _draw_figure(fig, mag_data, self.spectrum, self.flag_force_band_range())
             self.canvas0.draw()
@@ -227,7 +227,7 @@ class XScaleSpectrum(aa.XLogDialog):
             mag = self.desired_magnitude()
             cmag = mag_data["cmag"]
 
-            self.factor_ = k = aa.MAGNITUDE_BASE ** (cmag - mag) if cmag is not None else float("nan")
+            self.factor_ = k = ag.MAGNITUDE_BASE ** (cmag - mag) if cmag is not None else float("nan")
 
             # Updates calculated state
 
@@ -243,7 +243,7 @@ class XScaleSpectrum(aa.XLogDialog):
 
         except Exception as E:
             self.add_log_error(str(E))
-            aa.get_python_logger().exception("Could not plot band_curve")
+            ag.get_python_logger().exception("Could not plot band_curve")
         finally:
             self.flag_process_changes = True
 
@@ -300,7 +300,7 @@ def _draw_figure(fig, mag_data, spectrum, flag_force_band_range):
     overall_max_y = 0
     ax = fig.add_subplot(312, sharex=ax0)
     # other bands
-    for band in aa.get_ubv_bandpasses():
+    for band in ag.get_ubv_bandpasses():
         if band.lf >= plot_l0 and band.l0 <= plot_lf:
             x = np.linspace(band.l0, band.lf, 200)
             y = band.ufunc()(x)

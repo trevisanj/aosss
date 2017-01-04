@@ -3,7 +3,7 @@ __all__ = ["GB_UseNumPyFunc", "GB_SNR"]
 
 from .base import *
 from . import sb
-import astroapi as aa
+import astrogear as ag
 import aosss as ao
 
 
@@ -19,7 +19,7 @@ class GB_UseNumPyFunc(GroupBlock):
 
     def _do_use(self, inp):
         output = self._new_output()
-        sp = aa.Spectrum()
+        sp = ag.Spectrum()
         sp.wavelength = np.copy(inp.wavelength)
         sp.flux = self.func(inp.matrix(), 0)
         if len(sp.flux) != len(sp.wavelength):
@@ -54,7 +54,7 @@ class GB_SNR(GroupBlock):
         mean_cont_2 = GB_UseNumPyFunc(np.mean).use(cont_2)
         var_spectra = GB_UseNumPyFunc(np.var).use(inp)
         output = self._new_output()
-        sp = aa.Spectrum()
+        sp = ag.Spectrum()
         sp.wavelength = np.copy(inp.wavelength)
         sp.flux = mean_cont_2.spectra[0].flux/var_spectra.spectra[0].flux
         output.add_spectrum(sp)

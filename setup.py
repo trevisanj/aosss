@@ -4,7 +4,7 @@ from glob import glob
 setup(
     name = 'aosss',
     packages = find_packages(),
-    version = '0.16.10.13',
+    version = '0.17.1.4',
     license = 'GNU GPLv3',
     platforms = 'any',
     description = 'Adaptive Optics Systems Simulation Support',
