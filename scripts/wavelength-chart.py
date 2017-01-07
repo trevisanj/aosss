@@ -89,7 +89,12 @@ ll = [MyLine("CaHK", 3900),
       MyLine("OH", 3064, reference="Castilho (Thesis) 1999"),
       MyLine("Be", 3131, reference="Castilho (Thesis) 1999"),
       MyLine("NH", 3360, reference="Castilho (Thesis) 1999"),
-
+      MyLine("FeI", 11976, reference="Davies et. al (2010)"),  # Cited in CEvans 2011
+      MyLine("FeI", 11887, reference="Davies et. al (2010)"),
+      MyLine("FeI", 11641, reference="Davies et. al (2010)"),
+      MyLine("FeI", 11611, reference="Davies et. al (2010)"),
+      MyLine("MgI", 12087, reference="Davies et. al (2010)"),
+      MyLine("MgI", 11831, reference="Davies et. al (2010)"),
       ]
 
 cc = [MyCoverage("HMM", [(4000, 18000)]),
