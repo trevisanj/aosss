@@ -4,17 +4,18 @@
 __all__ = ["XScaleSpectrum"]
 
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 import numpy as np
-import astrogear as ag
+import hypydrive as hpd
 import aosss as ao
 
 
-class XScaleSpectrum(ag.XLogDialog):
+class XScaleSpectrum(hpd.XLogDialog):
 
     def __init__(self, parent=None, file_main=None, file_abonds=None):
-        ag.XLogDialog.__init__(self, parent)
+        hpd.XLogDialog.__init__(self, parent)
 
         def keep_ref(obj):
             self._refs.append(obj)
@@ -22,7 +23,7 @@ class XScaleSpectrum(ag.XLogDialog):
 
         self.setWindowTitle("Scale spectrum")
 
-        self.bandpasses = ag.get_ubv_bandpasses()
+        self.bandpasses = hpd.get_ubv_bandpasses()
 
         # Internal flag to prevent taking action when some field is updated programatically
         self.flag_process_changes = False
@@ -32,7 +33,7 @@ class XScaleSpectrum(ag.XLogDialog):
 
         # # Central layout
         lantanide = self.centralLayout = QVBoxLayout()
-        lantanide.setMargin(0)
+        hpd.set_margin(lantanide, 0)
         self.setLayout(lantanide)
 
         # ## Horizontal splitter occupying main area: (options area) | (plot area)
@@ -42,19 +43,19 @@ class XScaleSpectrum(ag.XLogDialog):
         ###
         wleft = keep_ref(QWidget())
         lwleft = QVBoxLayout(wleft)
-        lwleft.setMargin(3)
+        hpd.set_margin(lwleft, 3)
         ###
         # lwleft.addWidget(keep_ref(QLabel("<b>Reference band</b>")))
         # ###
 
         lgrid = keep_ref(QGridLayout())
         lwleft.addLayout(lgrid)
-        lgrid.setMargin(0)
+        hpd.set_margin(lgrid, 0)
         lgrid.setVerticalSpacing(4)
         lgrid.setHorizontalSpacing(5)
 
         # field map: [(label widget, edit widget, field name, short description, long description), ...]
-        pp = self._map0 = []
+        map = self._map0 = []
         signals = []  # for the SignalProxy below
         ###
         x = keep_ref(QLabel())
@@ -62,14 +63,14 @@ class XScaleSpectrum(ag.XLogDialog):
         signals.append(y.currentIndexChanged)
         x.setBuddy(y)
         y.addItems([bp.name for bp in self.bandpasses])
-        pp.append((x, y, "&Band name", "UBVRI-x system", ""))
+        map.append((x, y, "&Band name", "UBVRI-x system", ""))
         ###
         x = keep_ref(QLabel())
         y = self.cb_system = QComboBox()
         signals.append(y.currentIndexChanged)
         x.setBuddy(y)
         y.addItems(["ab", "vega", "stdflux"])
-        pp.append((x, y, "Magnitude &system",
+        map.append((x, y, "Magnitude &system",
                    "<b>'ab'</b> -- AB[solute]<br>"
                    "<b>'vega'</b> -- uses Vega spectrum as reference;<br>"
                    "<b>'stdflux'</b> -- uses standard reference values<br>from literature", ""))
@@ -82,13 +83,13 @@ class XScaleSpectrum(ag.XLogDialog):
         y.setMaximum(100)
         signals.append(y.valueChanged)
         x.setBuddy(y)
-        pp.append((x, y, "&Zero point", "Value to subtract from calculated magnitude", ""))
+        map.append((x, y, "&Zero point", "Value to subtract from calculated magnitude", ""))
         ###
         x = self.label_x = QLabel()
         y = self.checkbox_force_band_range = QCheckBox()
         signals.append(y.stateChanged)
         x.setBuddy(y)
-        pp.append((x, y, "&Force filter range?", "(even when spectrum does not<br>completely overlap filter)", ""))
+        map.append((x, y, "&Force filter range?", "(even when spectrum does not<br>completely overlap filter)", ""))
         ###
         x = self.label_x = QLabel()
         y = self.spinBox_mag = QDoubleSpinBox()
@@ -98,13 +99,13 @@ class XScaleSpectrum(ag.XLogDialog):
         y.setMaximum(100)
         signals.append(y.valueChanged)
         x.setBuddy(y)
-        pp.append((x, y, "Desired apparent &magnitude", "", ""))
+        map.append((x, y, "Desired apparent &magnitude", "", ""))
         ###
 
-        for i, (label, edit, name, short_descr, long_descr) in enumerate(pp):
+        for i, (label, edit, name, short_descr, long_descr) in enumerate(map):
             # label.setStyleSheet("QLabel {text-align: right}")
             assert isinstance(label, QLabel)
-            label.setText(ag.enc_name_descr(name, short_descr))
+            label.setText(hpd.enc_name_descr(name, short_descr))
             label.setAlignment(Qt.AlignRight)
             lgrid.addWidget(label, i, 0)
             lgrid.addWidget(edit, i, 1)
@@ -117,7 +118,7 @@ class XScaleSpectrum(ag.XLogDialog):
         y = self.textEdit = QTextEdit()
         x.setBuddy(y)
         y.setReadOnly(True)
-        y.setStyleSheet("QTextEdit {color: %s}" % ag.COLOR_DESCR)
+        y.setStyleSheet("QTextEdit {color: %s}" % hpd.COLOR_DESCR)
         lwleft.addWidget(x)
         lwleft.addWidget(y)
 
@@ -131,17 +132,17 @@ class XScaleSpectrum(ag.XLogDialog):
 
         # #### Plot area
         wright = keep_ref(QWidget())
-        self.figure0, self.canvas0, self.lfig0 = ag.get_matplotlib_layout(wright)
+        self.figure0, self.canvas0, self.lfig0 = hpd.get_matplotlib_layout(wright)
 
         sp2.addWidget(wleft)
         sp2.addWidget(wright)
 
         # # Signal proxy
         # Limits the number of times that on_sth_changed() is called
-        self.signal_proxy = ag.SignalProxy(signals, delay=0.3, rateLimit=0, slot=self.on_sth_changed)
+        self.signal_proxy = hpd.SignalProxy(signals, delay=0.3, rateLimit=0, slot=self.on_sth_changed)
 
         self.setEnabled(False)  # disabled until load() is called
-        ag.style_checkboxes(self)
+        hpd.style_checkboxes(self)
         self.flag_process_changes = True
 
         # self.__update()
@@ -157,7 +158,7 @@ class XScaleSpectrum(ag.XLogDialog):
         return str(self.cb_band.currentText())
 
     def set_spectrum(self, x):
-        assert isinstance(x, ag.Spectrum)
+        assert isinstance(x, hpd.Spectrum)
         self.spectrum = x
         self.setEnabled(True)
         self.__update()
@@ -219,7 +220,7 @@ class XScaleSpectrum(ag.XLogDialog):
             fig.clear()
             # name = self.band_name()
             bandpass = self.bandpasses[self.band_index()]
-            mag_data = ag.calculate_magnitude(self.spectrum, bandpass, self.system(), self.zero_point(),
+            mag_data = hpd.calculate_magnitude(self.spectrum, bandpass, self.system(), self.zero_point(),
                                               self.flag_force_band_range())
             _draw_figure(fig, mag_data, self.spectrum, self.flag_force_band_range())
             self.canvas0.draw()
@@ -227,7 +228,7 @@ class XScaleSpectrum(ag.XLogDialog):
             mag = self.desired_magnitude()
             cmag = mag_data["cmag"]
 
-            self.factor_ = k = ag.MAGNITUDE_BASE ** (cmag - mag) if cmag is not None else float("nan")
+            self.factor_ = k = hpd.MAGNITUDE_BASE ** (cmag - mag) if cmag is not None else float("nan")
 
             # Updates calculated state
 
@@ -243,7 +244,7 @@ class XScaleSpectrum(ag.XLogDialog):
 
         except Exception as E:
             self.add_log_error(str(E))
-            ag.get_python_logger().exception("Could not plot band_curve")
+            hpd.get_python_logger().exception("Could not plot band_curve")
         finally:
             self.flag_process_changes = True
 
@@ -300,7 +301,7 @@ def _draw_figure(fig, mag_data, spectrum, flag_force_band_range):
     overall_max_y = 0
     ax = fig.add_subplot(312, sharex=ax0)
     # other bands
-    for band in ag.get_ubv_bandpasses():
+    for band in hpd.get_ubv_bandpasses():
         if band.lf >= plot_l0 and band.l0 <= plot_lf:
             x = np.linspace(band.l0, band.lf, 200)
             y = band.ufunc()(x)

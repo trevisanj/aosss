@@ -1,13 +1,13 @@
 __all__ = ["FullCube"]
 
 
-import astrogear as ag
+import hypydrive as hpd
 import numpy as np
 from astropy.io import fits
 
 
-@ag.froze_it
-class FullCube(ag.AttrsPart):
+@hpd.froze_it
+class FullCube(hpd.AttrsPart):
     """
     X-Y-wavelength cube
 
@@ -35,7 +35,7 @@ class FullCube(ag.AttrsPart):
         return self.flag_created and self.hdu.header["CDELT3"] != -1
 
     def __init__(self, hdu=None):
-        ag.AttrsPart.__init__(self)
+        hpd.AttrsPart.__init__(self)
         self.hdu = None  # PyFITS HDU object
         self.wavelength = None  # the wavelength axis (angstrom) (shared among all spectra in the cube)
         self.filename = None
@@ -61,16 +61,16 @@ class FullCube(ag.AttrsPart):
             assert key in hdu.header, 'Key "%s" not found in headers' % key
 
         if not "CDELT3" in hdu.header:
-            ag.get_python_logger().warning("HDU lacks header 'CDELT3', assumed 1.0")
+            hpd.get_python_logger().warning("HDU lacks header 'CDELT3', assumed 1.0")
             hdu.header["CDELT3"] = 1.
         if not "CRVAL3" in hdu.header:
-            ag.get_python_logger().warning("HDU lacks header 'CRVAL3', assumed 0.0")
+            hpd.get_python_logger().warning("HDU lacks header 'CRVAL3', assumed 0.0")
             hdu.header["CRVAL3"] = 0.
         if not "CDELT1" in hdu.header:
-            ag.get_python_logger().warning("HDU lacks header 'CDELT1', assumed 1.0")
+            hpd.get_python_logger().warning("HDU lacks header 'CDELT1', assumed 1.0")
             hdu.header["CDELT1"] = 1.0
         if not "CDELT2" in hdu.header:
-            ag.get_python_logger().warning("HDU lacks header 'CDELT2', assumed value in 'CDELT1'")
+            hpd.get_python_logger().warning("HDU lacks header 'CDELT2', assumed value in 'CDELT1'")
             hdu.header["CDELT2"] = hdu.header["CDELT1"]
         if not "HRFACTOR" in hdu.header:
             hdu.header["HRFACTOR"] = 1.
@@ -111,7 +111,7 @@ class FullCube(ag.AttrsPart):
         """
         assert self.flag_wavelengthed
 
-        sp = ag.Spectrum()
+        sp = hpd.Spectrum()
         sp.x = np.copy(self.wavelength)
         sp.y = np.copy(self.hdu.data[:, y, x])
         sp.more_headers["PIXEL-X"] = x  # why not

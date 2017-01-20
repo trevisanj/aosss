@@ -4,22 +4,23 @@ __all__ = ["XFileSpectrumList"]
 import matplotlib.pyplot as plt
 import os
 import os.path
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 from .a_WFileSpectrumList import *
-import astrogear as ag
+import hypydrive as hpd
 import aosss as ao
 
 
-class XFileSpectrumList(ag.XFileMainWindow):
+class XFileSpectrumList(hpd.XFileMainWindow):
     def __init__(self, parent=None, fileobj=None):
-        ag.XFileMainWindow.__init__(self, parent)
+        hpd.XFileMainWindow.__init__(self, parent)
 
         def keep_ref(obj):
             self._refs.append(obj)
             return obj
 
-        self.setWindowTitle(ag.get_window_title("Spectrum List Editor"))
+        self.setWindowTitle(hpd.get_window_title("Spectrum List Editor"))
 
         # # Synchronized sequences
         _VVV = ao.FileSpectrumList.description
@@ -29,7 +30,7 @@ class XFileSpectrumList(ag.XFileMainWindow):
         self.open_texts[0] = "Load %s" % _VVV
         self.clss[0] = ao.FileSpectrumList
         self.clsss[0] = ao.classes_collection  # file types that can be opened
-        self.clsss[0] = tuple([ao.FileSpectrumList, ao.FileFullCube]+ag.classes_sp())  # file types that can be opened
+        self.clsss[0] = tuple([ao.FileSpectrumList, ao.FileFullCube]+hpd.classes_sp())  # file types that can be opened
         self.wilds[0] = "*.splist"
 
         lv = keep_ref(QVBoxLayout(self.gotting))
@@ -62,7 +63,7 @@ class XFileSpectrumList(ag.XFileMainWindow):
 
         if len(ff) > 0:
             s = "Unsaved changes\n  -"+("\n  -".join(ff))+"\n\nAre you sure you want to exit?"
-            flag_exit = ag.are_you_sure(True, event, self, "Unsaved changes", s)
+            flag_exit = hpd.are_you_sure(True, event, self, "Unsaved changes", s)
         if flag_exit:
             plt.close("all")
 
@@ -108,11 +109,11 @@ class XFileSpectrumList(ag.XFileMainWindow):
         if isinstance(f, ao.FileFullCube):
             f1 = ao.FileSpectrumList()
             f1.splist.from_full_cube(f.wcube)
-        elif isinstance(f, ag.FileSpectrum):
+        elif isinstance(f, hpd.FileSpectrum):
             f1 = ao.FileSpectrumList()
             f1.splist.add_spectrum(f.spectrum)
         if f1:
-            f1.filename = ag.add_bits_to_path(f.filename, "imported-from-",
+            f1.filename = hpd.add_bits_to_path(f.filename, "imported-from-",
                                            os.path.splitext(ao.FileSpectrumList.default_filename)[1])
             f = f1
         return f

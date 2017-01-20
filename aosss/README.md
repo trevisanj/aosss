@@ -13,9 +13,8 @@ Welcome!
 
 #<a name=S1></a>1 Introduction
 
-`aosss` is a Python package developed to facilitate E-ELT-MOSAIC star spectroscopy simulations.
-These simulations are carried out using WebSim-Compass (http://websim-compass.obspm.fr/) and 
-`aosss` can be used to perform (before/after)-the-simulation tasks, such as:
+`aosss` is a Python package and set of applications to facilitate 
+steps in spectrograph+telescope simulation workflows: 
 
   - assemble a data cube for IFU simulation
   - batch-download simulations resulting files
@@ -24,9 +23,6 @@ These simulations are carried out using WebSim-Compass (http://websim-compass.ob
   - compile results into *spectrum list files*
   - process/convert/visualize these *spectrum list files* 
   
-If you have issues, suggestions, requests or would like to collaborate in this project,
-please send a message to juliotrevisan@gmail.com
-
 ## 1.1 Structure
 
 `aosss` contains an API (application programming interface) and a set of scripts (standalone programs)
@@ -34,8 +30,7 @@ that use this API.
 
 ### 1.1.1 Programs available
 
-:bulb: To print a list of `aosss` programs, run `aosss-programs.py` from the console.
-As of today (5th/Nov/2016), it will give you the following:
+:bulb: To print a list of `aosss` programs, run `programs.py` from the console:
 
 Graphical applications:
   - `wavelength-chart.py` -- Draws a [wavelength] x [various stacked information] chart
@@ -48,43 +43,9 @@ Command-line tools:
 
 All the programs above can be called with the `--help` or `-h` option for more documentation
 
-#<a name=S1></a>2 Installation
+#<a name=S2></a>2. Installation
 
-## 2.0 Requirements
-
-  - Python 3
-  - `astrogear` (another Python package) (see below)
-
-**Note** Although it can run on any OS platform, the following instructions 
-target Debian-based Linux users (such as Ubuntu).
-
-## 2.1 First-time install
-
-### 2.1.1 Install `astrogear` package
- 
- Follow the link to http://github.com/trevisanj/astrogear and follow installation instructions
-   
-### 2.1.2 Clone this repository
-
-```shell
-git clone https://github.com/trevisanj/aosss
-```
-
-### 2.1.3 Run Python installation script
-
-```shell
-sudo python setup.py develop
-```
-
-## 2.2 Installing updates
-
-Pull updates and run Python installation script again:
-
-```shell
-cd <aosss folder>
-git pull
-sudo python setup.py develop
-```
+TO install _package `aosss`, please follow [installation instructions for _astrogear_](../README.md) 
 
 #<a name=S3></a>3. Usage Examples
 

@@ -22,14 +22,14 @@ from . import gui
 # # Function to access package-specific config file
 def get_config():
     """Returns AAConfigObj object that corresponds to file ~/.MY-PACKAGE-NAME.conf"""
-    import astrogear as ag
-    return ag.get_config_obj(".aosss.conf")
+    import hypydrive as hpd
+    return hpd.get_config_obj(".aosss.conf")
 
 
 def classes_collection():
     """
     Returns list of File* classes that can be converted to a SpectrumCollection
     """
-    import astrogear as ag
-    return ag.classes_sp() + [FileSpectrumList, FileSparseCube, FileFullCube]
+    import hypydrive as hpd
+    return hpd.classes_sp() + [FileSpectrumList, FileSparseCube, FileFullCube]
 

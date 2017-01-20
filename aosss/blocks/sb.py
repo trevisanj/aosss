@@ -4,7 +4,7 @@ __all__ = ["SB_Rubberband", "SB_AddNoise", "SB_FnuToFlambda", "SB_FLambdaToFNu",
 
 
 import numpy as np
-import astrogear as ag
+import hypydrive as hpd
 import aosss as ao
 import copy
 from . import SpectrumBlock

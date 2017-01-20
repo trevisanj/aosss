@@ -1,9 +1,10 @@
 __all__ = ["XGroupSpectra"]
 
 
-from PyQt4.QtGui import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 from .a_XHelpDialog import *
-import astrogear as ag
+import hypydrive as hpd
 import aosss as ao
 
 
@@ -28,27 +29,27 @@ class XGroupSpectra(XHelpDialog):
 
         self.labelHelpTopics.setText("&Available operations")
 
-        self.help_data = ag.collect_doc(ao.blocks.gb, base_class=ao.blocks.base.GroupBlock)
+        self.help_data = hpd.collect_doc(ao.blocks.gb, base_class=ao.blocks.base.GroupBlock)
         self.comboBox.addItems([x[0] for x in self.help_data])
         ###
-        label = QLabel(ag.enc_name_descr("O&peration", "See help below"))
+        label = QLabel(hpd.enc_name_descr("O&peration", "See help below"))
         edit = self.editFunction = QLineEdit("GB_UseNumPyFunc(np.mean)")
         label.setBuddy(edit)
         self.grid.addWidget(label, 0, 0)
         self.grid.addWidget(edit, 0, 1)
         ###
-        label = QLabel(ag.enc_name_descr("&Group fieldnames", "Comma-separated without quotes"))
+        label = QLabel(hpd.enc_name_descr("&Group fieldnames", "Comma-separated without quotes"))
         edit = self.editGroupBy = QLineEdit("")
         label.setBuddy(edit)
         self.grid.addWidget(label, 1, 0)
         self.grid.addWidget(edit, 1, 1)
 
-        ag.place_center(self, 800, 600)
+        hpd.place_center(self, 800, 600)
 
     def accept(self):
         try:
             expr = str(self.editFunction.text())
-            symbols_available = ag.module_to_dict(ao.blocks.gb)
+            symbols_available = hpd.module_to_dict(ao.blocks.gb)
             import numpy
             symbols_available["np"] = numpy
             block = eval(expr.strip(), {}, symbols_available)
@@ -64,6 +65,6 @@ class XGroupSpectra(XHelpDialog):
 
             return QDialog.accept(self)
         except Exception as e:
-            self.add_log_error(ag.str_exc(e), True)
+            self.add_log_error(hpd.str_exc(e), True)
             return False
 

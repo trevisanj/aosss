@@ -1,15 +1,16 @@
 __all__ = ["XPlotXY"]
 
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 import numpy as np
 import matplotlib.pyplot as plt
-import astrogear as ag
+import hypydrive as hpd
 import aosss as ao
 
 
-class XPlotXY(ag.XLogMainWindow):
+class XPlotXY(hpd.XLogMainWindow):
     """
     Plots two fields of a SpectrumCollection object in a simple x-y plot
 
@@ -17,7 +18,7 @@ class XPlotXY(ag.XLogMainWindow):
       collection -- SpectrumCollection object
     """
     def __init__(self, collection, *args):
-        ag.XLogMainWindow.__init__(self, *args)
+        hpd.XLogMainWindow.__init__(self, *args)
 
         self._refs = []
         def keep_ref(obj):
@@ -57,9 +58,9 @@ class XPlotXY(ag.XLogMainWindow):
 
         ###
         wm = keep_ref(QWidget())
-        # wm.setMargin(0)
+        # hpd.set_margin(wm, 0)
         lw1.addWidget(wm)
-        self.figure, self.canvas, self.lfig = ag.get_matplotlib_layout(wm)
+        self.figure, self.canvas, self.lfig = hpd.get_matplotlib_layout(wm)
 
         cw = self.centralWidget = QWidget()
         cw.setLayout(lw1)
@@ -110,8 +111,8 @@ class XPlotXY(ag.XLogMainWindow):
             plt.plot(xx, yy, lw=2, color='k')
             plt.xlabel(fieldname_x)
             plt.ylabel(fieldname_y)
-            ag.format_BLB()
+            hpd.format_BLB()
             self.canvas.draw()
 
         except Exception as e:
-            self.add_log_error("Could draw figure: "+ag.str_exc(e), True)
+            self.add_log_error("Could draw figure: "+hpd.str_exc(e), True)

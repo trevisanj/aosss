@@ -1,10 +1,11 @@
 __all__ = ["XUseSpectrumBlock"]
 
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 from .a_XHelpDialog import *
-import astrogear as ag
+import hypydrive as hpd
 import aosss as ao
 
 
@@ -29,10 +30,10 @@ class XUseSpectrumBlock(XHelpDialog):
 
         self.labelHelpTopics.setText("&Available operations")
 
-        self.help_data = ag.collect_doc(ao.sb, base_class=ao.blocks.base.SpectrumBlock)
+        self.help_data = hpd.collect_doc(ao.sb, base_class=ao.blocks.base.SpectrumBlock)
         self.comboBox.addItems([x[0] for x in self.help_data])
         ###
-        label = QLabel(ag.enc_name_descr("O&peration", "See help below"))
+        label = QLabel(hpd.enc_name_descr("O&peration", "See help below"))
         label.setAlignment(Qt.AlignRight)
         cb = self.cb_operation = QComboBox()
         label.setBuddy(cb)
@@ -42,13 +43,13 @@ class XUseSpectrumBlock(XHelpDialog):
         self.grid.addWidget(label, 0, 0)
         self.grid.addWidget(cb, 0, 1)
 
-        ag.place_center(self, 800, 600)
+        hpd.place_center(self, 800, 600)
 
 
     def accept(self):
         try:
             expr = str(self.cb_operation.currentText())
-            block = eval(expr.strip(), {}, ag.module_to_dict(ao.blocks.sb))
+            block = eval(expr.strip(), {}, hpd.module_to_dict(ao.blocks.sb))
 
             if not isinstance(block, ao.blocks.base.SpectrumBlock):
                 raise RuntimeError("Expression does not evaluate to a valid Spectrum Block")
@@ -63,5 +64,5 @@ class XUseSpectrumBlock(XHelpDialog):
 
             return QDialog.accept(self)
         except Exception as e:
-            self.add_log_error(ag.str_exc(e), True)
+            self.add_log_error(hpd.str_exc(e), True)
             return False

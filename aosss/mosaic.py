@@ -2,7 +2,7 @@
 Spectrograph modes specifications
 """
 
-from astrogear import AttrsPart
+from hypydrive import AttrsPart
 
 
 class SpectrographMode(AttrsPart):

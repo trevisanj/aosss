@@ -1,12 +1,13 @@
 __all__ = ["XHelpDialog"]
 
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-import astrogear as ag
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
+import hypydrive as hpd
 
 
-class XHelpDialog(ag.XLogDialog):
+class XHelpDialog(hpd.XLogDialog):
     """
     Dialog with two areas: Fields Area and Help Area
 
@@ -23,7 +24,7 @@ class XHelpDialog(ag.XLogDialog):
     """
 
     def __init__(self, *args):
-        ag.XLogDialog.__init__(self, *args)
+        hpd.XLogDialog.__init__(self, *args)
 
         def keep_ref(obj):
             self._refs.append(obj)
@@ -33,7 +34,7 @@ class XHelpDialog(ag.XLogDialog):
 
         # # Central layout
         lymain = self.centralLayout = QVBoxLayout()
-        lymain.setMargin(0)
+        hpd.set_margin(lymain, 0)
         self.setLayout(lymain)
 
         # ## Title of Fields Area
@@ -45,7 +46,7 @@ class XHelpDialog(ag.XLogDialog):
         wfields.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         lyfields = keep_ref(QHBoxLayout(wfields))
         lymain.addWidget(wfields)
-        lyfields.setMargin(0)
+        hpd.set_margin(lyfields, 0)
         lyfields.setSpacing(2)
 
         # ### Left area of Fields Area
@@ -70,7 +71,7 @@ class XHelpDialog(ag.XLogDialog):
         # ### Panel containing a combobox to choose among help topics
         lypanel = QHBoxLayout()
         lymain.addLayout(lypanel)
-        lypanel.setMargin(0)
+        hpd.set_margin(lypanel, 0)
         lypanel.setSpacing(2)
         ###
         label = self.labelHelpTopics = QLabel("Help Topics")
@@ -86,7 +87,7 @@ class XHelpDialog(ag.XLogDialog):
         # ### Text Edit below combobox
         x = self.textEdit = QTextEdit()
         x.setReadOnly(True)
-        x.setStyleSheet("QTextEdit {color: %s}" % ag.COLOR_DESCR)
+        x.setStyleSheet("QTextEdit {color: %s}" % hpd.COLOR_DESCR)
         lymain.addWidget(x)
 
     def combobox_changed(self):

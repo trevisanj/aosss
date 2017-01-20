@@ -1,7 +1,7 @@
 __all__ = ["FilePar"]
 
 
-from astrogear import DataFile, froze_it
+from hypydrive import DataFile, froze_it
 from collections import OrderedDict
 
 

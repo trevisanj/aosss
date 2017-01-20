@@ -8,7 +8,7 @@ import glob
 import os
 import re
 import numpy as np
-import astrogear as ag
+import hypydrive as hpd
 import aosss as ao
 from astropy.io import fits
 import astropy.units as u
@@ -28,7 +28,7 @@ import astropy.units as u
 #     hdu_out.header["CRVAL1"] = hdu.header["CRVAL3"]
 #     hdu_out.data = hdu.data[:, y, x]
 #
-#     ret = ag.Spectrum()
+#     ret = hpd.Spectrum()
 #     ret.from_hdu(hdu_out)
 #
 #     return ret
@@ -36,14 +36,14 @@ import astropy.units as u
 
 FILE_MAP = OrderedDict((
  ("cube_hr", ao.FileFullCube),
- ("cube_seeing", ag.FileFits),
+ ("cube_seeing", hpd.FileFits),
  ("ifu_noseeing", ao.FileFullCube),
- ("mask_fiber_in_aperture", ag.FileFits),  # TODO, handle this file because it is nice
+ ("mask_fiber_in_aperture", hpd.FileFits),  # TODO, handle this file because it is nice
  ("reduced", ao.FileFullCube),
  ("reduced_snr", ao.FileFullCube),
- ("sky", ag.FileSpectrumFits),
- ("skysub", ag.FileSpectrumFits),
- ("spintg", ag.FileSpectrumFits),
+ ("sky", hpd.FileSpectrumFits),
+ ("skysub", hpd.FileSpectrumFits),
+ ("spintg", hpd.FileSpectrumFits),
  ("spintg_noseeing", "messed"),  # particular case
  ("therm", "messed"),            # particular case
 ))
@@ -84,16 +84,16 @@ def load_bulk(simid, dir_='.'):
             if class_ == "messed":
                 # Note that sp_ref may be None here if Cxxxx_spintg.fits fails to load
                 # In this case, sp will have a default x-axis
-                sp = ag.load_spectrum_fits_messed_x(fn, sp_ref)
+                sp = hpd.load_spectrum_fits_messed_x(fn, sp_ref)
                 if sp:
-                    fileobj = ag.FileSpectrum()
+                    fileobj = hpd.FileSpectrum()
                     fileobj.spectrum = sp
             elif flag_supported:
                 fileobj = class_()
                 try:
                     fileobj.load(fn)
                 except Exception as E:
-                    ag.get_python_logger().exception("Error loading file '%s'" % fn)
+                    hpd.get_python_logger().exception("Error loading file '%s'" % fn)
                     error = str(E)
 
                 if keyword == "spintg":
@@ -126,7 +126,7 @@ def create_spectrum_lists(dir_, pipeline_stage="spintg"):
 
         def simid_to_spectrum(simid):
             fn = os.path.join(dir_, simid + "_{}.fits".format(pipeline_stage))
-            fsp = ag.FileSpectrumFits()
+            fsp = hpd.FileSpectrumFits()
             fsp.load(fn)
             return fsp.spectrum
 
@@ -159,7 +159,7 @@ def create_spectrum_lists(dir_, pipeline_stage="spintg"):
 
             spectra.append((fp, sp))
         except:
-            ag.get_python_logger().exception(
+            hpd.get_python_logger().exception(
                 "Failed to add spectrum corresponding to file '%s'" % fn)
 
     # Groups files by their wavelength axis
@@ -193,10 +193,10 @@ def create_spectrum_lists(dir_, pipeline_stage="spintg"):
                 s_union = s_union | s
                 s_overlap = s_overlap & s
         keys = list(dict(s_union - s_overlap).keys())
-        key_dict = ag.make_fits_keys_dict(keys)
+        key_dict = hpd.make_fits_keys_dict(keys)
 
-        # ag.get_python_logger().info("FITS headers to feature in all spectra:")
-        # ag.get_python_logger().info(str(key_dict))
+        # hpd.get_python_logger().info("FITS headers to feature in all spectra:")
+        # hpd.get_python_logger().info(str(key_dict))
 
 
         fspl = ao.FileSpectrumList()
@@ -248,12 +248,12 @@ def create_spectrum_lists(dir_, pipeline_stage="spintg"):
 
                 fspl.splist.add_spectrum(sp)
             except:
-                ag.get_python_logger().exception(
+                hpd.get_python_logger().exception(
                     "Failed to add spectrum corresponding to file '%s'" % fp.filename)
 
         fn = os.path.join(dir_, "group-%s-%02d-C%06d-C%06d.splist" % (pipeline_stage, h, nmin, nmax))
         fspl.save_as(fn)
-        ag.get_python_logger().info("Created file '%s'" % fn)
+        hpd.get_python_logger().info("Created file '%s'" % fn)
 
 
 
@@ -277,11 +277,11 @@ def load_eso_sky():
 
     x, y0, y1 = d["lam"]*10000, d["flux"], d["trans"]
 
-    sp0 = ag.Spectrum()
+    sp0 = hpd.Spectrum()
     sp0.x, sp0.y = x, y0
     sp0.yunit = u.Unit("ph/s/m2/angstrom/arcsec2")
 
-    sp1 = ag.Spectrum()
+    sp1 = hpd.Spectrum()
     sp1.x, sp1.y = x, y1
 
     return sp0, sp1
