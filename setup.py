@@ -18,28 +18,25 @@ def find_scripts(pkgnames):
                 ret.extend(glob(os.path.join(item[0], '*.py')))
     return ret
 
+PACKAGE_NAME = "aosss"
 
 pkgs = find_packages()
-scripts = find_scripts(["f311"])
+scripts = find_scripts([PACKAGE_NAME])
 
 setup(
-    name='f311',
+    name=PACKAGE_NAME,
     packages=find_packages(),
     include_package_data=True,
     version='0.17.11.28.0',
     license='GNU GPLv3',
     platforms='any',
-    description='Astronomy-related API, command-line tools, and windowed applications',
+    description='Adaptive Optics Systems Simulation Support',
     author='Julio Trevisan',
     author_email='juliotrevisan@gmail.com',
-    url='https://github.com/trevisanj/f311',
-    keywords= ['astronomy', "fits", "spectroscopy", "spectral synthesis", "photometry",
-               "honl-london", "nist", "hitran", "multiplicity", "line strength", "kovacs", "franck-condon"],
-    install_requires=["numpy", "scipy", "matplotlib", "astropy", "configobj", "bs4", "lxml",
-                      "robobrowser", "requests", "fortranformat", "tabulate", "rows", "pyqt5",
-                      "a99>=0.17.12.08.4", "airvacuumvald"],
+    url='https://github.com/trevisanj/aosss',
+    keywords= ['astronomy', "instrumentation", "adaptive", "optics", "simulation", "simulator",
+               "telescope", "spectrometer"],
+    install_requires=["f311", "airvacuumvald"],
     scripts=scripts
 )
 
-
-# TODO later install_requires=['numpy', 'matplotlib', 'pyqt5'],  # matplotlib never gets installed correctly by pip, but anyway...

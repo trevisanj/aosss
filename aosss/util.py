@@ -9,20 +9,20 @@ import os
 import re
 import numpy as np
 import a99
-import f311.filetypes as ft
 from astropy.io import fits
 import astropy.units as u
 import f311.explorer as ex
-# from .. import aosss as ao
+import aosss as ao
+import f311.filetypes as ft
 
 
 FILE_MAP = OrderedDict((
- ("cube_hr", ft.FileFullCube),
+ ("cube_hr", ao.FileFullCube),
  ("cube_seeing", ft.FileFits),
- ("ifu_noseeing", ft.FileFullCube),
+ ("ifu_noseeing", ao.FileFullCube),
  ("mask_fiber_in_aperture", ft.FileFits),  # TODO, handle this file because it is nice
- ("reduced", ft.FileFullCube),
- ("reduced_snr", ft.FileFullCube),
+ ("reduced", ao.FileFullCube),
+ ("reduced_snr", ao.FileFullCube),
  ("sky", ft.FileSpectrumFits),
  ("skysub", ft.FileSpectrumFits),
  ("spintg", ft.FileSpectrumFits),
@@ -113,7 +113,7 @@ def create_spectrum_lists(dir_, pipeline_stage="spintg"):
 
         def simid_to_spectrum(simid):
             fn = os.path.join(dir_, simid + "_ifu_noseeing.fits")
-            fsp = ft.FileFullCube()
+            fsp = ao.FileFullCube()
             fsp.load(fn)
             return fsp.spectrum
 
@@ -131,7 +131,7 @@ def create_spectrum_lists(dir_, pipeline_stage="spintg"):
                 raise RuntimeError(
                     "'.par' file name '%s' does not have pattern 'Cnnnnnn'" % fn)
 
-            fp = ft.FilePar()
+            fp = ao.FilePar()
             fp.load(fn)
 
             sp = simid_to_spectrum(gg.group())
@@ -178,7 +178,7 @@ def create_spectrum_lists(dir_, pipeline_stage="spintg"):
         # a99.get_python_logger().info(str(key_dict))
 
 
-        fspl = ft.FileSpectrumList()
+        fspl = ao.FileSpectrumList()
         nmin, nmax = 9999999, 0
         for fp, sp in group:
             try:
@@ -241,7 +241,6 @@ def load_eso_sky():
     Returns:
         tuple: ``(emission, transmission)`` (two `f311.filetypes.Spectrum` objects)
     """
-    from f311 import aosss as ao
 
     # From comments in file:
     # lam:     vacuum wavelength in micron

@@ -19,7 +19,7 @@ import numpy as np
 import numbers
 from PyQt5.QtWidgets import *
 import logging
-from f311 import aosss as ao
+import aosss as ao
 from f311 import physics as ph
 import a99
 
