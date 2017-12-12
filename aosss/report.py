@@ -4,12 +4,13 @@ __all__ = ["create_simulation_report", "create_index"]
 import os
 from astropy.io import fits
 from matplotlib import pyplot as plt
-from .misc import *
+from .util import *
 import numpy as np
 import traceback
 import glob
-import astrogear as ag
-import aosss as ao
+import a99
+import f311.filetypes as ft
+import f311.explorer as ex
 
 
 def create_index(dir_="."):
@@ -58,18 +59,15 @@ def _color(s, color):
     return '<span style="color: %s">%s</span>' % (color, s)
 
 
-
 def create_simulation_report(simid, dir_="."):
     """Creates HTML output and several PNG files with coherent naming
 
-    Returns: name of output file created, which will be '<dir_>/report-<simid>.html'
+    Args:
+        simid: simulation ID. This should be a string starting with a "C", e.g., "C000793"
+        dir_: directory containing the simulation ouput files
 
-    Arguments:
-      simid -- simulation ID. This should be a string starting with a "C", e.g.,
-        "C000793"
-      dir_ -- directory containing the simulation ouput files
-
-
+    Returns:
+        str: name of output file created, which will be ``<dir_>/report-<simid>.html``
     """
 
     if simid[0] != "C":
@@ -80,7 +78,7 @@ def create_simulation_report(simid, dir_="."):
     # file_prefix: common start to all filenames generated
     file_prefix = os.path.join(dir_, "report-"+simid)
     fn_output = file_prefix + ".html"
-    #f_fn_fits = lambda middle: os.path.join(dir_, "%s_%s.fits" % (simid, middle))
+    # f_fn_fits = lambda middle: os.path.join(dir_, "%s_%s.fits" % (simid, middle))
     fn_log = os.path.join(dir_, "%s.out" % simid)
     fn_par = os.path.join(dir_, "%s.par" % simid)
     flag_log = os.path.isfile(fn_log)
@@ -126,16 +124,15 @@ def create_simulation_report(simid, dir_="."):
         l_s.append("</pre>\n")
         html.write("".join(l_s))
 
-
         html.write(_h("2. Simulation specification", 2))
         if  flag_par:
             flag_par_ok = True
             try:
-                filepar = ao.FilePar()
+                filepar = ft.FilePar()
                 filepar.load(fn_par)
             except Exception as E:
                 flag_par_ok = False
-                ag.get_python_logger().exception("Failed to load file '%s'" % fn_par)
+                a99.get_python_logger().exception("Failed to load file '%s'" % fn_par)
                 html.write("(" + str(E) + ")")
 
             if flag_par_ok:
@@ -168,7 +165,7 @@ def create_simulation_report(simid, dir_="."):
                         s_h = repr(hdul[0].header)
                 html.write("<pre>%s</pre>\n" % s_h)
             except:
-                ag.get_python_logger().exception("Failed to dump header from file '%s'" % item.filename)
+                a99.get_python_logger().exception("Failed to dump header from file '%s'" % item.filename)
                 html.write(_color("Header dump failed", "red"))
             html.write("</td>\n")
 
@@ -178,22 +175,22 @@ def create_simulation_report(simid, dir_="."):
             try:
                 fig = None
                 FIGURE_WIDTH = 570
-                if isinstance(item.fileobj, ao.FileFullCube) and (not "cube_seeing" in item.filename):
+                if isinstance(item.fileobj, ft.FileFullCube) and (not "cube_seeing" in item.filename):
                     # note: skips "ifu_seeing" because it takes too long to renderize
                     fig = plt.figure()
                     ax = fig.gca(projection='3d')
-                    sparsecube = ao.SparseCube()
+                    sparsecube = ft.SparseCube()
                     sparsecube.from_full_cube(item.fileobj.wcube)
-                    ao.draw_cube_3d(ax, sparsecube)
-                    ag.set_figure_size(fig, FIGURE_WIDTH, 480. / 640 * FIGURE_WIDTH)
+                    ex.draw_cube_3d(ax, sparsecube)
+                    a99.set_figure_size(fig, FIGURE_WIDTH, 480. / 640 * FIGURE_WIDTH)
                     fig.tight_layout()
-                elif isinstance(item.fileobj, ag.FileSpectrum):
+                elif isinstance(item.fileobj, ft.FileSpectrum):
                     if item.keyword == "spintg":
                         sp_ref = item.fileobj.spectrum
-                    fig = ag.draw_spectra([item.fileobj.spectrum])
-                    ag.set_figure_size(fig, FIGURE_WIDTH, 270. / 640 * FIGURE_WIDTH)
+                    fig = ex.draw_spectra([item.fileobj.spectrum])
+                    a99.set_figure_size(fig, FIGURE_WIDTH, 270. / 640 * FIGURE_WIDTH)
                     fig.tight_layout()
-                elif isinstance(item.fileobj, ag.FileFits):
+                elif isinstance(item.fileobj, ft.FileFits):
                     if item.keyword == "mask_fiber_in_aperture":
                         fig = _draw_mask(item.fileobj)
                     elif item.keyword == "cube_seeing":
@@ -214,13 +211,12 @@ def create_simulation_report(simid, dir_="."):
                 # html.write("hello")
 
             except Exception as E:
-                ag.get_python_logger().exception("Failed to load file '%s'" % item.filename)
+                a99.get_python_logger().exception("Failed to load file '%s'" % item.filename)
                 html.write(_color("Visualization failed: "+str(E), "red"))
                 html.write('<pre style="text-align: left">\n'+traceback.format_exc()+"</pre>\n")
             html.write("</td>\n")
             html.write("</tr>\n")
         html.write("</table>\n")
-
 
         html.write(_h("4. Log file dump", 2))
         if  flag_log:
@@ -229,7 +225,7 @@ def create_simulation_report(simid, dir_="."):
                 with open(fn_log, "r") as file_log:
                     html.write(file_log.read())
             except Exception as E:
-                ag.get_python_logger().exception("Failed to dump log file '%s'" % fn_log)
+                a99.get_python_logger().exception("Failed to dump log file '%s'" % fn_log)
                 html.write("("+str(E)+")")
             html.write("</pre>\n")
         else:
@@ -249,7 +245,7 @@ def _draw_mask(filefits):
     HEIGHT = 300.
     nr, nc = hdu.data.shape
     width = HEIGHT/nr*nc
-    ag.set_figure_size(fig, width, HEIGHT)
+    a99.set_figure_size(fig, width, HEIGHT)
     plt.tight_layout()
     return fig
 
@@ -266,7 +262,7 @@ def _draw_field(filefits):
     HEIGHT = 300.
     nr, nc = grayscale.shape
     width = HEIGHT/nr*nc
-    ag.set_figure_size(fig, width, HEIGHT)
+    a99.set_figure_size(fig, width, HEIGHT)
     plt.tight_layout()
     return fig
 

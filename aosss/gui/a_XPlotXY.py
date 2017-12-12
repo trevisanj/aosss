@@ -1,65 +1,95 @@
 __all__ = ["XPlotXY"]
 
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 import numpy as np
 import matplotlib.pyplot as plt
-import astrogear as ag
-import aosss as ao
+import a99
+import f311.filetypes as ft
 
 
-class XPlotXY(ag.XLogMainWindow):
+LINE_COLOR = 'k'
+LINE_WIDTH = 2
+
+
+class XPlotXY(a99.XLogMainWindow):
     """
     Plots two fields of a SpectrumCollection object in a simple x-y plot
 
-    Arguments:
-      collection -- SpectrumCollection object
+    Args:
+      collection: SpectrumCollection object
     """
     def __init__(self, collection, *args):
-        ag.XLogMainWindow.__init__(self, *args)
+        a99.XLogMainWindow.__init__(self, *args)
 
         self._refs = []
+        self._drawers = [self._draw_line, self._draw_error]
+        self._buttons = []
         def keep_ref(obj):
             self._refs.append(obj)
             return obj
 
-        assert isinstance(collection, ao.SpectrumCollection)
+        assert isinstance(collection, ft.SpectrumCollection)
         self.collection = collection
 
         lw1 = keep_ref(QVBoxLayout())
 
-        lwset = keep_ref(QHBoxLayout())
-        lw1.addLayout(lwset)
+
+        # First bar of plot options
+
+        lwset0 = keep_ref(QHBoxLayout())
+        lw1.addLayout(lwset0)
+        ## Radio buttons for plot type
+        # Radio button group probably needs its own layout, I think
+        lwset0.addWidget(keep_ref(QLabel("Plot type")))
+        lwset01 = QHBoxLayout()
+        lwset0.addLayout(lwset01)
+        r = self.rb_line = QRadioButton("Line")
+        r.setChecked(True)
+        self._buttons.append(r)
+        lwset01.addWidget(r)
+        r = self.rb_error = QRadioButton("Error bars")
+        r.setToolTip("Groupx points by x-value and plots error bars "
+                     "(center: mean; bar: +- standard deviation")
+        self._buttons.append(r)
+        lwset01.addWidget(r)
+        lwset0.addSpacerItem(QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
+
+        # Second bar of plot options
+
+        lwset1 = keep_ref(QHBoxLayout())
+        lw1.addLayout(lwset1)
         ###
         laa = keep_ref(QLabel("&X-axis"))
-        lwset.addWidget(laa)
+        lwset1.addWidget(laa)
         ###
         cbx = self.comboBoxX = QComboBox()
         cbx.addItems(collection.fieldnames)
         laa.setBuddy(cbx)
-        lwset.addWidget(cbx)
+        lwset1.addWidget(cbx)
         ###
         laa = keep_ref(QLabel("&Y-axis"))
-        lwset.addWidget(laa)
+        lwset1.addWidget(laa)
         ###
         cby = self.comboBoxY = QComboBox()
         cby.addItems(collection.fieldnames)
         laa.setBuddy(cby)
-        lwset.addWidget(cby)
+        lwset1.addWidget(cby)
         ###
         b = keep_ref(QPushButton("Re&draw"))
-        lwset.addWidget(b)
+        lwset1.addWidget(b)
         b.clicked.connect(self.redraw)
         ###
-        lwset.addSpacerItem(QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        lwset1.addSpacerItem(QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
 
         ###
         wm = keep_ref(QWidget())
-        # wm.setMargin(0)
+        # a99.set_margin(wm, 0)
         lw1.addWidget(wm)
-        self.figure, self.canvas, self.lfig = ag.get_matplotlib_layout(wm)
+        self.figure, self.canvas, self.lfig = a99.get_matplotlib_layout(wm)
 
         cw = self.centralWidget = QWidget()
         cw.setLayout(lw1)
@@ -78,6 +108,10 @@ class XPlotXY(ag.XLogMainWindow):
 
     def redraw(self):
         try:
+            idx = self._get_plot_type_index()
+            if idx == -1:
+                raise RuntimeError("Cannot draw, plot type not selected")
+
             fig = self.figure
             fig.clear()
 
@@ -104,14 +138,51 @@ class XPlotXY(ag.XLogMainWindow):
                     pass
 
             sort_idxs = np.argsort(xx)
+
             xx = xx[sort_idxs]
             yy = yy[sort_idxs]
 
-            plt.plot(xx, yy, lw=2, color='k')
+            self._drawers[idx](xx, yy)
+
+            # Final adjustments
+            k = 0.02 # percentual margin to the left and to the right
+            xmin, xmax = np.min(xx), np.max(xx)
+            xspan = xmax-xmin
+            margin = .5 if xspan == 0 else xspan*k
+            plt.xlim([xmin-margin, xmax+margin])
             plt.xlabel(fieldname_x)
             plt.ylabel(fieldname_y)
-            ag.format_BLB()
+            plt.setp(list(plt.gca().spines.values()), linewidth=2)
+
+            a99.format_BLB()
             self.canvas.draw()
 
         except Exception as e:
-            self.add_log_error("Could draw figure: "+ag.str_exc(e), True)
+            a99.get_python_logger().exception("Error plotting")
+            self.add_log_error("Could draw figure: "+a99.str_exc(e), True)
+
+
+    def _get_plot_type_index(self):
+        for i, b in enumerate(self._buttons):
+            if b.isChecked():
+                return i
+        return -1
+
+
+    def _draw_line(self, xx, yy):
+        plt.plot(xx, yy, lw=2, color=LINE_COLOR)
+
+    def _draw_error(self, xx, yy):
+        """Draws error plot using x-values to group y-values"""
+
+        xunique = np.unique(xx)
+        n = len(xunique)
+        y, errors = np.zeros(n), np.zeros(n)
+
+        for i, xnow in enumerate(xunique):
+            ysel = yy[xx == xnow]
+            y[i] = np.mean(ysel)
+            errors[i] = np.std(ysel)
+
+        plt.plot(xunique, y, color=LINE_COLOR, lw=LINE_WIDTH, linestyle="--")
+        plt.errorbar(xunique, y, yerr=errors, fmt="o", markeredgewidth=LINE_WIDTH, markersize=8, markerfacecolor=(1., 1., 1.), color=LINE_COLOR, lw=LINE_WIDTH)

@@ -1,31 +1,32 @@
 __all__ = ["XPlotXYZ"]
 
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-import astrogear as ag
-import aosss as ao
+import a99
+import f311.filetypes as ft
 
 
-class XPlotXYZ(ag.XLogMainWindow):
+class XPlotXYZ(a99.XLogMainWindow):
     """
     Plots two fields of a SpectrumCollection object in a simple x-y plot
 
-    Arguments:
-      collection -- SpectrumCollection object
+    Args:
+      collection: SpectrumCollection object
     """
     def __init__(self, collection, *args):
-        ag.XLogMainWindow.__init__(self, *args)
+        a99.XLogMainWindow.__init__(self, *args)
 
         self._refs = []
         def keep_ref(obj):
             self._refs.append(obj)
             return obj
 
-        assert isinstance(collection, ao.SpectrumCollection)
+        assert isinstance(collection, ft.SpectrumCollection)
         self.collection = collection
 
         lw1 = keep_ref(QVBoxLayout())
@@ -66,9 +67,9 @@ class XPlotXYZ(ag.XLogMainWindow):
 
         ###
         wm = keep_ref(QWidget())
-        # wm.setMargin(0)
+        # a99.set_margin(wm, 0)
         lw1.addWidget(wm)
-        self.figure, self.canvas, self.lfig = ag.get_matplotlib_layout(wm)
+        self.figure, self.canvas, self.lfig = a99.get_matplotlib_layout(wm)
 
         cw = self.centralWidget = QWidget()
         cw.setLayout(lw1)
@@ -129,8 +130,8 @@ class XPlotXYZ(ag.XLogMainWindow):
             plt.xlabel(fieldname_x)
             plt.ylabel(fieldname_y)
             plt.ylabel(fieldname_z)
-            ag.format_BLB()
+            a99.format_BLB()
             self.canvas.draw()
 
         except Exception as e:
-            self.add_log_error("Could draw figure: "+ag.str_exc(e), True)
+            self.add_log_error("Could draw figure: "+a99.str_exc(e), True)

@@ -1,0 +1,12 @@
+numpy
+scipy
+matplotlib
+astropy
+configobj
+pyqt5
+tabulate
+fortranformat
+bs4
+robobrowser
+requests
+a99

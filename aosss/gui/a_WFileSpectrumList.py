@@ -9,17 +9,19 @@ import numpy as np
 import os
 import os.path
 from itertools import product, combinations, cycle
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from .a_WSpectrumCollection import *
-import astrogear as ag
-import aosss as ao
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
+from .a_WSpectrumList import *
+import a99
+import f311.filetypes as ft
 
-class WFileSpectrumList(ag.WBase):
+
+class WFileSpectrumList(a99.WEditor):
     """
     FileSpectrumList editor widget.
 
-    Arguments:
+    Args:
       parent=None
     """
 
@@ -28,24 +30,21 @@ class WFileSpectrumList(ag.WBase):
         return self.wsptable.menu_actions
 
     def __init__(self, parent):
-        ag.WBase.__init__(self, parent)
+        a99.WEditor.__init__(self, parent)
 
         def keep_ref(obj):
             self._refs.append(obj)
             return obj
 
-        # Whether __update_f() went ok
-        self.flag_valid = False
         # Internal flag to prevent taking action when some field is updated programatically
         self.flag_process_changes = False
         # Whether there is sth in yellow background in the Headers tab
         self.flag_header_changed = False
-        self.f = None  # FileSpectrumList object
         self.obj_square = None
 
         # # Central layout
-        lantanide = self.centralLayout = QVBoxLayout()
-        lantanide.setMargin(0)
+        lantanide = self.layout_editor
+        a99.set_margin(lantanide, 0)
         self.setLayout(lantanide)
 
         # ## Horizontal splitter occupying main area: (options area) | (plot area)
@@ -55,91 +54,28 @@ class WFileSpectrumList(ag.WBase):
         # ## Widget left of horizontal splitter, containing (File Line) / (Options area)
         wfilett0 = keep_ref(QWidget())
         lwfilett0 = QVBoxLayout(wfilett0)
-        lwfilett0.setMargin(0)
-
-        # ### Line showing the File Name
-        wfile = keep_ref(QWidget())
-        lwfilett0.addWidget(wfile)
-        l1 = keep_ref(QHBoxLayout(wfile))
-        l1.setMargin(0)
-        l1.addWidget(keep_ref(QLabel("<b>File:<b>")))
-        w = self.label_fn = QLabel()
-        l1.addWidget(w)
-        l1.addSpacerItem(QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        a99.set_margin(lwfilett0, 0)
 
         # ### Tabbed widget occupying left of horizontal splitter (OPTIONS TAB)
         tt0 = self.tabWidgetOptions = QTabWidget(self)
         lwfilett0.addWidget(tt0)
-        tt0.setFont(ag.MONO_FONT)
+        tt0.setFont(a99.MONO_FONT)
         tt0.currentChanged.connect(self.current_tab_changed_options)
 
         # #### Tab: Vertical Splitter between "Place Spectrum" and "Existing Spectra"
         spp = QSplitter(Qt.Vertical)
         tt0.addTab(spp, "&Spectra")
 
-        # # ##### Place Spectrum area
-        # # Widget that will be handled by the scrollable area
-        # sa0 = keep_ref(QScrollArea())
-        # sa0.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        # sa0.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        # wscrw = keep_ref(QWidget())
-        # sa0.setWidget(wscrw)
-        # sa0.setWidgetResizable(True)
-        # ###
-        # lscrw = QVBoxLayout(wscrw)
-        # lscrw.setMargin(3)
-        # ###
-        # alabel = keep_ref(QLabel("<b>Add spectrum</b>"))
-        # lscrw.addWidget(alabel)
-        # ###
-        # # Place Spectrum variables & button
-        # lg = keep_ref(QGridLayout())
-        # lscrw.addLayout(lg)
-        # lg.setMargin(0)
-        # lg.setVerticalSpacing(4)
-        # lg.setHorizontalSpacing(5)
-        # # lscrw.addSpacerItem(QSpacerItem(0, 0, QSizePolicy.Minimum, QSizePolicy.Expanding))
-        #
-        # # field map: [(label widget, edit widget, field name, short description, long description), ...]
-        # pp = self._map0 = []
-        # ###
-        # x = self.label_sp = QLabel()
-        # y = self.choosesp = WChooseSpectrum()
-        # y.installEventFilter(self)
-        # y.edited.connect(self.on_colors_setup_edited)
-        # # y.setValidator(QIntValidator())
-        # x.setBuddy(y)
-        # pp.append((x, y, "&spectrum", ".dat, .fits ...", ""))
-        #
-        # for i, (label, edit, name, short_descr, long_descr) in enumerate(pp):
-        #     # label.setStyleSheet("QLabel {text-align: right}")
-        #     assert isinstance(label, QLabel)
-        #     label.setText(ag.enc_name_descr(name, short_descr))
-        #     label.setAlignment(Qt.AlignRight)
-        #     lg.addWidget(label, i, 0)
-        #     lg.addWidget(edit, i, 1)
-        #     label.setToolTip(long_descr)
-        #     edit.setToolTip(long_descr)
-        #
-        # # button
-        # l = QHBoxLayout()
-        # lscrw.addLayout(l)
-        # l.setMargin(0)
-        # l.addSpacerItem(QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
-        # b = QPushButton("&Place spectrum")
-        # l.addWidget(b)
-        # b.clicked.connect(self.add_spectrum_clicked)
-
 
         # ##### Spectrum Collection Editor area
         wex = QWidget()
         lwex = QVBoxLayout(wex)
-        lwex.setMargin(3)
+        a99.set_margin(lwex, 3)
         # ###
         # lwex.addWidget(keep_ref(QLabel("<b>Existing spectra</b>")))
         ###
-        w = self.wsptable = WSpectrumCollection(self.parent_form)
-        w.edited.connect(self.on_spectra_edited)
+        w = self.wsptable = WSpectrumList(self.parent_form)
+        w.changed.connect(self.on_spectra_edited)
         lwex.addWidget(w)
 
         # ##### Finally...
@@ -157,7 +93,7 @@ class WFileSpectrumList(ag.WBase):
         sa1.setWidget(w)
         sa1.setWidgetResizable(True)
         lscrw = QVBoxLayout(w)
-        lscrw.setMargin(3)
+        a99.set_margin(lscrw, 3)
         ###
         lscrw.addWidget(keep_ref(QLabel("<b>Header properties</b>")))
 
@@ -168,7 +104,7 @@ class WFileSpectrumList(ag.WBase):
 
         # Form layout
         lg = keep_ref(QGridLayout())
-        lg.setMargin(0)
+        a99.set_margin(lg, 0)
         lg.setVerticalSpacing(4)
         lg.setHorizontalSpacing(5)
         lscrw.addLayout(lg)
@@ -176,21 +112,21 @@ class WFileSpectrumList(ag.WBase):
         lscrw.addSpacerItem(QSpacerItem(0, 0, QSizePolicy.Minimum, QSizePolicy.Expanding))
 
         # field map: [(label widget, edit widget, field name, short description, long description, f_from_f, f_from_edit), ...]
-        pp = self._map1 = []
+        map = self._map1 = []
 
         ###
         x = keep_ref(QLabel())
         y = self.edit_fieldnames = QPlainTextEdit()
         y.textChanged.connect(self.on_header_edited)
         x.setBuddy(y)
-        pp.append((x, y, "&Field names", "'header' information for each spectrum", "", lambda: self.f.splist.fieldnames,
+        map.append((x, y, "&Field names", "'header' information for each spectrum", "", lambda: self._f.splist.fieldnames,
                    lambda: self.edit_fieldnames.toPlainText()))
         ###
 
-        for i, (label, edit, name, short_descr, long_descr, f_from_f, f_from_edit) in enumerate(pp):
+        for i, (label, edit, name, short_descr, long_descr, f_from_f, f_from_edit) in enumerate(map):
             # label.setStyleSheet("QLabel {text-align: right}")
             assert isinstance(label, QLabel)
-            label.setText(ag.enc_name_descr(name, short_descr))
+            label.setText(a99.enc_name_descr(name, short_descr))
             label.setAlignment(Qt.AlignRight)
             lg.addWidget(label, i, 0)
             lg.addWidget(edit, i, 1)
@@ -198,7 +134,7 @@ class WFileSpectrumList(ag.WBase):
             edit.setToolTip(long_descr)
 
         lgo = QHBoxLayout()
-        lgo.setMargin(0)
+        a99.set_margin(lgo, 0)
         lscrw.addLayout(lgo)
         ###
         bgo = self.button_revert = QPushButton("Revert")
@@ -211,63 +147,39 @@ class WFileSpectrumList(ag.WBase):
         ###
         lgo.addSpacerItem(QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
-        # #### More Tools tab
-        wset = keep_ref(QWidget())
-        tt0.addTab(wset, "&More")
-        lwset = keep_ref(QVBoxLayout(wset))
-        ###
-        la = keep_ref(QLabel("<b>Data manipulation</b>"))
-        lwset.addWidget(la)
-        ###
-        b = keep_ref(QPushButton("&Crop in new window..."))
-        lwset.addWidget(b)
-        b.clicked.connect(self.crop_clicked)
-        ###
-        b = keep_ref(QPushButton("Add &noise..."))
-        lwset.addWidget(b)
-        b.clicked.connect(self.add_noise_clicked)
-        ###
-        b = keep_ref(QPushButton("&Upper envelopes"))
-        lwset.addWidget(b)
-        b.clicked.connect(self.rubberband_clicked)
-        ###
-        b = keep_ref(QPushButton("&Extract continua"))
-        lwset.addWidget(b)
-        b.clicked.connect(self.extract_continua_clicked)
-        ###
-        lwset.addSpacerItem(QSpacerItem(0, 0, QSizePolicy.Minimum, QSizePolicy.Expanding))
-
-        # # ### Tabbed widget occupying right of horizontal splitter
-        # tt1 = self.tabWidgetVis = QTabWidget(self)
-        # tt1.setFont(ag.MONO_FONT)
-        # tt1.currentChanged.connect(self.current_tab_changed_vis)
-        #
-        # # #### Tab containing 3D plot representation
-        # w0 = keep_ref(QWidget())
-        # tt1.addTab(w0, "&P")
-        # # #### Colors tab
-        # w1 = keep_ref(QWidget())
-        # tt1.addTab(w1, "&Q")
-
         # ### Finally ...
         sp2.addWidget(wfilett0)
         # sp2.addWidget(tt1)
 
 
         self.setEnabled(False)  # disabled until load() is called
-        ag.style_checkboxes(self)
+        a99.style_checkboxes(self)
         self.flag_process_changes = True
         self.add_log("Welcome from %s.__init__()" % (self.__class__.__name__))
 
     # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * #
     # # Interface
 
-    def load(self, x):
-        assert isinstance(x, ao.FileSpectrumList)
-        self.f = x
+    def _do_load(self, x):
+        assert isinstance(x, (ft.FileSpectrum, ft.FileSpectrumList, ft.FileFullCube))
+
+        # Converts from FileFullCube to FileSpectrumList format, if necessary
+        x1 = None
+        if isinstance(x, ft.FileFullCube):
+            x1 = ft.FileSpectrumList()
+            x1.splist.from_full_cube(x.wcube)
+        elif isinstance(x, ft.FileSpectrum):
+            x1 = ft.FileSpectrumList()
+            x1.splist.add_spectrum(x.spectrum)
+        if x1:
+            x1.filename = a99.add_bits_to_path(x.filename, "imported-from-",
+             os.path.splitext(ft.FileSpectrumList.default_filename)[1])
+            x = x1
+
+        self._f = x
         self.wsptable.set_collection(x.splist)
         self.__update_gui(True)
-        self.flag_valid = True  # assuming that file does not come with errors
+        self._flag_valid = True  # assuming that file does not come with errors
         self.setEnabled(True)
 
     def update_splist_headers(self, splist):
@@ -277,23 +189,21 @@ class WFileSpectrumList(ag.WBase):
         flag_emit = False
         try:
             ss = "fieldnames"
-            ff = ag.eval_fieldnames(str(self.edit_fieldnames.toPlainText()))
+            ff = a99.eval_fieldnames(str(self.edit_fieldnames.toPlainText()))
             splist.fieldnames = ff
             self.__update_gui(True)
             flag_emit = True
         except Exception as E:
             flag_error = True
             if ss:
-                emsg = "Field '%s': %s" % (ss, ag.str_exc(E))
+                emsg = "Field '%s': %s" % (ss, a99.str_exc(E))
             else:
-                emsg = ag.str_exc(E)
+                emsg = a99.str_exc(E)
             self.add_log_error(emsg)
         if flag_emit:
             self.__emit_if()
         return not flag_error
 
-    def update_gui_label_fn(self):
-        self.__update_gui_label_fn()
 
     # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * #
     # # Qt override
@@ -317,7 +227,7 @@ class WFileSpectrumList(ag.WBase):
                 changed = f_from_f() != f_from_edit()
                 sth = sth or changed
                 if edit == sndr:
-                    ag.style_widget_changed(self.sender(), changed)
+                    a99.style_widget_changed(self.sender(), changed)
             self.set_flag_header_changed(sth)
 
     def add_spectrum_clicked(self):
@@ -327,20 +237,20 @@ class WFileSpectrumList(ag.WBase):
             if not sp:
                 raise RuntimeError("Spectrum not loaded")
             sp = copy.deepcopy(sp)
-            self.f.splist.add_spectrum(sp)
+            self._f.splist.add_spectrum(sp)
             self.__update_gui()
             flag_emit = True
         except Exception as E:
-            self.add_log_error(ag.str_exc(E), True)
+            self.add_log_error(a99.str_exc(E), True)
             raise
         if flag_emit:
-            self.edited.emit()
+            self.changed.emit()
 
     def header_revert(self):
         self.__update_gui_header()
 
     def header_apply(self):
-        if self.update_splist_headers(self.f.splist):
+        if self.update_splist_headers(self._f.splist):
             self.__update_gui(True)
 
     def current_tab_changed_vis(self):
@@ -351,63 +261,10 @@ class WFileSpectrumList(ag.WBase):
     def current_tab_changed_options(self):
         pass
 
-    def crop_clicked(self):
-        try:
-            splist = self.f.splist
-            specs = (("wavelength_range", {"value": "[%g, %g]" % (splist.wavelength[0], splist.wavelength[-1])}),)
-            form = ag.XParametersEditor(specs=specs, title="Add Gaussian noise")
-            while True:
-                r = form.exec_()
-                if not r:
-                    break
-                kk = form.get_kwargs()
-                s = ""
-                try:
-                    s = "wavelength_range"
-                    lambda0, lambda1 = eval(kk["wavelength_range"])
-                except Exception as E:
-                    self.add_log_error("Failed evaluating %s: %s" % (s, ag.str_exc(E)), True)
-                    continue
-
-                # Works with clone, then replaces original, to ensure atomic operation
-                clone = copy.deepcopy(self.f)
-                clone.filename = None
-                try:
-                    clone.splist.crop(lambda0, lambda1)
-                except Exception as E:
-                    self.add_log_error("Crop operation failed: %s" % ag.str_exc(E), True)
-                    continue
-
-                self.__new_window(clone)
-                break
-
-        except Exception as E:
-            self.add_log_error("Crop failed: %s" % ag.str_exc(E), True)
-            raise
-
-    def rubberband_clicked(self):
-        self.__use_sblock(ao.SB_Rubberband(flag_upper=True))
-
-    def add_noise_clicked(self):
-        specs = (("std", {"caption": "Noise standard deviation", "value": 1.}),)
-        form = ag.XParametersEditor(specs=specs, title="Select sub-range")
-        if form.exec_():
-            block = ao.SB_AddNoise(**form.get_kwargs())
-            self.__use_sblock(block)
-
-    def extract_continua_clicked(self):
-        self.__use_slblock(ao.SLB_ExtractContinua())
-
-    # def std_clicked(self):
-    #     self.__use_slblock(MergeDown(np.std))
-    #
-    # def snr_clicked(self):
-    #     self.__use_slblock(GB_SNR())
-
     def on_collect_fieldnames(self):
         # TODO confirmation
 
-        self.edit_fieldnames.setPlainText(str(self.f.splist.collect_fieldnames()))
+        self.edit_fieldnames.setPlainText(str(self._f.splist.collect_fieldnames()))
 
     #        self.__update_gui(True)
 
@@ -415,38 +272,28 @@ class WFileSpectrumList(ag.WBase):
         if flag_changed_header:
             self.__update_gui_header()
         self.__update_gui_vis()
-        self.edited.emit()
+        self.changed.emit()
 
     # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * #
     # # Internal gear
 
     def __emit_if(self):
         if self.flag_process_changes:
-            self.edited.emit()
+            self.changed.emit()
 
     def __update_gui(self, flag_header=False):
-        """Updates GUI to reflect what is in self.f"""
+        """Updates GUI to reflect what is in self._f"""
         self.flag_process_changes = False
         try:
-            self.__update_gui_label_fn()
             self.wsptable.update()
             if flag_header:
                 self.__update_gui_header()
         finally:
             self.flag_process_changes = True
 
-    def __update_gui_label_fn(self):
-        if not self.f:
-            text = "(not loaded)"
-        elif self.f.filename:
-            text = os.path.relpath(self.f.filename, ".")
-        else:
-            text = "(filename not set)"
-        self.label_fn.setText(text)
-
     def __update_gui_header(self):
         """Updates header controls only"""
-        splist = self.f.splist
+        splist = self._f.splist
         self.edit_fieldnames.setPlainText(str(splist.fieldnames))
         self.set_flag_header_changed(False)
 
@@ -460,10 +307,10 @@ class WFileSpectrumList(ag.WBase):
         if not flag:
             # If not changed, removes all eventual yellows
             for _, edit, _, _, _, _, _ in self._map1:
-                ag.style_widget_changed(edit, False)
+                a99.style_widget_changed(edit, False)
 
     def __update_f(self):
-        self.flag_valid = self.update_splist_headers(self.f.splist)
+        self._flag_valid = self.update_splist_headers(self._f.splist)
 
     def __new_window(self, clone):
         """Opens new FileSparseCube in new window"""
@@ -473,11 +320,12 @@ class WFileSpectrumList(ag.WBase):
 
     def __use_sblock(self, block):
         """Uses block and opens result in new window"""
+        from f311 import explorer as ex
 
-        # Does not touch the original self.f
-        clone = copy.deepcopy(self.f)
+        # Does not touch the original self._f
+        clone = copy.deepcopy(self._f)
         clone.filename = None
-        slblock = ao.SLB_UseSpectrumBlock()
+        slblock = ex.SLB_UseSpectrumBlock()
         for i, sp in enumerate(clone.splist.spectra):
             clone.splist.spectra[i] = block.use(sp)
         self.__new_window(clone)
@@ -486,13 +334,13 @@ class WFileSpectrumList(ag.WBase):
         """Uses block and opens result in new window"""
         # Here not cloning current spectrum list, but trusting the block
         block.flag_copy_wavelength = True
-        output = block.use(self.f.splist)
+        output = block.use(self._f.splist)
         f = self.__new_from_existing()
         f.splist = output
         self.__new_window(f)
 
     def __new_from_existing(self):
         """Creates new FileSpectrumList from existing one"""
-        f = ao.FileSpectrumList()
+        f = ft.FileSpectrumList()
         return f
 

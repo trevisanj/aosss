@@ -9,30 +9,31 @@ import numpy as np
 import os
 import os.path
 from itertools import product, combinations, cycle
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 from .a_XScaleSpectrum import *
-from .a_WSpectrumCollection import *
-import astrogear as ag
-import aosss as ao
+from .a_WSparseCube import *
+import a99
+import f311.filetypes as ft
+
 
 _COLORS_SQ = [(.1, .6, .5), (.5, .1, .7)]
 _ITER_COLORS_SQ = cycle(_COLORS_SQ)
 
 
-class WFileSparseCube(ag.WBase):
+class WFileSparseCube(a99.WEditor):
     """
     FileSparseCube editor widget.
 
-    Arguments:
+    Args:
       parent=None
     """
 
     def __init__(self, parent):
-        ag.WBase.__init__(self, parent)
+        from f311 import explorer as ex
+        a99.WEditor.__init__(self, parent)
 
-        # Whether all the values in the fields are valid or not
-        self.flag_valid = False
         # Internal flag to prevent taking action when some field is updated programatically
         self.flag_process_changes = False
         # GUI update needed but cannot be applied immediately, e.g. visible range being edited
@@ -42,12 +43,11 @@ class WFileSparseCube(ag.WBase):
         self.map_update_vis = [self.plot_spectra, self.plot_colors]
         # Whether there is sth in yellow background in the Headers tab
         self.flag_header_changed = False
-        self.f = None  # FileSparseCube object
         self.obj_square = None
 
         # # Central layout
-        lantanide = self.centralLayout = QVBoxLayout()
-        lantanide.setMargin(0)
+        lantanide = self.layout_editor
+        a99.set_margin(lantanide, 0)
         self.setLayout(lantanide)
 
         # ## Horizontal splitter occupying main area: (options area) | (plot area)
@@ -57,120 +57,28 @@ class WFileSparseCube(ag.WBase):
         # ## Widget left of horizontal splitter, containing (File Line) / (Options area)
         wfilett0 = self.keep_ref(QWidget())
         lwfilett0 = QVBoxLayout(wfilett0)
-        lwfilett0.setMargin(0)
-
-        # ### Line showing the File Name
-        wfile = self.keep_ref(QWidget())
-        lwfilett0.addWidget(wfile)
-        l1 = self.keep_ref(QHBoxLayout(wfile))
-        l1.setMargin(0)
-        l1.addWidget(self.keep_ref(QLabel("<b>File:<b>")))
-        w = self.label_fn_sky = QLabel()
-        l1.addWidget(w)
-        l1.addSpacerItem(QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        a99.set_margin(lwfilett0, 0)
 
         # ### Tabbed widget occupying left of horizontal splitter (OPTIONS TAB)
         tt0 = self.tabWidgetOptions = QTabWidget(self)
         lwfilett0.addWidget(tt0)
-        tt0.setFont(ag.MONO_FONT)
+        tt0.setFont(a99.MONO_FONT)
         tt0.currentChanged.connect(self.current_tab_changed_options)
 
         # #### Tab: Vertical Splitter between "Place Spectrum" and "Existing Spectra"
         spp = QSplitter(Qt.Vertical)
         tt0.addTab(spp, "&Spectra")
 
-        # ##### Place Spectrum area
-        # Widget that will be handled by the scrollable area
-        sa0 = self.keep_ref(QScrollArea())
-        sa0.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        sa0.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        wscrw = self.keep_ref(QWidget())
-        sa0.setWidget(wscrw)
-        sa0.setWidgetResizable(True)
-        ###
-        lscrw = QVBoxLayout(wscrw)
-        lscrw.setMargin(3)
-        ###
-        alabel = self.keep_ref(QLabel("<b>Place spectrum</b>"))
-        lscrw.addWidget(alabel)
-        ###
-        # Place Spectrum variables & button
-        lg = self.keep_ref(QGridLayout())
-        lscrw.addLayout(lg)
-        lg.setMargin(0)
-        lg.setVerticalSpacing(4)
-        lg.setHorizontalSpacing(5)
-        # lscrw.addSpacerItem(QSpacerItem(0, 0, QSizePolicy.Minimum, QSizePolicy.Expanding))
-
-        # field map: [(label widget, edit widget, field name, short description, long description), ...]
-        pp = self._map0 = []
-        ###
-        x = self.label_sp = QLabel()
-        y = self.choosesp = ag.WChooseSpectrum()
-        y.installEventFilter(self)
-        y.edited.connect(self.on_colors_setup_edited)
-        # y.setValidator(QIntValidator())
-        x.setBuddy(y)
-        pp.append((x, y, "&spectrum", ".dat, .fits ...", ""))
-        ###
-        x = self.label_x = QLabel()
-        y = self.spinbox_X = QSpinBox()
-        y.valueChanged.connect(self.on_place_spectrum_edited)
-        y.setMinimum(0)
-        y.setMaximum(1000)
-        x.setBuddy(y)
-        pp.append((x, y, "&x", "x-coordinate<br>(pixels; 0-based)", ""))
-        ###
-        x = self.label_y = QLabel()
-        # TODO more elegant as spinboxes
-        y = self.spinbox_Y = QSpinBox()
-        y.valueChanged.connect(self.on_place_spectrum_edited)
-        y.setMinimum(0)
-        y.setMaximum(1000)
-        x.setBuddy(y)
-        pp.append((x, y, "&y", "y-coordinate", ""))
-        # ##### FWHM maybe later
-        # x = self.label_fwhm = QLabel()
-        # y = self.lineEdit_fwhm = QLineEdit()
-        # y.installEventFilter(self)
-        # y.textEdited.connect(self.on_place_spectrum_edited)
-        # y.setValidator(QDoubleValidator(0, 10, 5))
-        # x.setBuddy(y)
-        # pp.append((x, y, "f&whm", "full width at<br>half-maximum (pixels)", ""))
-
-
-        for i, (label, edit, name, short_descr, long_descr) in enumerate(pp):
-            # label.setStyleSheet("QLabel {text-align: right}")
-            assert isinstance(label, QLabel)
-            label.setText(ag.enc_name_descr(name, short_descr))
-            label.setAlignment(Qt.AlignRight)
-            lg.addWidget(label, i, 0)
-            lg.addWidget(edit, i, 1)
-            label.setToolTip(long_descr)
-            edit.setToolTip(long_descr)
-
-        # button
-        l = QHBoxLayout()
-        lscrw.addLayout(l)
-        l.setMargin(0)
-        l.addSpacerItem(QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
-        b = QPushButton("&Place spectrum")
-        l.addWidget(b)
-        b.clicked.connect(self.go_clicked)
-
         # ##### Existing Spectra area
         wex = QWidget()
         lwex = QVBoxLayout(wex)
-        lwex.setMargin(3)
+        a99.set_margin(lwex, 3)
         ###
-        lwex.addWidget(self.keep_ref(QLabel("<b>Existing spectra</b>")))
-        ###
-        w = self.wsptable = WSpectrumCollection(self.parent_form)
-        w.edited.connect(self.on_spectra_edited)
+        w = self.wsptable = WSparseCube(self.parent_form)
+        w.changed.connect(self.on_spectra_edited)
         lwex.addWidget(w)
 
         # ##### Finally...
-        spp.addWidget(sa0)
         spp.addWidget(wex)
 
         # #### Second tab (NEW FileSparseCube)
@@ -184,7 +92,7 @@ class WFileSparseCube(ag.WBase):
         sa1.setWidget(w)
         sa1.setWidgetResizable(True)
         lscrw = QVBoxLayout(w)
-        lscrw.setMargin(3)
+        a99.set_margin(lscrw, 3)
         ###
         lscrw.addWidget(self.keep_ref(QLabel("<b>Header properties</b>")))
         ###
@@ -194,7 +102,7 @@ class WFileSparseCube(ag.WBase):
 
         # Form layout
         lg = self.keep_ref(QGridLayout())
-        lg.setMargin(0)
+        a99.set_margin(lg, 0)
         lg.setVerticalSpacing(4)
         lg.setHorizontalSpacing(5)
         lscrw.addLayout(lg)
@@ -202,14 +110,14 @@ class WFileSparseCube(ag.WBase):
         lscrw.addSpacerItem(QSpacerItem(0, 0, QSizePolicy.Minimum, QSizePolicy.Expanding))
 
         # field map: [(label widget, edit widget, field name, short description, long description), ...]
-        pp = self._map1 = []
+        map = self._map1 = []
 
         ###
         x = self.keep_ref(QLabel())
         y = self.edit_fieldnames = QPlainTextEdit()
         y.textChanged.connect(self.on_header_edited)
         x.setBuddy(y)
-        pp.append((x, y, "&Field names", "'header' information for each spectrum", "", lambda: self.f.sparsecube.fieldnames,
+        map.append((x, y, "&Field names", "'header' information for each spectrum", "", lambda: self.f.sparsecube.fieldnames,
                    lambda: self.edit_fieldnames.toPlainText()))
         ###
         x = self.label_width = QLabel()
@@ -218,7 +126,7 @@ class WFileSparseCube(ag.WBase):
         y.setMinimum(1)
         y.setMaximum(1000)
         x.setBuddy(y)
-        pp.append((x, y, "&width", "hi-resolution (HR) width (pixels)", "", lambda: self.f.sparsecube.width,
+        map.append((x, y, "&width", "hi-resolution (HR) width (pixels)", "", lambda: self.f.sparsecube.width,
                    lambda: self.spinbox_width.value()))
         ###
         x = self.label_height = QLabel()
@@ -227,7 +135,7 @@ class WFileSparseCube(ag.WBase):
         y.setMinimum(0)
         y.setMaximum(1000)
         x.setBuddy(y)
-        pp.append(
+        map.append(
             (x, y, "&height", "HR height (pixels)", "", lambda: self.f.sparsecube.height, lambda: self.spinbox_height.value()))
         ###
         x = self.label_hrfactor = QLabel()
@@ -236,7 +144,7 @@ class WFileSparseCube(ag.WBase):
         y.setMinimum(1)
         y.setMaximum(100)
         x.setBuddy(y)
-        pp.append((x, y, "&hrfactor", "(HR width)/(ifu width)", "", lambda: self.f.sparsecube.hrfactor,
+        map.append((x, y, "&hrfactor", "(HR width)/(ifu width)", "", lambda: self.f.sparsecube.hrfactor,
                    lambda: self.spinbox_hrfactor.value()))
         ###
         x = self.label_hr_pix_size = QLabel()
@@ -245,7 +153,7 @@ class WFileSparseCube(ag.WBase):
         y.textEdited.connect(self.on_header_edited)
         y.setValidator(QDoubleValidator(0, 1, 7))
         x.setBuddy(y)
-        pp.append((x, y, "&hr_pix_size", "HR pixel width/height (arcsec)", "", lambda: self.f.sparsecube.hr_pix_size,
+        map.append((x, y, "&hr_pix_size", "HR pixel width/height (arcsec)", "", lambda: self.f.sparsecube.hr_pix_size,
                    lambda: float(self.lineEdit_hr_pix_size.text())))
         ###
         x = self.label_hrfactor = QLabel()
@@ -255,13 +163,13 @@ class WFileSparseCube(ag.WBase):
         y.setMaximum(100000)
         y.setSingleStep(100)
         x.setBuddy(y)
-        pp.append(
+        map.append(
             (x, y, "&R", "resolution (delta lambda)/lambda", "", lambda: self.f.sparsecube.R, lambda: self.spinbox_R.value()))
 
-        for i, (label, edit, name, short_descr, long_descr, f_from_f, f_from_edit) in enumerate(pp):
+        for i, (label, edit, name, short_descr, long_descr, f_from_f, f_from_edit) in enumerate(map):
             # label.setStyleSheet("QLabel {text-align: right}")
             assert isinstance(label, QLabel)
-            label.setText(ag.enc_name_descr(name, short_descr))
+            label.setText(a99.enc_name_descr(name, short_descr))
             label.setAlignment(Qt.AlignRight)
             lg.addWidget(label, i, 0)
             lg.addWidget(edit, i, 1)
@@ -269,7 +177,7 @@ class WFileSparseCube(ag.WBase):
             edit.setToolTip(long_descr)
 
         lgo = QHBoxLayout()
-        lgo.setMargin(0)
+        a99.set_margin(lgo, 0)
         lscrw.addLayout(lgo)
         ###
         bgo = self.button_revert = QPushButton("Revert")
@@ -282,6 +190,8 @@ class WFileSparseCube(ag.WBase):
         ###
         lgo.addSpacerItem(QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
+
+        # TODO get rid of this
         # #### More Tools tab
         wset = self.keep_ref(QWidget())
         tt0.addTab(wset, "&More")
@@ -291,7 +201,7 @@ class WFileSparseCube(ag.WBase):
         lwset.addWidget(b)
         b.clicked.connect(self.crop_clicked)
         ###
-        b = self.keep_ref(QPushButton("E&xport %s ..." % ao.FileFullCube.description))
+        b = self.keep_ref(QPushButton("E&xport %s ..." % ft.FileFullCube.description))
         lwset.addWidget(b)
         b.clicked.connect(self.export_ccube_clicked)
         ###
@@ -299,14 +209,14 @@ class WFileSparseCube(ag.WBase):
 
         # ### Tabbed widget occupying right of horizontal splitter
         tt1 = self.tabWidgetVis = QTabWidget(self)
-        tt1.setFont(ag.MONO_FONT)
+        tt1.setFont(a99.MONO_FONT)
         tt1.currentChanged.connect(self.current_tab_changed_vis)
 
         # #### Tab containing 3D plot representation
         w0 = self.keep_ref(QWidget())
         tt1.addTab(w0, "&Plot 3D")
         # http://stackoverflow.com/questions/12459811
-        self.figure0, self.canvas0, self.lfig0 = ag.get_matplotlib_layout(w0)
+        self.figure0, self.canvas0, self.lfig0 = a99.get_matplotlib_layout(w0)
 
         # lscrw.addLayout(lfig)
 
@@ -349,9 +259,9 @@ class WFileSparseCube(ag.WBase):
         lwset.addSpacerItem(QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
         ###
         wm = self.keep_ref(QWidget())
-        # wm.setMargin(0)
+        # a99.set_margin(wm, 0)
         lw1.addWidget(wm)
-        self.figure1, self.canvas1, self.lfig1 = ag.get_matplotlib_layout(wm)
+        self.figure1, self.canvas1, self.lfig1 = a99.get_matplotlib_layout(wm)
         self.canvas1.mpl_connect('button_press_event', self.on_colors_click)
 
         # ### Finally ...
@@ -366,23 +276,31 @@ class WFileSparseCube(ag.WBase):
         t.start()
 
         self.setEnabled(False)  # disabled until load() is called
-        ag.style_checkboxes(self)
+        a99.style_checkboxes(self)
         self.flag_process_changes = True
         self.add_log("Welcome from %s.__init__()" % (self.__class__.__name__))
 
     # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * #
     # # Interface
 
-    def load(self, x):
-        assert isinstance(x, ao.FileSparseCube)
-        self.f = x
+    def _do_load(self, x):
+        assert isinstance(x, (ft.FileSparseCube, ft.FileFullCube))
+
+        # Converts from FileFullCube to FileSparseCube format, if necessary"""
+        x1 = None
+        if isinstance(x, ft.FileFullCube):
+            x1 = ft.FileSparseCube()
+            x1.sparsecube.from_full_cube(x.wcube)
+        if x1:
+            x1.filename = a99.add_bits_to_path(x.filename, "imported-from-",
+             os.path.splitext(ft.FileSparseCube.default_filename)[1])
+            x = x1
+
+        self._f = x
         self.wsptable.set_collection(x.sparsecube)
         self.__update_gui(True)
-        self.flag_valid = True  # assuming that file does not come with errors
+        self._flag_valid = True  # assuming that file does not come with errors
         self.setEnabled(True)
-
-    def update_gui_label_fn(self):
-        self.__update_gui_label_fn()
 
     # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * #
     # # Qt override
@@ -406,40 +324,25 @@ class WFileSparseCube(ag.WBase):
                 changed = f_from_f() != f_from_edit()
                 sth = sth or changed
                 if edit == sndr:
-                    ag.style_widget_changed(self.sender(), changed)
+                    a99.style_widget_changed(self.sender(), changed)
             self.set_flag_header_changed(sth)
 
     def on_spectra_edited(self):
-        self.__update_gui_vis()
-        self.edited.emit()
+        try:
+            self.__update_gui_vis()
+        except Exception as e:
+            self.add_log_error(a99.str_exc(e), True, e)
+        self.changed.emit()
 
     def on_place_spectrum_edited(self):
         # could only update the obj_square but this is easier
         self.plot_colors()
 
-    def go_clicked(self):
-        print("GO CLICKED\n" * 10)
-        flag_emit = False
-        try:
-            x, y = self.get_place_spectrum_xy()
-            sp = self.choosesp.sp
-            if not sp:
-                raise RuntimeError("Spectrum not loaded")
-            sp.pixel_x, sp.pixel_y = x, y
-            self.f.sparsecube.add_spectrum(sp)
-            self.__update_gui()
-            flag_emit = True
-        except Exception as E:
-            self.add_log_error(ag.str_exc(E), True)
-            raise
-        if flag_emit:
-            self.edited.emit()
-
     def header_revert(self):
         self.__update_gui_header()
 
     def header_apply(self):
-        if self.__update_f_header(self.f.sparsecube):
+        if self.__update_f_header(self._f.sparsecube):
             self.__update_gui(True)
 
     def current_tab_changed_vis(self):
@@ -455,16 +358,17 @@ class WFileSparseCube(ag.WBase):
                 obj.set_color(next_color)
                 self.canvas1.draw()
 
+    # TODO don't worry, this shouldn't be here anyway
     def crop_clicked(self):
         try:
-            sky = self.f.sparsecube
+            sky = self._f.sparsecube
 
             specs = (("x_range", {"value": "[%d, %d]" % (0, sky.width - 1)}),
                      ("y_range", {"value": "[%d, %d]" % (0, sky.height - 1)}),
                      ("wavelength_range", {"value": "[%g, %g]" % (sky.wavelength[0], sky.wavelength[-1])})
                      )
             # fields = ["x_range", "y_range", "wavelength_range"]
-            form = ag.XParametersEditor(specs=specs, title="Select sub-cube")
+            form = a99.XParametersEditor(specs=specs, title="Select sub-cube")
             while True:
                 r = form.exec_()
                 if not r:
@@ -479,16 +383,16 @@ class WFileSparseCube(ag.WBase):
                     s = "wavelength_range"
                     lambda0, lambda1 = eval(kk["wavelength_range"])
                 except Exception as E:
-                    self.add_log_error("Failed evaluating %s: %s" % (s, ag.str_exc(E)), True)
+                    self.add_log_error("Failed evaluating %s: %s" % (s, a99.str_exc(E)), True)
                     continue
 
                 # Works with clone, then replaces original, to ensure atomic operation
-                clone = copy.deepcopy(self.f)
+                clone = copy.deepcopy(self._f)
                 clone.filename = None
                 try:
                     clone.sparsecube.crop(x0, x1, y0, y1, lambda0, lambda1)
                 except Exception as E:
-                    self.add_log_error("Crop operation failed: %s" % ag.str_exc(E), True)
+                    self.add_log_error("Crop operation failed: %s" % a99.str_exc(E), True)
                     continue
 
                 form1 = self.keep_ref(self.parent_form.__class__())
@@ -496,63 +400,51 @@ class WFileSparseCube(ag.WBase):
                 form1.show()
 
                 # # Replaces original
-                # self.f = clone
+                # self._f = clone
                 # self.__update_gui(True)
                 break
 
         except Exception as E:
-            self.add_log_error("Crop failed: %s" % ag.str_exc(E), True)
-            raise
+            self.add_log_error("Crop failed: %s" % a99.str_exc(E), True, E)
 
     def export_ccube_clicked(self):
-        fn = QFileDialog.getSaveFileName(self, "Save file in %s format" % ao.FileFullCube.description,
-                                         ao.FileFullCube.default_filename, "*.fits")
+        fn = QFileDialog.getSaveFileName(self, "Save file in %s format" % ft.FileFullCube.description,
+                                         ft.FileFullCube.default_filename, "*.fits")[0]
         if fn:
             try:
                 fn = str(fn)
-                wcube = self.f.sparsecube.to_full_cube()
-                fccube = ao.FileFullCube()
+                wcube = self._f.sparsecube.to_full_cube()
+                fccube = ft.FileFullCube()
                 fccube.wcube = wcube
                 fccube.save_as(fn)
             except Exception as E:
-                self.add_log_error("Failed export: %s" % ag.str_exc(E), True)
-                raise
+                self.add_log_error("Failed export: %s" % a99.str_exc(E), True, E)
 
     def replot_colors(self):
         self.plot_colors()
 
     def on_colors_click(self, event):
         x, y = int(event.xdata + .5), int(event.ydata + .5)
-        if 0 <= x < self.f.sparsecube.width and 0 <= y < self.f.sparsecube.height:
-            self.spinbox_X.setValue(x)
-            self.spinbox_Y.setValue(y)
+        if 0 <= x < self._f.sparsecube.width and 0 <= y < self._f.sparsecube.height:
+            self.wsptable.spinbox_x.setValue(x)
+            self.wsptable.spinbox_y.setValue(y)
             self.plot_colors()
 
     def on_collect_fieldnames(self):
         # TODO confirmation
-        self.edit_fieldnames.setPlainText(str(self.f.sparsecube.collect_fieldnames()))
+        self.edit_fieldnames.setPlainText(str(self._f.sparsecube.collect_fieldnames()))
 
     # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * # * #
     # # Internal gear
 
     def __emit_if(self):
         if self.flag_process_changes:
-            self.edited.emit()
-
-    def get_place_spectrum_xy(self):
-        x = int(self.spinbox_X.value())
-        if not (0 <= x < self.f.sparsecube.width):
-            raise RuntimeError("x must be in [0, %s)" % self.f.sparsecube.width)
-        y = int(self.spinbox_Y.value())
-        if not (0 <= y < self.f.sparsecube.height):
-            raise RuntimeError("y must be in [0, %s)" % self.f.sparsecube.height)
-        return x, y
+            self.changed.emit()
 
     def __update_gui(self, flag_header=False):
-        """Updates GUI to reflect what is in self.f"""
+        """Updates GUI to reflect what is in self._f"""
         self.flag_process_changes = False
         try:
-            self.__update_gui_label_fn()
             self.wsptable.update()
             self.__update_gui_vis()
             if flag_header:
@@ -570,18 +462,9 @@ class WFileSparseCube(ag.WBase):
             else:
                 self.flag_update_pending[i] = True
 
-    def __update_gui_label_fn(self):
-        if not self.f:
-            text = "(not loaded)"
-        elif self.f.filename:
-            text = os.path.relpath(self.f.filename, ".")
-        else:
-            text = "(filename not set)"
-        self.label_fn_sky.setText(text)
-
     def __update_gui_header(self):
         """Updates header controls only"""
-        sky = self.f.sparsecube
+        sky = self._f.sparsecube
         self.spinbox_width.setValue(sky.width)
         self.spinbox_height.setValue(sky.height)
         self.spinbox_hrfactor.setValue(sky.hrfactor)
@@ -597,12 +480,11 @@ class WFileSparseCube(ag.WBase):
         if not flag:
             # If not changed, removes all eventual yellows
             for _, edit, _, _, _, _, _ in self._map1:
-                ag.style_widget_changed(edit, False)
+                a99.style_widget_changed(edit, False)
 
-    def __update_f(self):
-        o = self.f
-        sky = self.f.sparsecube
-        self.flag_valid = self.__update_f_header(sky)
+    def _update_fobj(self):
+        sky = self._f.sparsecube
+        self._flag_valid = self.__update_f_header(sky)
 
     def __update_f_header(self, sky):
         """Updates headers of a SparseCube objects using contents of the Headers tab"""
@@ -610,7 +492,7 @@ class WFileSparseCube(ag.WBase):
         ss = ""
         try:
             ss = "fieldnames"
-            ff = ag.eval_fieldnames(str(self.edit_fieldnames.toPlainText()))
+            ff = a99.eval_fieldnames(str(self.edit_fieldnames.toPlainText()))
             sky.fieldnames = ff
             ss = "width"
             sky.width = int(self.spinbox_width.value())
@@ -627,9 +509,9 @@ class WFileSparseCube(ag.WBase):
         except Exception as E:
             flag_error = True
             if ss:
-                emsg = "Field '%s': %s" % (ss, ag.str_exc(E))
+                emsg = "Field '%s': %s" % (ss, a99.str_exc(E))
             else:
-                emsg = ag.str_exc(E)
+                emsg = a99.str_exc(E)
             self.add_log_error(emsg)
         if flag_emit:
             self.__emit_if()
@@ -642,25 +524,27 @@ class WFileSparseCube(ag.WBase):
             self.flag_update_pending[idx] = False
 
     def plot_spectra(self):
+        from f311 import explorer as ex
         # self.clear_markers()
-        if self.f is None:
+        if self._f is None:
             return
 
         try:
             fig = self.figure0
             fig.clear()
             ax = fig.gca(projection='3d')
-            ao.draw_cube_3d(ax, self.f.sparsecube)
+            ex.draw_cube_3d(ax, self._f.sparsecube)
             fig.tight_layout()
             self.canvas0.draw()
 
         except Exception as E:
-            self.add_log_error(ag.str_exc(E))
-            ag.get_python_logger().exception("Could not plot spectra")
+            self.add_log_error(a99.str_exc(E))
+            a99.get_python_logger().exception("Could not plot spectra")
 
     def plot_colors(self):
+        from f311 import explorer as ex
         # self.clear_markers()
-        if self.f is None:
+        if self._f is None:
             return
 
         try:
@@ -675,16 +559,17 @@ class WFileSparseCube(ag.WBase):
             flag_scale = self.checkBox_scale.isChecked()
             method = self.comboBox_cmap.currentIndex()
             try:
-                sqx, sqy = self.get_place_spectrum_xy()
+                sqx, sqy = self.wsptable.get_pixel_xy()
             except:
+                a99.get_python_logger().exception("Cannot draw square")
                 pass  # Nevermind (does not draw square)
-            self.obj_square = ao.draw_cube_colors(ax, self.f.sparsecube, vrange, sqx, sqy, flag_scale, method)
+            self.obj_square = ex.draw_cube_colors(ax, self._f.sparsecube, vrange, sqx, sqy, flag_scale, method)
 
             fig.tight_layout()
             self.canvas1.draw()
 
             self.flag_plot_colors_pending = False
         except Exception as E:
-            self.add_log_error(ag.str_exc(E))
-            ag.get_python_logger().exception("Could not plot colors")
+            self.add_log_error(a99.str_exc(E))
+            a99.get_python_logger().exception("Could not plot colors")
 
