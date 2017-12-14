@@ -1,5 +1,5 @@
 __all__ = [
-"create_spectrum_lists", "load_bulk", "BulkItem", "load_eso_sky"]
+"create_spectrum_lists", "load_bulk", "BulkItem", "load_eso_sky", "crop_splist"]
 
 
 import os.path
@@ -11,21 +11,20 @@ import numpy as np
 import a99
 from astropy.io import fits
 import astropy.units as u
-import f311.explorer as ex
 import aosss as ao
-import f311.filetypes as ft
+import f311
 
 
 FILE_MAP = OrderedDict((
  ("cube_hr", ao.FileFullCube),
- ("cube_seeing", ft.FileFits),
+ ("cube_seeing", f311.FileFits),
  ("ifu_noseeing", ao.FileFullCube),
- ("mask_fiber_in_aperture", ft.FileFits),  # TODO, handle this file because it is nice
+ ("mask_fiber_in_aperture", f311.FileFits),  # TODO, handle this file because it is nice
  ("reduced", ao.FileFullCube),
  ("reduced_snr", ao.FileFullCube),
- ("sky", ft.FileSpectrumFits),
- ("skysub", ft.FileSpectrumFits),
- ("spintg", ft.FileSpectrumFits),
+ ("sky", f311.FileSpectrumFits),
+ ("skysub", f311.FileSpectrumFits),
+ ("spintg", f311.FileSpectrumFits),
  ("spintg_noseeing", "messed"),  # particular case
  ("therm", "messed"),            # particular case
 ))
@@ -66,9 +65,9 @@ def load_bulk(simid, dir_='.'):
             if class_ == "messed":
                 # Note that sp_ref may be None here if Cxxxx_spintg.fits fails to load
                 # In this case, sp will have a default x-axis
-                sp = ft.load_spectrum_fits_messed_x(fn, sp_ref)
+                sp = f311.load_spectrum_fits_messed_x(fn, sp_ref)
                 if sp:
-                    fileobj = ft.FileSpectrum()
+                    fileobj = f311.FileSpectrum()
                     fileobj.spectrum = sp
             elif flag_supported:
                 fileobj = class_()
@@ -94,18 +93,18 @@ def create_spectrum_lists(dir_, pipeline_stage="spintg"):
 
     Args:
         dir_: input & output directory
-        pipeline_stage="spintg": input "stage", i.e., which stage of the pipeline will be loaded.
+        pipeline_stage: input "stage", i.e., which stage of the pipeline will be loaded.
             Possible values:
 
-            - "spintg": integrated spectrum (final stage)
-            - "ifu_noseeing": take first spectrum of 7x1 data cube TODO explain
+                - "spintg": integrated spectrum (final stage)
+                - "ifu_noseeing": take first spectrum of 7x1 data cube TODO explain
     """
 
     if pipeline_stage in ("spintg", "sky", "skysub"):
 
         def simid_to_spectrum(simid):
             fn = os.path.join(dir_, simid + "_{}.fits".format(pipeline_stage))
-            fsp = ft.FileSpectrumFits()
+            fsp = f311.FileSpectrumFits()
             fsp.load(fn)
             return fsp.spectrum
 
@@ -258,11 +257,44 @@ def load_eso_sky():
 
     x, y0, y1 = d["lam"]*10000, d["flux"], d["trans"]
 
-    sp0 = ft.Spectrum()
+    sp0 = f311.Spectrum()
     sp0.x, sp0.y = x, y0
     sp0.yunit = u.Unit("ph/s/m2/angstrom/arcsec2")
 
-    sp1 = ft.Spectrum()
+    sp1 = f311.Spectrum()
     sp1.x, sp1.y = x, y1
 
     return sp0, sp1
+
+
+
+
+def crop_splist(splist, lambda0=None, lambda1=None):
+    """
+    Cuts all spectra in SpectrumList
+
+    **Note** lambda1 **included** in interval (not pythonic).
+    """
+    if len(splist.spectra) == 0:
+        raise RuntimeError("Need at least one spectrum added in order to crop")
+
+    if lambda0 is None:
+        lambda0 = splist.wavelength[0]
+    if lambda1 is None:
+        lambda1 = splist.wavelength[-1]
+    if not (lambda0 <= lambda1):
+        raise RuntimeError('lambda0 must be <= lambda1')
+
+    if not any([lambda0 != splist.wavelength[0], lambda1 != splist.wavelength[-1]]):
+        return
+
+    for i in range(len(splist)):
+        sp = f311.cut_spectrum(splist.spectra[i], lambda0, lambda1)
+        if i == 0:
+            n = len(sp)
+            if n < 2:
+                raise RuntimeError(
+                    "Cannot cut, spectrum will have %d point%s" % (n, "" if n == 1 else "s"))
+        splist.spectra[i] = sp
+
+    splist.__update()

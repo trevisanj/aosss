@@ -6,8 +6,7 @@ import sys
 import argparse
 import a99
 import logging
-import f311.filetypes as ft
-import f311.explorer as ex
+import aosss
 
 
 a99.logging_level = logging.INFO
@@ -22,12 +21,12 @@ if __name__ == "__main__":
     parser.add_argument('fn', type=str, nargs='?',
                         #default=FileSparseCube.default_filename,
      help="file name, supports '%s' and '%s'" %
-          (ft.FileSparseCube.description, ft.FileFullCube.description))
+          (aosss.FileSparseCube.description, aosss.FileFullCube.description))
 
     args = parser.parse_args()
 
     app = a99.get_QApplication([])
-    form = ex.XFileSparseCube()
+    form = aosss.XFileSparseCube()
 
     if args.fn is not None:
         form.load_filename(args.fn)

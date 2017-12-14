@@ -14,7 +14,8 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from .a_WSpectrumList import *
 import a99
-import f311.filetypes as ft
+import aosss
+import f311
 
 
 class WFileSpectrumList(a99.WEditor):
@@ -161,19 +162,19 @@ class WFileSpectrumList(a99.WEditor):
     # # Interface
 
     def _do_load(self, x):
-        assert isinstance(x, (ft.FileSpectrum, ft.FileSpectrumList, ft.FileFullCube))
+        assert isinstance(x, (f311.FileSpectrum, aosss.FileSpectrumList, aosss.FileFullCube))
 
         # Converts from FileFullCube to FileSpectrumList format, if necessary
         x1 = None
-        if isinstance(x, ft.FileFullCube):
-            x1 = ft.FileSpectrumList()
+        if isinstance(x, aosss.FileFullCube):
+            x1 = aosss.FileSpectrumList()
             x1.splist.from_full_cube(x.wcube)
-        elif isinstance(x, ft.FileSpectrum):
-            x1 = ft.FileSpectrumList()
+        elif isinstance(x, f311.FileSpectrum):
+            x1 = aosss.FileSpectrumList()
             x1.splist.add_spectrum(x.spectrum)
         if x1:
             x1.filename = a99.add_bits_to_path(x.filename, "imported-from-",
-             os.path.splitext(ft.FileSpectrumList.default_filename)[1])
+             os.path.splitext(aosss.FileSpectrumList.default_filename)[1])
             x = x1
 
         self._f = x
@@ -320,12 +321,11 @@ class WFileSpectrumList(a99.WEditor):
 
     def __use_sblock(self, block):
         """Uses block and opens result in new window"""
-        from f311 import explorer as ex
 
         # Does not touch the original self._f
         clone = copy.deepcopy(self._f)
         clone.filename = None
-        slblock = ex.SLB_UseSpectrumBlock()
+        slblock = aosss.SLB_UseSpectrumBlock()
         for i, sp in enumerate(clone.splist.spectra):
             clone.splist.spectra[i] = block.use(sp)
         self.__new_window(clone)
@@ -341,6 +341,6 @@ class WFileSpectrumList(a99.WEditor):
 
     def __new_from_existing(self):
         """Creates new FileSpectrumList from existing one"""
-        f = ft.FileSpectrumList()
+        f = aosss.FileSpectrumList()
         return f
 

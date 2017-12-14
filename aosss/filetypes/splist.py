@@ -7,8 +7,7 @@ __all__ = ["SpectrumList"]
 
 
 from . import SpectrumCollection, FullCube
-# from a99 import froze_it, cut_spectrum
-from .. import Spectrum
+from f311 import Spectrum
 from astropy.io import fits
 import numpy as np
 import a99
@@ -56,7 +55,7 @@ class SpectrumList(SpectrumCollection):
         """Returns a (spectrum)x(wavelength) matrix of flux values"""
         n = len(self)
         if n == 0:
-            return np.array()
+            return np.array([])
         return np.vstack([sp.y for sp in self.spectra])
 
     def from_hdulist(self, hdul):

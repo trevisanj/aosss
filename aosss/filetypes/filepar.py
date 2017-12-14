@@ -2,7 +2,7 @@ __all__ = ["FilePar"]
 
 
 import a99
-from .. import DataFile
+from f311 import DataFile
 from collections import OrderedDict
 
 

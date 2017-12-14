@@ -1,16 +1,14 @@
 __all__ = ["WSpectrumCollectionBase"]
 
 import copy
-import os
-import os.path
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from .a_XScaleSpectrum import *
 from astropy import units as u
 import a99
-# from .... import explorer as ex
-import f311.filetypes as ft
+import aosss
+import f311
 
 
 # TODO options window to set this up
@@ -35,6 +33,7 @@ class WSpectrumCollectionBase(a99.WEditor):
 
         self.collection = None # SpectrumCollection
         self.flag_splist = flag_splist
+        self.flag_process_changes = True
 
 
         # # Creates actions
@@ -82,7 +81,7 @@ class WSpectrumCollectionBase(a99.WEditor):
     # # Interface
 
     def set_collection(self, x):
-        assert isinstance(x, ft.SpectrumCollection)
+        assert isinstance(x, aosss.SpectrumCollection)
         self.collection = x
         self._update_gui()
         self.setEnabled(True)
@@ -345,21 +344,19 @@ class WSpectrumCollectionBase(a99.WEditor):
 
 
     def on_sel_plot_stacked(self):
-        from f311 import explorer as ex
 
         sspp = self.get_selected_spectra()
         if len(sspp) > 0:
-            ex.plot_spectra(sspp)
+            f311.plot_spectra_stacked(sspp)
 
 
     def on_sel_plot_overlapped(self):
-        from f311 import explorer as ex
 
         sspp = self.get_selected_spectra()
-        flag_legend = ex.get_config().get_item(_CONFIG_LEGEND, True)
-        oo = ex.PlotSpectrumSetup(flag_legend=flag_legend)
+        flag_legend = aosss.get_config().get_item(_CONFIG_LEGEND, True)
+        oo = f311.PlotSpectrumSetup(flag_legend=flag_legend)
         if len(sspp) > 0:
-            ex.plot_spectra_overlapped(sspp, setup=oo)
+            f311.plot_spectra_overlapped(sspp, setup=oo)
 
 
     def on_sel_open_in_new(self):
@@ -372,11 +369,11 @@ class WSpectrumCollectionBase(a99.WEditor):
             # "Gambiarra"
             if self.flag_splist:
                 from .a_XFileSpectrumList import XFileSpectrumList
-                f = ft.FileSpectrumList()
+                f = aosss.FileSpectrumList()
                 form = self.keep_ref(XFileSpectrumList())
             else:
                 from .a_XFileSparseCube import XFileSparseCube
-                f = ft.FileSparseCube()
+                f = aosss.FileSparseCube()
                 f.sparsecube = other
                 form = self.keep_ref(XFileSparseCube())
 

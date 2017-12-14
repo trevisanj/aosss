@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import *
 import numpy as np
 import matplotlib.pyplot as plt
 import a99
-import f311.filetypes as ft
+import aosss
 
 
 LINE_COLOR = 'k'
@@ -31,7 +31,7 @@ class XPlotXY(a99.XLogMainWindow):
             self._refs.append(obj)
             return obj
 
-        assert isinstance(collection, ft.SpectrumCollection)
+        assert isinstance(collection, aosss.SpectrumCollection)
         self.collection = collection
 
         lw1 = keep_ref(QVBoxLayout())

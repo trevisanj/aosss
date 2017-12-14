@@ -1,89 +1,43 @@
-import f311.filetypes as ft
+import aosss
 
-
-def test_DataFile():
-    _ = ft.DataFile()
-    print(_)
-
-
-def test_FileFits():
-    _ = ft.FileFits()
-    print(_)
 
 
 def test_FileFullCube():
-    _ = ft.FileFullCube()
+    _ = aosss.FileFullCube()
     print(_)
 
 
 def test_FilePar():
-    _ = ft.FilePar()
+    _ = aosss.FilePar()
     print(_)
 
-
-def test_FilePy():
-    _ = ft.FilePy()
-
-
-def test_FileSQLiteDB():
-    _ = ft.FileSQLiteDB()
 
 
 def test_FileSparseCube():
-    _ = ft.FileSparseCube()
-    print(_)
-
-
-def test_FileSpectrum():
-    _ = ft.FileSpectrum()
-    print(_)
-
-
-def test_FileSpectrumFits():
-    _ = ft.FileSpectrumFits()
+    _ = aosss.FileSparseCube()
     print(_)
 
 
 def test_FileSpectrumList():
-    _ = ft.FileSpectrumList()
-    print(_)
-
-
-def test_FileSpectrumNulbad():
-    _ = ft.FileSpectrumNulbad()
-    print(_)
-
-
-def test_FileSpectrumPfant():
-    _ = ft.FileSpectrumPfant()
-    print(_)
-
-
-def test_FileSpectrumXY():
-    _ = ft.FileSpectrumXY()
+    _ = aosss.FileSpectrumList()
     print(_)
 
 
 def test_FullCube():
-    _ = ft.FullCube()
+    _ = aosss.FullCube()
     print(_)
 
 
 def test_SparseCube():
-    _ = ft.SparseCube()
-    print(_)
-
-
-def test_Spectrum():
-    _ = ft.Spectrum()
+    _ = aosss.SparseCube()
     print(_)
 
 
 def test_SpectrumCollection():
-    _ = ft.SpectrumCollection()
+    _ = aosss.SpectrumCollection()
     print(_)
 
 
 def test_SpectrumList():
-    _ = ft.SpectrumList()
+    _ = aosss.SpectrumList()
     print(_)

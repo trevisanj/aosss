@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import a99
-import f311.filetypes as ft
+import aosss
 
 
 class XPlotXYZ(a99.XLogMainWindow):
@@ -26,7 +26,7 @@ class XPlotXYZ(a99.XLogMainWindow):
             self._refs.append(obj)
             return obj
 
-        assert isinstance(collection, ft.SpectrumCollection)
+        assert isinstance(collection, aosss.SpectrumCollection)
         self.collection = collection
 
         lw1 = keep_ref(QVBoxLayout())

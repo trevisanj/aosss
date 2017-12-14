@@ -8,7 +8,7 @@ import argparse
 import rows
 import io
 import logging
-from f311 import aosss
+import aosss
 import a99
 
 

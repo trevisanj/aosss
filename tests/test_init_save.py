@@ -1,18 +1,18 @@
+import aosss
 import os
-import f311.filetypes as ft
 
 
 
 def test_FileSparseCube(tmpdir):
     os.chdir(str(tmpdir))
-    obj = ft.FileSparseCube()
+    obj = aosss.FileSparseCube()
     obj.init_default()
     obj.save_as()
 
 
 def test_FileSpectrumList(tmpdir):
     os.chdir(str(tmpdir))
-    obj = ft.FileSpectrumList()
+    obj = aosss.FileSpectrumList()
     obj.init_default()
     obj.save_as()
 

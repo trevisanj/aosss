@@ -1,28 +1,26 @@
 import a99
-from ..api import Vis
-import f311.filetypes as ft
+import f311
+import aosss
 
 
 __all__ = ["VisCube", "VisSpectrumList"]
 
 
-class VisCube(Vis):
+class VisCube(f311.Vis):
     """Opens the Data Cube Editor window."""
-    input_classes = (ft.FileFullCube, ft.FileSparseCube)
+    input_classes = (aosss.FileFullCube, aosss.FileSparseCube)
     action = "Edit using Data Cube Editor"
 
     def _do_use(self, r):
-        from f311 import explorer as ex
-        form = a99.keep_ref(ex.XFileSparseCube(self.parent_form, r))
+        form = a99.keep_ref(aosss.XFileSparseCube(self.parent_form, r))
         form.show()
 
 
-class VisSpectrumList(Vis):
+class VisSpectrumList(f311.Vis):
     """Opens the Spectrum List Editor window."""
-    input_classes = (ft.FileSpectrumList, ft.FileSpectrum)
+    input_classes = (aosss.FileSpectrumList, f311.FileSpectrum)
     action = "Edit using Spectrum List Editor"
 
     def _do_use(self, r):
-        from f311 import explorer as ex
-        form = a99.keep_ref(ex.XFileSpectrumList(self.parent_form, r))
+        form = a99.keep_ref(aosss.XFileSpectrumList(self.parent_form, r))
         form.show()

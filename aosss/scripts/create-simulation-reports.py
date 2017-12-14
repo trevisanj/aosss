@@ -7,11 +7,10 @@ Creates HTML reports from WebSim-COMPASS output files
 
 import sys
 import argparse
-import logging
 import glob
 import os
 import logging
-from f311 import aosss
+import aosss
 import a99
 
 

@@ -6,6 +6,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from .a_XHelpDialog import *
 import a99
+import aosss
 
 
 _CLASS_PREFIX = ""
@@ -22,23 +23,22 @@ class XToScalar(XHelpDialog):
     """
 
     def __init__(self, *args):
-        from f311 import explorer as ex
-
         XHelpDialog.__init__(self, *args)
 
         def keep_ref(obj):
             self._refs.append(obj)
             return obj
 
-        self.previous_operations = ex.get_config().get_item(_CONFIG_OPERATIONS, [])
+        self.previous_operations = aosss.get_config().get_item(_CONFIG_OPERATIONS, [])
         self.block = None
+        self.fieldname = None
 
         self.setWindowTitle("Extract Scalar")
 
         self.labelHelpTopics.setText("&Available operations")
 
         # self.help_data = collect_doc(blocks.sp2scalar, base_class=blocks.baseblocks.ToScalar)
-        self.help_data = a99.collect_doc(ex.blocks.toscalar, base_class=ex.ToScalar)
+        self.help_data = a99.collect_doc(aosss.blocks.toscalar, base_class=aosss.ToScalar)
         self.comboBox.addItems([x[0] for x in self.help_data])
         ###
         label = QLabel(a99.enc_name_descr("O&peration", "See help below"))
@@ -66,16 +66,14 @@ class XToScalar(XHelpDialog):
 
 
     def accept(self):
-        from f311 import explorer as ex
-
         try:
             expr = str(self.cb_operation.currentText())
-            symbols_available = a99.module_to_dict(ex.blocks.toscalar)
+            symbols_available = a99.module_to_dict(aosss.blocks.toscalar)
             import numpy as np
             symbols_available["np"] = np
             block = eval(expr.strip(), symbols_available)
 
-            if not isinstance(block, ex.ToScalar):
+            if not isinstance(block, aosss.ToScalar):
                 raise RuntimeError("Expression does not evaluate to a valid ToScalar Block")
 
             self.block = block
@@ -87,7 +85,7 @@ class XToScalar(XHelpDialog):
             if not expr in self.previous_operations:
                 self.previous_operations.append(expr)
                 self.previous_operations.sort()
-                ex.get_config().set_item(_CONFIG_OPERATIONS, self.previous_operations)
+                aosss.get_config().set_item(_CONFIG_OPERATIONS, self.previous_operations)
 
             return QDialog.accept(self)
         except Exception as e:

@@ -5,12 +5,10 @@ List of spectra sharing same wavenumber axis. Uses FITS format
 import a99
 from astropy.io import fits
 import os
-import numpy as np
 import numbers
 import copy
-# import f311.physics as ph
-# import f311.filetypes as ft
-from .. import Spectrum
+import f311
+
 
 __all__ = ["SpectrumCollection"]
 
@@ -68,7 +66,7 @@ class SpectrumCollection(a99.AttrsPart):
                 else:
                     self.fieldnames_visible = a99.eval_fieldnames(temp)
             else:
-                sp = Spectrum()
+                sp = f311.Spectrum()
                 sp.from_hdu(hdu)
                 self.add_spectrum(sp)
 
@@ -107,7 +105,7 @@ class SpectrumCollection(a99.AttrsPart):
 
         Nullifies spectrum filename and assigns the file basename to more_headers["ORIGIN"]
         """
-        assert isinstance(sp, Spectrum)
+        assert isinstance(sp, f311.Spectrum)
 
         if sp.filename is not None:
             sp.more_headers["ORIGIN"] = os.path.basename(sp.filename)

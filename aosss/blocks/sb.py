@@ -7,7 +7,6 @@ import numpy as np
 import copy
 from . import SpectrumBlock
 import astropy.units as u
-from f311 import physics as ph
 from .. import basic
 
 # AstroPy units defined for convenience
@@ -43,7 +42,7 @@ class SB_Rubberband(SpectrumBlock):
         y = inp.y
         if self.flag_upper:
             y = -y
-        output.y = api.rubberband(y)
+        output.y = basic.rubberband(y)
         if self.flag_upper:
             output.y = -output.y
         return output
@@ -129,8 +128,6 @@ class SB_Extend(SpectrumBlock):
         self.fill_mode = fill_mode
 
     def _do_use(self, inp):
-        from f311 import explorer as ex
-
         # TODO work with delta_lambda not constant
         output = self._copy_input(inp)
 
@@ -143,7 +140,7 @@ class SB_Extend(SpectrumBlock):
         x_left, x_right, y_left, y_right = np.array([]), np.array([]), np.array([]), np.array([])
 
         if self.fill_mode == 'poly_baseline':
-            baseline = -api.poly_baseline(-output.y, 2, maxit=15)
+            baseline = -basic.poly_baseline(-output.y, 2, maxit=15)
             fill_l = baseline[0]
             fill_r = baseline[-1]
         elif self.fill_mode == 'zero':

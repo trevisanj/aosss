@@ -6,13 +6,10 @@ import os.path
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from .a_XScaleSpectrum import *
-from astropy import units as u
 import a99
-# from .... import explorer as ex
-import f311.filetypes as ft
 from .a_WSpectrumCollectionBase import *
 import f311
+import aosss
 
 
 class WSpectrumList(WSpectrumCollectionBase):
@@ -189,7 +186,6 @@ class WSpectrumList(WSpectrumCollectionBase):
     # # Slots
 
     def on_all_group(self):
-        from f311 import explorer as ex
 
         # Import here to circumvent cyclic dependency
         from .a_XGroupSpectra import XGroupSpectra
@@ -201,7 +197,7 @@ class WSpectrumList(WSpectrumCollectionBase):
         # It sth fails, will restore original
         save = copy.deepcopy(self.collection)
         try:
-            grouper = ex.blocks.slb.SLB_UseGroupBlock(form.block, form.group_by)
+            grouper = aosss.blocks.slb.SLB_UseGroupBlock(form.block, form.group_by)
             self.collection = grouper.use(self.collection)
             self.__update_gui()
             flag_emit = True
@@ -221,21 +217,21 @@ class WSpectrumList(WSpectrumCollectionBase):
         if not filenames:
             return
 
-        # classes = f311.classes_sp()+[ft.FileSpectrumList, ft.FileSparseCube]
+        # classes = f311.classes_sp()+[aosss.FileSpectrumList, aosss.FileSparseCube]
         classes = f311.classes_collection()
         report, successful, failed = ["<b>Results</b>"], [], []
         for filename in filenames:
             filename = str(filename)
             basename = os.path.basename(filename)
-            file = ft.load_with_classes(filename, classes)
+            file = f311.load_with_classes(filename, classes)
             try:
                 if file is None:
                     raise RuntimeError("Could not load file")
-                if isinstance(file, ft.FileSpectrum):
+                if isinstance(file, f311.FileSpectrum):
                     self.collection.add_spectrum(file.spectrum)
-                elif isinstance(file, ft.FileSpectrumList):
+                elif isinstance(file, aosss.FileSpectrumList):
                     self.collection.merge_with(file.splist)
-                elif isinstance(file, ft.FileSparseCube):
+                elif isinstance(file, aosss.FileSparseCube):
                     self.collection.merge_with(file.sparsecube)
                 successful.append("  - %s" % basename)
             except Exception as e:
@@ -276,7 +272,7 @@ class WSpectrumList(WSpectrumCollectionBase):
 
 
     def _update_enabled_actions(self):
-        can_group = isinstance(self.collection, ft.SpectrumList)
+        can_group = isinstance(self.collection, aosss.SpectrumList)
         has_any = self.twSpectra.rowCount() > 0
         any_selected = len(self.twSpectra.selectedItems()) > 0
         has_current = self.twSpectra.currentRow() > -1

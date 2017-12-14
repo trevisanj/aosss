@@ -1,21 +1,16 @@
 __all__ = ["WFileSparseCube"]
 
-import collections
 import copy
-import matplotlib.pyplot as plt
-from pylab import MaxNLocator
 import numbers
-import numpy as np
 import os
 import os.path
-from itertools import product, combinations, cycle
+from itertools import cycle
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from .a_XScaleSpectrum import *
 from .a_WSparseCube import *
 import a99
-import f311.filetypes as ft
+import aosss
 
 
 _COLORS_SQ = [(.1, .6, .5), (.5, .1, .7)]
@@ -31,7 +26,6 @@ class WFileSparseCube(a99.WEditor):
     """
 
     def __init__(self, parent):
-        from f311 import explorer as ex
         a99.WEditor.__init__(self, parent)
 
         # Internal flag to prevent taking action when some field is updated programatically
@@ -44,6 +38,7 @@ class WFileSparseCube(a99.WEditor):
         # Whether there is sth in yellow background in the Headers tab
         self.flag_header_changed = False
         self.obj_square = None
+        self.flag_plot_colors_pending = False
 
         # # Central layout
         lantanide = self.layout_editor
@@ -201,7 +196,7 @@ class WFileSparseCube(a99.WEditor):
         lwset.addWidget(b)
         b.clicked.connect(self.crop_clicked)
         ###
-        b = self.keep_ref(QPushButton("E&xport %s ..." % ft.FileFullCube.description))
+        b = self.keep_ref(QPushButton("E&xport %s ..." % aosss.FileFullCube.description))
         lwset.addWidget(b)
         b.clicked.connect(self.export_ccube_clicked)
         ###
@@ -284,16 +279,16 @@ class WFileSparseCube(a99.WEditor):
     # # Interface
 
     def _do_load(self, x):
-        assert isinstance(x, (ft.FileSparseCube, ft.FileFullCube))
+        assert isinstance(x, (aosss.FileSparseCube, aosss.FileFullCube))
 
         # Converts from FileFullCube to FileSparseCube format, if necessary"""
         x1 = None
-        if isinstance(x, ft.FileFullCube):
-            x1 = ft.FileSparseCube()
+        if isinstance(x, aosss.FileFullCube):
+            x1 = aosss.FileSparseCube()
             x1.sparsecube.from_full_cube(x.wcube)
         if x1:
             x1.filename = a99.add_bits_to_path(x.filename, "imported-from-",
-             os.path.splitext(ft.FileSparseCube.default_filename)[1])
+             os.path.splitext(aosss.FileSparseCube.default_filename)[1])
             x = x1
 
         self._f = x
@@ -408,13 +403,13 @@ class WFileSparseCube(a99.WEditor):
             self.add_log_error("Crop failed: %s" % a99.str_exc(E), True, E)
 
     def export_ccube_clicked(self):
-        fn = QFileDialog.getSaveFileName(self, "Save file in %s format" % ft.FileFullCube.description,
-                                         ft.FileFullCube.default_filename, "*.fits")[0]
+        fn = QFileDialog.getSaveFileName(self, "Save file in %s format" % aosss.FileFullCube.description,
+                                         aosss.FileFullCube.default_filename, "*.fits")[0]
         if fn:
             try:
                 fn = str(fn)
                 wcube = self._f.sparsecube.to_full_cube()
-                fccube = ft.FileFullCube()
+                fccube = aosss.FileFullCube()
                 fccube.wcube = wcube
                 fccube.save_as(fn)
             except Exception as E:
@@ -524,8 +519,7 @@ class WFileSparseCube(a99.WEditor):
             self.flag_update_pending[idx] = False
 
     def plot_spectra(self):
-        from f311 import explorer as ex
-        # self.clear_markers()
+                # self.clear_markers()
         if self._f is None:
             return
 
@@ -533,7 +527,7 @@ class WFileSparseCube(a99.WEditor):
             fig = self.figure0
             fig.clear()
             ax = fig.gca(projection='3d')
-            ex.draw_cube_3d(ax, self._f.sparsecube)
+            aosss.draw_cube_3d(ax, self._f.sparsecube)
             fig.tight_layout()
             self.canvas0.draw()
 
@@ -542,8 +536,7 @@ class WFileSparseCube(a99.WEditor):
             a99.get_python_logger().exception("Could not plot spectra")
 
     def plot_colors(self):
-        from f311 import explorer as ex
-        # self.clear_markers()
+                # self.clear_markers()
         if self._f is None:
             return
 
@@ -563,7 +556,7 @@ class WFileSparseCube(a99.WEditor):
             except:
                 a99.get_python_logger().exception("Cannot draw square")
                 pass  # Nevermind (does not draw square)
-            self.obj_square = ex.draw_cube_colors(ax, self._f.sparsecube, vrange, sqx, sqy, flag_scale, method)
+            self.obj_square = aosss.draw_cube_colors(ax, self._f.sparsecube, vrange, sqx, sqy, flag_scale, method)
 
             fig.tight_layout()
             self.canvas1.draw()

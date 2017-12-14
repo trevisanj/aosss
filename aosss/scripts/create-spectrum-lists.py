@@ -9,7 +9,7 @@ All spectra in each .splist file will have the same wavelength vector
 
 import argparse
 import logging
-from f311 import aosss
+import aosss
 import a99
 
 

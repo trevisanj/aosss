@@ -6,6 +6,7 @@ from . import SpectrumCollection, FullCube
 import numpy as np
 from scipy.interpolate import interp1d
 from astropy.io import fits
+import f311
 
 
 # headers to care about when importing from a FullCube HDU
@@ -258,8 +259,7 @@ class SparseCube(SpectrumCollection):
 
         **Note** coordinate (x=0, y=0) corresponds to lower left pixel of cube cross-section
         """
-        from f311 import filetypes as ft
-        assert isinstance(sp, ft.Spectrum)
+        assert isinstance(sp, f311.Spectrum)
         # assert self.flag_created, "Cube has not been created yet"
 
         if len(sp.x) < 2:
@@ -293,12 +293,12 @@ class SparseCube(SpectrumCollection):
         **Note** if there is no spectra at point (x, y), returns an empty spectrum, for speed
 
         Args:
-            x, y: 0-based pixel coordinates
+            x: 0-based pixel coordinate
+            y: 0-based pixel coordinate
             flag_copy: disable vector copies to speed up but don't the spectrum
         """
-        from f311 import filetypes as ft
 
-        ret = ft.Spectrum()
+        ret = f311.Spectrum()
         if len(self.spectra) > 0:
             any_ = False
             for sp in self.spectra:

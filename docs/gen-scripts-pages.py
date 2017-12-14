@@ -10,7 +10,6 @@ import f311
 import os
 import a99
 import subprocess
-import sys
 import argparse
 
 

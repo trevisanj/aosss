@@ -5,6 +5,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from .a_XHelpDialog import *
 import a99
+import aosss
 
 
 class XGroupSpectra(XHelpDialog):
@@ -18,7 +19,6 @@ class XGroupSpectra(XHelpDialog):
     """
 
     def __init__(self, *args):
-        from f311 import explorer as ex
 
         XHelpDialog.__init__(self, *args)
 
@@ -30,7 +30,7 @@ class XGroupSpectra(XHelpDialog):
 
         self.labelHelpTopics.setText("&Available operations")
 
-        self.help_data = a99.collect_doc(ex.blocks.gb, base_class=ex.GroupBlock)
+        self.help_data = a99.collect_doc(aosss.blocks.gb, base_class=aosss.GroupBlock)
         self.comboBox.addItems([x[0] for x in self.help_data])
         ###
         label = QLabel(a99.enc_name_descr("O&peration", "See help below"))
@@ -48,16 +48,15 @@ class XGroupSpectra(XHelpDialog):
         a99.place_center(self, 800, 600)
 
     def accept(self):
-        from f311 import explorer as ex
 
         try:
             expr = str(self.editFunction.text())
-            symbols_available = a99.module_to_dict(ex.blocks.gb)
+            symbols_available = a99.module_to_dict(aosss.blocks.gb)
             import numpy
             symbols_available["np"] = numpy
             block = eval(expr.strip(), {}, symbols_available)
 
-            if not isinstance(block, ex.GroupBlock):
+            if not isinstance(block, aosss.GroupBlock):
                 raise RuntimeError("Expression does not evaluate to a valid Grouping Block")
 
             s_group_by = str(self.editGroupBy.text())

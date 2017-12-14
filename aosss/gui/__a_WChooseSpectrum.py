@@ -9,7 +9,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import a99
-from f311 import filetypes as ft
+import f311
+
 
 class WChooseSpectrum(QWidget):
     """
@@ -51,7 +52,7 @@ class WChooseSpectrum(QWidget):
     # # Interface
 
     def load(self, x):
-        assert isinstance(x, ft.FileSpectrum)
+        assert isinstance(x, f311.FileSpectrum)
         self.sp = x
         self.__update_from_sp()
 
@@ -80,10 +81,10 @@ class WChooseSpectrum(QWidget):
         #                                  self.open_texts[index], self.clss[index], self.labels_fn[index], \
         #                                  self.wilds[index]
         try:
-            d = self.sp.filename if self.sp and self.sp.filename is not None else ft.FileSpectrumPfant.default_filename
+            d = self.sp.filename if self.sp and self.sp.filename is not None else "spectrum.xy"
             new_filename = QFileDialog.getOpenFileName(self, "Cube", d, "*.fits")[0]
             if new_filename:
-                sp = ft.load_spectrum(new_filename)
+                sp = f311.load_spectrum(new_filename)
                 if not sp:
                     raise RuntimeError("Failed to load '{0!s}'".format(new_filename))
                 self.sp = sp

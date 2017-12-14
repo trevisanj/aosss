@@ -6,6 +6,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from .a_XHelpDialog import *
 import a99
+import aosss
 
 
 _CONFIG_OPERATIONS = "/gui/XUseSpectrumBlock/operations"
@@ -20,18 +21,16 @@ class XUseSpectrumBlock(XHelpDialog):
     """
 
     def __init__(self, *args):
-        from f311 import explorer as ex
-
         XHelpDialog.__init__(self, *args)
 
-        self.previous_operations = ex.get_config().get_item(_CONFIG_OPERATIONS, [])
+        self.previous_operations = aosss.get_config().get_item(_CONFIG_OPERATIONS, [])
         self.block = None
 
         self.setWindowTitle("Transform")
 
         self.labelHelpTopics.setText("&Available operations")
 
-        self.help_data = a99.collect_doc(ex.sb, base_class=ex.SpectrumBlock)
+        self.help_data = a99.collect_doc(aosss.sb, base_class=aosss.SpectrumBlock)
         self.comboBox.addItems([x[0] for x in self.help_data])
         ###
         label = QLabel(a99.enc_name_descr("O&peration", "See help below"))
@@ -48,13 +47,12 @@ class XUseSpectrumBlock(XHelpDialog):
 
 
     def accept(self):
-        from f311 import explorer as ex
 
         try:
             expr = str(self.cb_operation.currentText())
-            block = eval(expr.strip(), {}, a99.module_to_dict(ex.blocks.sb))
+            block = eval(expr.strip(), {}, a99.module_to_dict(aosss.blocks.sb))
 
-            if not isinstance(block, ex.SpectrumBlock):
+            if not isinstance(block, aosss.SpectrumBlock):
                 raise RuntimeError("Expression does not evaluate to a valid Spectrum Block")
 
             self.block = block
@@ -63,7 +61,7 @@ class XUseSpectrumBlock(XHelpDialog):
             if not expr in self.previous_operations:
                 self.previous_operations.append(expr)
                 self.previous_operations.sort()
-                ex.get_config().set_item(_CONFIG_OPERATIONS, self.previous_operations)
+                aosss.get_config().set_item(_CONFIG_OPERATIONS, self.previous_operations)
 
             return QDialog.accept(self)
         except Exception as e:

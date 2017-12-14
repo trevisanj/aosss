@@ -22,7 +22,7 @@ import argparse
 import sys
 import glob
 import logging
-from f311 import aosss
+import aosss
 import a99
 
 

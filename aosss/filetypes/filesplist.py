@@ -8,7 +8,7 @@ __all__ = ["FileSpectrumList"]
 from . import SpectrumList
 from astropy.io import fits
 import a99
-from .. import DataFile
+from f311 import DataFile
 
 
 @a99.froze_it

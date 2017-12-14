@@ -1,12 +1,11 @@
 __all__ = ["draw_cube_3d", "draw_cube_colors"]
 
 
-import matplotlib.pyplot as plt
 from pylab import MaxNLocator
 import copy
 import numpy as np
-from itertools import product, combinations, cycle
-
+from itertools import product, combinations
+import aosss
 
 _ZERO_OFFSET = 0.
 def draw_cube_3d(ax, sparsecube, height_threshold=15):
@@ -14,6 +13,7 @@ def draw_cube_3d(ax, sparsecube, height_threshold=15):
     Plots front and back grid, scaled fluxes, into existing axis
 
     Args:
+        ax:
         sparsecube: SparseCube instance
         height_threshold: maximum cube height to plot actual spectra.
          If the cube height is greated than this, line segments will be drawn
@@ -25,7 +25,7 @@ def draw_cube_3d(ax, sparsecube, height_threshold=15):
     Y pixel coordinate   z
     Z wavelength         y
     """
-    assert isinstance(sparsecube, SparseCube)
+    assert isinstance(sparsecube, aosss.SparseCube)
 
     flag_segments = sparsecube.height > height_threshold
     flag_empty = len(sparsecube.spectra) == 0
@@ -102,7 +102,7 @@ def draw_cube_colors(ax, sparsecube, vrange, sqx=None, sqy=None, flag_scale=Fals
 
     Returns: matplotlib plot object representing square, or None
     """
-    assert isinstance(sparsecube, SparseCube)
+    assert isinstance(sparsecube, aosss.SparseCube)
     im = sparsecube.to_colors(vrange, flag_scale, method)
     ax.imshow(im, interpolation="nearest")
     ax.invert_yaxis()

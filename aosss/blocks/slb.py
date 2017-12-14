@@ -1,10 +1,8 @@
 __all__ = ["SLB_UseSpectrumBlock", "SLB_ExtractContinua"]
 
-import numpy as np
-import a99
-import copy
 from .basic import *
 from . import sb
+import aosss
 
 class SLB_UseSpectrumBlock(SpectrumListBlock):
     """Calls sblock.use() for each individual spectrum"""
@@ -71,7 +69,7 @@ class SLB_UseGroupBlock(SpectrumListBlock):
             unique_keys.sort()
             sk = list(zip(inp.spectra, grouping_keys))
             for unique_key in unique_keys:
-                group = ft.SpectrumList()
+                group = aosss.SpectrumList()
                 for spectrum, grouping_key in sk:
                     if grouping_key == unique_key:
                         group.add_spectrum(spectrum)

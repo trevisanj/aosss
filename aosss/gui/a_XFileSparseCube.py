@@ -2,17 +2,16 @@ __ll__ = ["XFileSparseCube"]
 
 from .a_WFileSparseCube import *
 import a99
-import f311.filetypes as ft
-from ..a_XFileMainWindow import *
+import aosss
+import f311
 
-
-class XFileSparseCube(XFileMainWindow):
+class XFileSparseCube(f311.XFileMainWindow):
 
     def _add_stuff(self):
         self.setWindowTitle(a99.get_window_title("Data Cube Editor"))
 
         ce = self.ce = WFileSparseCube(self)
 
-        self.pages.append(MyPage(text_tab="FileSparseCube editor",
-         cls_save=ft.FileSparseCube, clss_load=(ft.FileSparseCube, ft.FileFullCube), wild="*.fits", editor=ce))
+        self.pages.append(f311.MyPage(text_tab="FileSparseCube editor",
+         cls_save=aosss.FileSparseCube, clss_load=(aosss.FileSparseCube, aosss.FileFullCube), wild="*.fits", editor=ce))
 

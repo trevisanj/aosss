@@ -27,7 +27,7 @@ setup(
     name=PACKAGE_NAME,
     packages=find_packages(),
     include_package_data=True,
-    version='0.17.11.28.0',
+    version='0.17.12.14.0',
     license='GNU GPLv3',
     platforms='any',
     description='Adaptive Optics Systems Simulation Support',

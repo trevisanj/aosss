@@ -5,7 +5,7 @@ from . import FullCube
 from astropy.io import fits
 import a99
 # import f311.explorer as ex
-from .. import DataFile
+from f311 import DataFile
 
 
 @a99.froze_it

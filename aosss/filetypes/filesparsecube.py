@@ -2,7 +2,7 @@ __all__ = ["FileSparseCube"]
 
 
 import a99
-from .. import DataFile
+from f311 import DataFile
 from . import SparseCube
 from astropy.io import fits
 

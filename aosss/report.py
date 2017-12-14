@@ -9,8 +9,8 @@ import numpy as np
 import traceback
 import glob
 import a99
-import f311.filetypes as ft
-import f311.explorer as ex
+import f311
+import aosss
 
 
 def create_index(dir_="."):
@@ -128,7 +128,7 @@ def create_simulation_report(simid, dir_="."):
         if  flag_par:
             flag_par_ok = True
             try:
-                filepar = ft.FilePar()
+                filepar = aosss.FilePar()
                 filepar.load(fn_par)
             except Exception as E:
                 flag_par_ok = False
@@ -175,22 +175,22 @@ def create_simulation_report(simid, dir_="."):
             try:
                 fig = None
                 FIGURE_WIDTH = 570
-                if isinstance(item.fileobj, ft.FileFullCube) and (not "cube_seeing" in item.filename):
+                if isinstance(item.fileobj, aosss.FileFullCube) and (not "cube_seeing" in item.filename):
                     # note: skips "ifu_seeing" because it takes too long to renderize
                     fig = plt.figure()
                     ax = fig.gca(projection='3d')
-                    sparsecube = ft.SparseCube()
+                    sparsecube = aosss.SparseCube()
                     sparsecube.from_full_cube(item.fileobj.wcube)
-                    ex.draw_cube_3d(ax, sparsecube)
+                    aosss.draw_cube_3d(ax, sparsecube)
                     a99.set_figure_size(fig, FIGURE_WIDTH, 480. / 640 * FIGURE_WIDTH)
                     fig.tight_layout()
-                elif isinstance(item.fileobj, ft.FileSpectrum):
+                elif isinstance(item.fileobj, f311.FileSpectrum):
                     if item.keyword == "spintg":
                         sp_ref = item.fileobj.spectrum
-                    fig = ex.draw_spectra([item.fileobj.spectrum])
+                    fig = f311.draw_spectra_stacked([item.fileobj.spectrum])
                     a99.set_figure_size(fig, FIGURE_WIDTH, 270. / 640 * FIGURE_WIDTH)
                     fig.tight_layout()
-                elif isinstance(item.fileobj, ft.FileFits):
+                elif isinstance(item.fileobj, f311.FileFits):
                     if item.keyword == "mask_fiber_in_aperture":
                         fig = _draw_mask(item.fileobj)
                     elif item.keyword == "cube_seeing":
@@ -203,7 +203,7 @@ def create_simulation_report(simid, dir_="."):
                     plt.close()
                     html.write('<img src="%s"></img>' % fn_fig)
                 elif item.fileobj:
-                    html.write("(visualization not available for this file (class: %s)" % item.fileobj.__class__.description)
+                    html.write("(visualization not available for this file (class: %s)" % item.fileobj.__class__.__name__)
                 else:
                     # TODO I already have the error information, so can improve this
                     html.write("(could not load file)")

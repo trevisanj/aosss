@@ -1,18 +1,14 @@
 __all__ = ["WSparseCube"]
 
-import copy
 import os
 import os.path
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from .a_XScaleSpectrum import *
-from astropy import units as u
 import a99
-# from .... import explorer as ex
-import f311.filetypes as ft
 from .a_WSpectrumCollectionBase import *
 import f311
+import aosss
 
 
 class WSparseCube(WSpectrumCollectionBase):
@@ -225,21 +221,21 @@ class WSparseCube(WSpectrumCollectionBase):
         if not filenames:
             return
 
-        # classes = f311.classes_sp()+[ft.FileSpectrumList, ft.FileSparseCube]
+        # classes = f311.classes_sp()+[aosss.FileSpectrumList, aosss.FileSparseCube]
         classes = f311.classes_collection()
         report, successful, failed = ["<b>Results</b>"], [], []
         for filename in filenames:
             filename = str(filename)
             basename = os.path.basename(filename)
-            file = ft.load_with_classes(filename, classes)
+            file = f311.load_with_classes(filename, classes)
             try:
                 if file is None:
                     raise RuntimeError("Could not load file")
-                if isinstance(file, ft.FileSpectrum):
+                if isinstance(file, f311.FileSpectrum):
                     self.collection.add_spectrum(file.spectrum, *self.get_pixel_xy())
-                elif isinstance(file, ft.FileSpectrumList):
+                elif isinstance(file, aosss.FileSpectrumList):
                     self.collection.merge_with(file.splist, *self.get_pixel_xy())
-                elif isinstance(file, ft.FileSparseCube):
+                elif isinstance(file, aosss.FileSparseCube):
                     self.collection.merge_with(file.sparsecube)
                 successful.append("  - %s" % basename)
             except Exception as e:

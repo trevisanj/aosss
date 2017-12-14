@@ -66,7 +66,7 @@ def poly_baseline(flux, order, epsilon=None, maxit=None):
     Polynomial baseline
 
     Args:
-      vx: np 1D array ("flux")
+      flux: np 1D array ("flux")
       order: polynomial order
       epsilon: tolerance to stop iterations. If zero or no value given, will default to sqrt(1/30*num_points)
       maxit: if informed, will restrict the maximum number of iterations to this value
@@ -84,7 +84,7 @@ def poly_baseline(flux, order, epsilon=None, maxit=None):
         # epsilon will be compared to a vector norm. If we assume the error at all elements to have the same importance, it
         # the norm of the error will be something like sqrt(nf*error_i)
         # For the tolerance to be 1 when nf = 1500 (empirically found to work) the formula below is set.
-        epsilon = np.sqrt(1/90*nf);
+        epsilon = np.sqrt(1/90*nf)
 
     x = np.arange(1, nf+1) # x-values to be powered as columns of a design matrix
     M = np.zeros((nf, order+1))

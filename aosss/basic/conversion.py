@@ -12,12 +12,13 @@ def sparse_cube_to_colors(scube, visible_range=None, flag_scale=False, method=0)
     """Returns a [nY, nX, 3] red-green-blue (0.-1.) matrix
 
     Args:
-      visible_range=None: if passed, the true human visible range will be
-                            affine-transformed to visible_range in order
-                            to use the red-to-blue scale to paint the pixels
-      flag_scale: whether to scale the luminosities proportionally
-                    the weight for each spectra will be the area under the flux
-      method: see f311.physics.spectrum_to_rgb()
+        scube:
+        visible_range: if passed, the true human visible range will be
+                       affine-transformed to visible_range in order
+                       to use the red-to-blue scale to paint the pixels
+        flag_scale: whether to scale the luminosities proportionally
+                      the weight for each spectra will be the area under the flux
+        method: see f311.physics.spectrum_to_rgb()
     """
     im = np.zeros((scube.height, scube.width, 3))
     weights = np.zeros((scube.height, scube.width, 3))
@@ -43,7 +44,7 @@ def spectrum_to_rgb(sp, visible_range=None, method=0):
     Args:
         sp: f311.filetypes.Spectrum instance
         visible_range=None: if passed, affine-transforms the rainbow colors
-        method --
+        method:
           0: rainbow colors
           1: RGB
     """

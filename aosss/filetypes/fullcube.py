@@ -4,6 +4,7 @@ __all__ = ["FullCube"]
 import a99
 import numpy as np
 from astropy.io import fits
+import f311
 
 
 @a99.froze_it
@@ -147,10 +148,9 @@ class FullCube(a99.AttrsPart):
 
         **Note** coordinate (x=0, y=0) corresponds to lower left pixel of cube cross-section
         """
-        import f311.filetypes as ft
         assert self.flag_wavelengthed
 
-        sp = ft.Spectrum()
+        sp = f311.Spectrum()
         sp.x = np.copy(self.wavelength)
         sp.y = np.copy(self.hdu.data[:, y, x])
         sp.more_headers["PIXEL-X"] = x  # why not

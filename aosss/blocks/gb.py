@@ -4,7 +4,7 @@ __all__ = ["GB_UseNumPyFunc", "GB_SNR"]
 from .basic import *
 from . import sb
 from . import slb
-import a99
+import f311
 
 
 class GB_UseNumPyFunc(GroupBlock):
@@ -19,7 +19,7 @@ class GB_UseNumPyFunc(GroupBlock):
 
     def _do_use(self, inp):
         output = self._new_output()
-        sp = ft.Spectrum()
+        sp = f311.Spectrum()
         sp.wavelength = np.copy(inp.wavelength)
         sp.flux = self.func(inp.matrix(), 0)
         if len(sp.flux) != len(sp.wavelength):
@@ -57,7 +57,7 @@ class GB_SNR(GroupBlock):
         mean_cont_2 = GB_UseNumPyFunc(np.mean).use(cont_2)
         var_spectra = GB_UseNumPyFunc(np.var).use(inp)
         output = self._new_output()
-        sp = ft.Spectrum()
+        sp = f311.Spectrum()
         sp.wavelength = np.copy(inp.wavelength)
         sp.flux = mean_cont_2.spectra[0].flux/var_spectra.spectra[0].flux
         output.add_spectrum(sp)

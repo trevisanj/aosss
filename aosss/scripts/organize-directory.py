@@ -22,7 +22,7 @@ import argparse
 import os
 import glob
 import sys
-import f311.aosss as ao
+import aosss
 import logging
 import a99
 
@@ -143,7 +143,7 @@ if __name__ == "__main__":
 
     if flag_reports:
         lggr.info("Creating '{0}'...".format(index_html))
-        ao.create_index(os.path.join(root, "reports"))
+        aosss.create_index(os.path.join(root, "reports"))
 
 
 

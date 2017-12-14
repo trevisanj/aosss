@@ -9,8 +9,9 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import numpy as np
 import a99
-import f311.filetypes as ft
+import f311
 import f311.physics as ph
+import aosss
 
 
 class XScaleSpectrum(a99.XLogDialog):
@@ -158,7 +159,7 @@ class XScaleSpectrum(a99.XLogDialog):
         return str(self.cb_band.currentText())
 
     def set_spectrum(self, x):
-        assert isinstance(x, ft.Spectrum)
+        assert isinstance(x, f311.Spectrum)
         self.spectrum = x
         self.setEnabled(True)
         self.__update()
@@ -251,8 +252,6 @@ class XScaleSpectrum(a99.XLogDialog):
 
 
 def _draw_figure(fig, mag_data, spectrum, flag_force_band_range):
-    from f311 import explorer as ex
-
     # y = s*f ; s and y: fluxes ; f: filter ; all functions of wavelength
     # out_area = integrate y over whole axis, but y = 0 outside the filter range
     # weighted_mean_flux = out_area/band_area
@@ -279,7 +278,7 @@ def _draw_figure(fig, mag_data, spectrum, flag_force_band_range):
     band_max_y = max(band_y)
     plot_l0, plot_lf = bp.l0 - band_span_x * MARGIN_H, bp.lf + band_span_x * MARGIN_H
     plot_h_middle = (plot_l0 + plot_lf) / 2
-    spp = ex.SB_Cut(plot_l0, plot_lf).use(spectrum)  # spectrum for plotting
+    spp = aosss.SB_Cut(plot_l0, plot_lf).use(spectrum)  # spectrum for plotting
     flux_ylim = [0, np.max(spp.y) * (1 + MARGIN_V)] if len(spp) > 0 else [-.1, .1]
 
     # # First subplot
