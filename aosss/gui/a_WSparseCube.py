@@ -222,7 +222,7 @@ class WSparseCube(WSpectrumCollectionBase):
             return
 
         # classes = f311.classes_sp()+[aosss.FileSpectrumList, aosss.FileSparseCube]
-        classes = f311.classes_collection()
+        classes = aosss.classes_collection()
         report, successful, failed = ["<b>Results</b>"], [], []
         for filename in filenames:
             filename = str(filename)

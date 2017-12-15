@@ -370,6 +370,7 @@ class WSpectrumCollectionBase(a99.WEditor):
             if self.flag_splist:
                 from .a_XFileSpectrumList import XFileSpectrumList
                 f = aosss.FileSpectrumList()
+                f.splist = other
                 form = self.keep_ref(XFileSpectrumList())
             else:
                 from .a_XFileSparseCube import XFileSparseCube

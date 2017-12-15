@@ -1,5 +1,6 @@
 __all__ = [
-"create_spectrum_lists", "load_bulk", "BulkItem", "load_eso_sky", "crop_splist"]
+    "classes_collection",  "create_spectrum_lists", "load_bulk", "BulkItem", "load_eso_sky",
+    "crop_splist"]
 
 
 import os.path
@@ -85,6 +86,70 @@ def load_bulk(simid, dir_='.'):
             ret.append(BulkItem(keyword, fileobj, fn, flag_exists, flag_supported,
                             error))
     return ret
+
+
+def load_eso_sky():
+    """Loads ESO sky model from data directory
+
+    Returns:
+        tuple: ``(emission, transmission)`` (two `f311.filetypes.Spectrum` objects)
+    """
+
+    # From comments in file:
+    # lam:     vacuum wavelength in micron
+    # flux:    sky emission radiance flux in ph/s/m2/micron/arcsec2
+    # dflux1:  sky emission -1sigma flux uncertainty
+    # dflux2:  sky emission +1sigma flux uncertainty
+    # dtrans:  sky transmission
+    # dtrans1: sky transmission -1sigma uncertainty
+    # dtrans2: sky transmission +1sigma uncertainty
+
+    path_ = a99.get_path("data", "eso-sky.fits", module=ao)
+
+    hl = fits.open(path_)
+    d = hl[1].data
+
+    x, y0, y1 = d["lam"]*10000, d["flux"], d["trans"]
+
+    sp0 = f311.Spectrum()
+    sp0.x, sp0.y = x, y0
+    sp0.yunit = u.Unit("ph/s/m2/angstrom/arcsec2")
+
+    sp1 = f311.Spectrum()
+    sp1.x, sp1.y = x, y1
+
+    return sp0, sp1
+
+
+def crop_splist(splist, lambda0=None, lambda1=None):
+    """
+    Cuts all spectra in SpectrumList
+
+    **Note** lambda1 **included** in interval (not pythonic).
+    """
+    if len(splist.spectra) == 0:
+        raise RuntimeError("Need at least one spectrum added in order to crop")
+
+    if lambda0 is None:
+        lambda0 = splist.wavelength[0]
+    if lambda1 is None:
+        lambda1 = splist.wavelength[-1]
+    if not (lambda0 <= lambda1):
+        raise RuntimeError('lambda0 must be <= lambda1')
+
+    if not any([lambda0 != splist.wavelength[0], lambda1 != splist.wavelength[-1]]):
+        return
+
+    for i in range(len(splist)):
+        sp = f311.cut_spectrum(splist.spectra[i], lambda0, lambda1)
+        if i == 0:
+            n = len(sp)
+            if n < 2:
+                raise RuntimeError(
+                    "Cannot cut, spectrum will have %d point%s" % (n, "" if n == 1 else "s"))
+        splist.spectra[i] = sp
+
+    splist.__update()
 
 
 def create_spectrum_lists(dir_, pipeline_stage="spintg"):
@@ -234,67 +299,10 @@ def create_spectrum_lists(dir_, pipeline_stage="spintg"):
         a99.get_python_logger().info("Created file '%s'" % fn)
 
 
-def load_eso_sky():
-    """Loads ESO sky model from data directory
-
-    Returns:
-        tuple: ``(emission, transmission)`` (two `f311.filetypes.Spectrum` objects)
+def classes_collection():
     """
-
-    # From comments in file:
-    # lam:     vacuum wavelength in micron
-    # flux:    sky emission radiance flux in ph/s/m2/micron/arcsec2
-    # dflux1:  sky emission -1sigma flux uncertainty
-    # dflux2:  sky emission +1sigma flux uncertainty
-    # dtrans:  sky transmission
-    # dtrans1: sky transmission -1sigma uncertainty
-    # dtrans2: sky transmission +1sigma uncertainty
-
-    path_ = a99.get_path("data", "eso-sky.fits", module=ao)
-
-    hl = fits.open(path_)
-    d = hl[1].data
-
-    x, y0, y1 = d["lam"]*10000, d["flux"], d["trans"]
-
-    sp0 = f311.Spectrum()
-    sp0.x, sp0.y = x, y0
-    sp0.yunit = u.Unit("ph/s/m2/angstrom/arcsec2")
-
-    sp1 = f311.Spectrum()
-    sp1.x, sp1.y = x, y1
-
-    return sp0, sp1
-
-
-
-
-def crop_splist(splist, lambda0=None, lambda1=None):
+    Returns list of File* classes that can be converted to a SpectrumCollection
     """
-    Cuts all spectra in SpectrumList
-
-    **Note** lambda1 **included** in interval (not pythonic).
-    """
-    if len(splist.spectra) == 0:
-        raise RuntimeError("Need at least one spectrum added in order to crop")
-
-    if lambda0 is None:
-        lambda0 = splist.wavelength[0]
-    if lambda1 is None:
-        lambda1 = splist.wavelength[-1]
-    if not (lambda0 <= lambda1):
-        raise RuntimeError('lambda0 must be <= lambda1')
-
-    if not any([lambda0 != splist.wavelength[0], lambda1 != splist.wavelength[-1]]):
-        return
-
-    for i in range(len(splist)):
-        sp = f311.cut_spectrum(splist.spectra[i], lambda0, lambda1)
-        if i == 0:
-            n = len(sp)
-            if n < 2:
-                raise RuntimeError(
-                    "Cannot cut, spectrum will have %d point%s" % (n, "" if n == 1 else "s"))
-        splist.spectra[i] = sp
-
-    splist.__update()
+    import f311
+    import aosss
+    return f311.classes_sp() + [aosss.FileSpectrumList, aosss.FileSparseCube, aosss.FileFullCube]
