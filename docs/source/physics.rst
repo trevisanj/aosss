@@ -1,6 +1,8 @@
 Selected topics on Physics
 ==========================
 
+.. todo:: include the photometry examples
+
 Introduction
 ------------
 

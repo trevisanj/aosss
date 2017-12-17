@@ -1,6 +1,8 @@
 '''"Adaptive Optics Systems Simulation Support"'''
 
 # # Imports
+from . import physics
+from .physics import *
 from .basic import *
 from .blocks import *
 from .filetypes import *

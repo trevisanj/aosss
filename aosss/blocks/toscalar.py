@@ -3,7 +3,7 @@ __all__ = ["ToScalar_SNR", "ToScalar_Magnitude", "ToScalar_UseNumPyFunc"]
 
 from .basic import ToScalar
 import numpy as np
-import f311.physics as ph
+import aosss.physics as ph
 
 class ToScalar_SNR(ToScalar):
     """

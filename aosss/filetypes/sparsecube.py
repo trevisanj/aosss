@@ -311,6 +311,7 @@ class SparseCube(SpectrumCollection):
                     ret.y[ii0:ii0 + len(sp)] = sp.y
         return ret
 
+
     def __update(self):
         """Updates internal state
 
@@ -350,4 +351,5 @@ class SparseCube(SpectrumCollection):
                 sp.x = wl_new
                 sp.y = f(wl_new)
             sp.z_start = i0
+
 

@@ -136,29 +136,3 @@ class SpectrumCollection(a99.AttrsPart):
         assert isinstance(other, SpectrumCollection)
         for sp in other.spectra:
             self.add_spectrum(sp)
-
-
-    # def to_colors(self, visible_range=None, flag_scale=False, method=0):
-    #     """Returns a [n, 3] red-green-blue (0.-1.) matrix
-    #
-    #     Args:
-    #       visible_range=None: if passed, the true human visible range will be
-    #                             affine-transformed to visible_range in order
-    #                             to use the red-to-blue scale to paint the pixels
-    #       flag_scale: whether to scale the luminosities proportionally
-    #                     the weight for each spectra will be the area under the flux
-    #       method: see Spectrum.get_rgb()
-    #     """
-    #     weights = np.zeros((len(self), 3))
-    #     max_area = 0.
-    #     ret = np.zeros((len(self), 3))
-    #     for i, sp in enumerate(self.spectra):
-    #         ret[i, :] = ph.spectrum_to_rgb(sp, visible_range, method)
-    #         sp_area = np.sum(sp.y)
-    #         max_area = max(max_area, sp_area)
-    #         weights[i, :] = sp_area
-    #     if flag_scale:
-    #         weights *= 1. / max_area
-    #         ret *= weights
-    #     # TODO return weights if necessary
-    #     return ret

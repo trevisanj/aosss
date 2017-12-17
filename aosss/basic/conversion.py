@@ -4,7 +4,7 @@ Basic routines, they don't use anything from parent module
 
 
 import numpy as np
-import f311.physics as ph
+import aosss.physics as ph
 
 __all__ = ["sparse_cube_to_colors", "spectrum_to_rgb"]
 
@@ -18,7 +18,7 @@ def sparse_cube_to_colors(scube, visible_range=None, flag_scale=False, method=0)
                        to use the red-to-blue scale to paint the pixels
         flag_scale: whether to scale the luminosities proportionally
                       the weight for each spectra will be the area under the flux
-        method: see f311.physics.spectrum_to_rgb()
+        method: see aosss.physics.spectrum_to_rgb()
     """
     im = np.zeros((scube.height, scube.width, 3))
     weights = np.zeros((scube.height, scube.width, 3))

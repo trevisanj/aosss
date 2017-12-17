@@ -1,6 +1,6 @@
 __all__ = [
     "classes_collection",  "create_spectrum_lists", "load_bulk", "BulkItem", "load_eso_sky",
-    "crop_splist"]
+    "crop_splist", ]
 
 
 import os.path
@@ -14,7 +14,7 @@ from astropy.io import fits
 import astropy.units as u
 import aosss as ao
 import f311
-
+import aosss.physics as ph
 
 FILE_MAP = OrderedDict((
  ("cube_hr", ao.FileFullCube),
@@ -306,3 +306,7 @@ def classes_collection():
     import f311
     import aosss
     return f311.classes_sp() + [aosss.FileSpectrumList, aosss.FileSparseCube, aosss.FileFullCube]
+
+
+
+

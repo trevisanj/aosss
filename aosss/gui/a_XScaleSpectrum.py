@@ -10,7 +10,6 @@ from PyQt5.QtWidgets import *
 import numpy as np
 import a99
 import f311
-import f311.physics as ph
 import aosss
 
 
