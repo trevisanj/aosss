@@ -27,5 +27,3 @@ Welcome!
     * :ref:`genindex` (all symbols listed alphabetically)
     * :ref:`modindex` (whole f311 package tree)
 
-    .. hint:: You can also search using the sidebar box.
-
