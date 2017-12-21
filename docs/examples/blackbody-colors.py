@@ -1,7 +1,5 @@
 # Plots blackbody curves (normalized to max=1.0) for red, yellow and blue stars;
 # Calculates colors for these stars
-#
-# Adapted from https://stackoverflow.com/questions/22417484/plancks-formula-for-blackbody-spectrum
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -20,7 +18,11 @@ c = 3.0e+8
 k = 1.38e-23
 
 def planck(wav, T):
-    """wav in angstrom, T in kelvin"""
+    """
+    Calculates blackbody curve. wav in angstrom, T in kelvin. Returns intensity vector
+
+    Adapted from https://stackoverflow.com/questions/22417484/plancks-formula-for-blackbody-spectrum
+    """
 
     wav_ = wav*1e-10 # converts to m
 
@@ -36,7 +38,7 @@ plt.style.use("dark_background")
 for name, temperature in stars:
     flux = planck(wavelengths, temperature)
     flux /= np.max(flux)
-    color = ph.get_rgb(f311.Spectrum(wavelengths, flux), method=1)
+    color = ph.spectrum_to_rgb(f311.Spectrum(wavelengths, flux))
     plt.plot(wavelengths, flux, color=color, label="{} star ({} K)".format(name, temperature))
 
 plt.legend(loc=0)

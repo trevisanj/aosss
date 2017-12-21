@@ -1,7 +1,9 @@
 from . import rainbow
 import numpy as np
 
-def get_rgb(spectrum, visible_range=None, method=1):
+__all__ = ["spectrum_to_rgb"]
+
+def spectrum_to_rgb(spectrum, visible_range=None, method=1):
     """Takes weighted average of rainbow colors RGB's using spectrum.y as weights
 
     Args:
@@ -53,7 +55,7 @@ def get_rgb(spectrum, visible_range=None, method=1):
     for i, (color, range_) in enumerate(zip(colors, ranges)):
         bool_mask = np.logical_and(spectrum.x >= range_[0], spectrum.x <= range_[1])
         num_points = np.sum(bool_mask)
-        weights[i] = np.sum(spectrum.y[bool_mask]) / (maxy * num_points)
+        weights[i] = 0 if num_points == 0 else np.sum(spectrum.y[bool_mask]) / (maxy * num_points)
 
     t = np.max(weights)
     if t > 0:

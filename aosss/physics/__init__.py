@@ -1,3 +1,3 @@
 from .photometry import *
 from .rainbow import *
-from .misc import *
+from .sp2rgb import *

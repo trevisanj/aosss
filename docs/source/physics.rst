@@ -1,53 +1,43 @@
-Selected topics on Physics
-==========================
-
-.. todo:: include the photometry examples
+Photometry & Colors API
+=======================
 
 Introduction
 ------------
 
-Selected Physics-related resources:
-
-- Photometry (AB/Vega/Standard)
-
-- Spectrum-to-RGB (red, green, blue) color conversion
-
-- Air-to-vacuum (& vice versa) wavelenght conversion
-
-- Calculation of Hönl-London factors according to formulas in Kovács' 1969 [1]
-
+This section illustrates the API that was developed to solve photometry-related and
+color-conversion-related problems to compose the applications ``cubeed.py`` and ``splisted.py``.
+Some usage examples of this API in further contexts are shown below.
 
 Examples
 --------
 
-Air-to-vacuum (& vice versa) wavelength conversion
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Plot bandpass filter shapes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The following code reproduces the figure
-shown in VALD3 Wiki (http://www.astro.uu.se/valdwiki/Air-to-vacuum%20conversion)
-("comparison of the Morton and the inverse transformation by NP between 2000 Å and 100000 Å.")
+.. literalinclude:: ../examples/photometry/photometry0.py
 
-.. code:: python
+.. _figphotometry0:
 
-    import matplotlib.pyplot as plt
-    import numpy as np
-    import f311.physics as ph
-    λvac = 10**np.linspace(np.log10(2000), np.log10(1000000), 2000)
-    y = ph.air_to_vacuum(ph.vacuum_to_air(λvac))-λvac
-    plt.semilogx(λvac, y)
-    plt.xlabel("$\lambda$ in Angstroem")
-    plt.ylabel("$\Delta\lambda$")
-    plt.xlim([λvac[0]-50, λvac[-1]])
-    plt.title("air_to_vacuum(vacuum_to_air($\lambda_{vac}$))-$\lambda_{vac}$")
-    plt.tight_layout()
-    plt.show()
+.. figure:: figures/photometry0.png
+   :align: center
 
-|image0|
+   -- Bandpass filter shapes in both tabulated and parametric formats.
 
-.. |image0| image:: figures/air-vac.png
+Passing spectrum throught bandpass filter
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Calculate the magnitude of a spectrum
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. literalinclude:: ../examples/photometry/photometry1.py
+
+.. _figphotometry1:
+
+.. figure:: figures/photometry0.png
+   :align: center
+
+   -- Original spectrum, bandpass filter, and filtered spectrum.
+
+
+Magnitude of spectrum for several bands and systems
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The following example compares flux-to-magnitude conversion of the Vega spectrum
 for different magnitude systems.
@@ -78,27 +68,17 @@ This code results in the following table:
     H        0.0315447    1.34805        -0
     K        0.0246046    1.85948        -0
 
+Convert spectra to RGB colors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Calculate Hönl-London factors for doublets
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The following code plots blackbody spectra using color calculated from their respective spectra.
+This procedure can be applied to any spectrum.
 
-In the following examples, a normalization factor is applied to the Hönl-London factors (HLF),
-such that all HLFs for a given J must add up to 1.0:
+.. literalinclude:: ../examples/blackbody-colors.py
 
-.. code:: python
+.. _figblack:
 
-    from f311 import physics as ph
-    S, DELTAK = 0.5, 0  # spin, delta Kronecker
-    J = 1.5
-    factor = 2/((2*J+1)*(2*S+1)*(2-DELTAK))
-    normalized = [f(J)*factor for f in ph.doublet.get_honllondon_formulas(0, 1).values()]
-    print(sum(normalized))
+.. figure:: figures/blackbody-colors.png
+   :align: center
 
-This code should output:
-
-::
-
-    1.0
-
-The formulas for the HLFs were taken from the book *Istvan Kovacs, "Rotational Structure in the spectra of diatomic molecules. American Elsevier, 1969*
-
+   -- Blackbody spectra painted with colors calculated from the spectra themselves.

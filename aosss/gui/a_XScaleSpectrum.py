@@ -11,7 +11,7 @@ import numpy as np
 import a99
 import f311
 import aosss
-
+import aosss.physics as ph
 
 class XScaleSpectrum(a99.XLogDialog):
 

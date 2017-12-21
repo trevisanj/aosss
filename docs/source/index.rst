@@ -1,5 +1,10 @@
-F311 -- Astronomy-related Python 3 API and scripts
+AOSSS - Adaptive Optics Systems Simulation Support
 ==================================================
+
+.. only:: html
+
+   Download this documentation in :download:`PDF <AOSSS.pdf>`.
+
 
 Welcome!
 
@@ -8,14 +13,11 @@ Welcome!
 
    intro
    install
-   pyfant
-   convmol
-   explorer
-   filetypes
-   physics
-   aosss
-   f3110
+   tutorial
+   wavelength-chart
+   scaletomag
    scripts
+   physics
 
 .. only:: html
 

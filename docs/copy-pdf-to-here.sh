@@ -1,1 +1,1 @@
-cp ../../docs/latex/PyFANT.pdf source
+cp ../../docs/latex/AOSSS.pdf source

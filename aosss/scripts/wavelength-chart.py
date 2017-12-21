@@ -19,8 +19,8 @@ import numpy as np
 import numbers
 from PyQt5.QtWidgets import *
 import logging
-import aosss as ao
-from f311 import physics as ph
+import aosss
+from aosss import physics as ph
 import a99
 
 
@@ -285,7 +285,7 @@ if __name__ == "__main__":
 
     sp_sky = None
     try:
-        sp_sky = ao.load_eso_sky()
+        sp_sky = aosss.load_eso_sky()
     except:
         a99.get_python_logger().exception("Failed to load ESO sky model")
 

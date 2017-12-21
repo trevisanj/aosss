@@ -15,8 +15,9 @@ Color('Red', [ 1.  0.  0.], 6500.0, 6200.0, 6800.0)
 
 Example:
 
+>>> import aosss
 >>> import matplotlib.pyplot as plt
->>> for color in rainbow_colors:
+>>> for color in aosss.rainbow_colors:
 ...     _ = plt.fill_between([color.l0, color.lf], [1., 1.], color=color.rgb, label=color.name)
 >>> _ = plt.legend(loc=0)
 >>> _ = plt.xlabel('Wavelength (angstrom)')
@@ -26,7 +27,7 @@ Example:
 """
 
 
-__all__ = ["Color", "rainbow_colors", "ncolors", "spectrum_to_rgb"]
+__all__ = ["Color", "rainbow_colors", "ncolors"]
 
 
 from a99 import AttrsPart
@@ -84,78 +85,3 @@ for i in range(1, ncolors):
 # converts RGB from [0, 255] to [0, 1.] interval
 for c in rainbow_colors:
     c.rgb = np.array([float(x)/255 for x in c.rgb])
-
-
-def spectrum_to_rgb(sp, visible_range=None, method=0):
-    """Takes weighted average of rainbow colors RGB's
-
-    Args:
-        sp: Spectrum instance
-        visible_range=None: if passed, affine-transforms the rainbow colors
-        method:
-
-            - ``0``: rainbow colors
-            - ``1``: RGB (alternative method using red, green, blue only instead of full range of rainbow colors)
-
-    Returns:
-        3-element sequence where each element is in [0, 1] range
-
-    Example:
-
-    >>> import aosss.physics as ph
-    >>> vega = ph.get_vega_spectrum()
-    >>> ph.spectrum_to_rgb(vega)
-    array([  5.45057920e-01,   1.61124778e-05,   9.99930126e-01])
-    """
-
-    if visible_range is None:
-        visible_range = min(sp.x), max(sp.x)
-
-    if len(visible_range) < 2:
-        raise RuntimeError("Invalid visible range: {0!s}".format(visible_range))
-    if visible_range[1] <= visible_range[0]:
-        raise RuntimeError(
-            "Second element of visible range ({0!s}) must be greater than first element".format(
-                visible_range))
-
-    if method == 1:
-        # new color system splitting visible range in three
-        dl = float(visible_range[1] - visible_range[0]) / 3
-        ranges = np.array(
-            [[visible_range[0] + i * dl, visible_range[0] + (i + 1) * dl] for i in range(3)])
-        colors = np.array([(0., 0., 1.), (0., 1., 0.), (1., 0., 0.)])  # blue, green, red
-
-        tot_area, tot_sum = 0., np.zeros(3)
-        for color, range_ in zip(colors, ranges):
-            b = np.logical_and(sp.x >= range_[0], sp.x <= range_[1])
-            area = np.sum(sp.y[b])
-            tot_area += area
-            tot_sum += color * area
-        if tot_area == 0.:
-            tot_area = 1.
-        ret = tot_sum / tot_area
-        return ret
-
-    elif method == 0:
-        tot_area, tot_sum = 0., np.zeros(3)
-
-        def ftrans(x):
-            return x
-
-        if visible_range:
-            ll0 = rainbow_colors[0].l0
-            llf = rainbow_colors[-1].lf
-            ftrans = lambda lold: visible_range[0] + (visible_range[1] - visible_range[0]) / (
-            llf - ll0) * (lold - ll0)
-
-        for color in rainbow_colors:
-            b = np.logical_and(sp.x >= ftrans(color.l0), sp.x <= ftrans(color.lf))
-            area = np.sum(sp.y[b])
-            tot_area += area
-            tot_sum += color.rgb * area
-        if tot_area == 0.:
-            tot_area = 1.
-        ret = tot_sum / tot_area
-        return ret
-    else:
-        raise RuntimeError("Unknown method: {0!s}".format(method))
