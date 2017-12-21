@@ -27,7 +27,7 @@ setup(
     name=PACKAGE_NAME,
     packages=find_packages(),
     include_package_data=True,
-    version='0.17.12.14.0',
+    version='17.12.21.0',
     license='GNU GPLv3',
     platforms='any',
     description='Adaptive Optics Systems Simulation Support',
@@ -36,7 +36,7 @@ setup(
     url='https://github.com/trevisanj/aosss',
     keywords= ['astronomy', "instrumentation", "adaptive", "optics", "simulation", "simulator",
                "telescope", "spectrometer"],
-    install_requires=["f311", "airvacuumvald"],
+    install_requires=["f311>=17.12.21.0", "airvacuumvald"],
     scripts=scripts
 )
 

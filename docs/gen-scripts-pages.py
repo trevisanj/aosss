@@ -29,16 +29,33 @@ def _get_help(script_name):
     return subprocess.check_output([script_name, "--help"]).decode("utf8")
 
 
-def main(allinfo, flag_page_only=False):
+def _get_programs(package_name):
+    """Runs script with "--help" options and grabs its output
 
+    Source: https://stackoverflow.com/questions/4760215/running-shell-command-from-python-and-capturing-the-output
+    """
+
+    return subprocess.check_output(["programs.py", "-p", package_name, "--no-pfant", "--rest-links", "rest-list"]).decode("utf8")
+
+
+def main(allinfo, flag_page_only=False, project_name="?"):
+
+    programs_list = ["    "+x for x in _get_programs(project_name.lower()).split("\n")]
 
     # Page to be saves as "scripts.rst"
     index_page = [
 "Index of applications (scripts)",
 "===============================",
 "",
-".. toctree::",
-"    :maxdepth: 1",
+".. only:: html",
+"",]+programs_list+[
+"",
+".. only:: latex",
+"",
+"    This chapter is a reference to all scripts in project {}".format(project_name),
+"",
+"    .. toctree::",
+"        :maxdepth: 1",
 "",
 ]
 
@@ -52,7 +69,7 @@ def main(allinfo, flag_page_only=False):
 
             nameonly = os.path.splitext(info.filename)[0]
 
-            index_page.append("    autoscripts/{}{}".format(PREFIX_EDITABLE, nameonly))
+            index_page.append("        autoscripts/{}{}".format(PREFIX_EDITABLE, nameonly))
 
             if flag_page_only:
                 continue
@@ -109,10 +126,11 @@ if __name__ == "__main__":
     # Uses Sphinx configuration file to determine the package name
     filename_conf = "source/conf.py"
     conf = a99.import_module(filename_conf)
-    package_name = conf.project.lower()
+    project_name = conf.project
+    package_name = project_name.lower()
     print("Found from Sphinx configuration file '{}' that the package name is '{}'".format(filename_conf, package_name))
 
     allinfo = f311.get_programs_dict(package_name, flag_protected=False)
-    main(allinfo, args.index_only)
+    main(allinfo, args.index_only, project_name)
 
 
